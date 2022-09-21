@@ -8,6 +8,7 @@
     style=numeric-comp,
     sorting=nty,
     maxbibnames=99, % Make sure we are printing all authors in the appendix
+   	backend = bibtex
     ]{biblatex}
 
 % Makes the last name first in the bibliography.
@@ -59,6 +60,14 @@
 \usepackage{tocloft}
 
 \usepackage[printonlyused]{acronym}
+
+
+\usepackage[colorinlistoftodos]{todonotes}
+
+\newcommand{\todi}[1]{\todo[inline]{#1}}
+\newcommand{\addref}[1]{\todo[color = yellow]{#1}}
+\newcommand{\rewrite}[1]{\todo[color = green]{#1}}
+
 
 
 \counterwithin{figure}{section}

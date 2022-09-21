@@ -26,17 +26,66 @@ Ganz kurzer ausflug in die regelung von dynamischen systemen.
 
 What is a neural network? -> not here ref a paper. kurze erkl'rung in der einfuerung
 in der einfuhurng vlt auch hodgekin huxley erwaehen :)
+
+
+
 \section{Dynamic systems}
+
+\section{Neuron model}
+
+\subsection{Biological Neuron model}
+The most biologically accurate model of neuron spiking is the \ac{HH} model. The \ac{HH}-model considers the neuron with its ion channels. The membrane acts as a capacitance and the travelling ions in each ion channel contribute a current to the overall membrane potential. These ion gates are voltage dependent and are defined positive in direction out of the cell.\\
+A particular ion channel for ion $X$ can be modelled as
+\begin{equation}
+	I_X= g_X \cdot (V-V_X)
+\end{equation}
+These currents are summed together for Sodium, Potassium and
+
+
+\subsection{"IF and LIF"}
+The simplest model of neurons are the \ac{IF} and \ac{LIF} neurons.\\
+\paragraph{IF Neurons}
+\ac{IF} Neurons, as the name implies, integrate the incoming current over time.
+\begin{equation}
+	\frac{d V(t)}{d t} = \frac{1}{C}I(t)
+\end{equation}
+The membrane voltage is governed by the incoming current spikes of connected neurons and the membrane capacitance. The neuron potential does not change without a change of input current and thus presents as a perfect integrator of the input.\\
+\paragraph{LIF Neurons}
+In contrast to that the \ac{LIF} neuron contains a leak term on the RHS which brings the voltage back to its resting potential over time. The model can be expressed as
+\begin{equation}
+	\tau\frac{dV(t)}{dt} = -(V(t)-E_r) + RI(t),
+\end{equation}
+where $\tau = RC$ is the time constant the composed of the membrane resistance $R$ and the membrane capacitance $C$ and the resting potential $E_r$. In the absence of input $I(t)$ the voltage settles  on the membrane potential $E_r$.\\
+The input $I(t)$ is a the sum of Dirac functions indicating a spiking neuron
+\begin{equation}
+	I(t) = \sum_k \delta(t-t^k)
+\end{equation}
+and $t_k$ being the time of the $k$-th spike. When the membrane voltage exceeds the threshold potential $\bar{v}$, a spike is sent out by the neuron and the voltage sets back to its reset voltage $v_{res}$.
+\subsection{Izhikevich Neuron}
+While the above models deliver a useful and cheap simplification, they lack in accuracy. The Izhikevich model \cite{izhikevich_simple_2003} of the neuron tries be the of both worlds in terms of efficiency and accuracy. It is comprised of 2D ODEs with the membrane potential $v$ as
+\begin{equation}
+	\begin{aligned}
+	\frac{d v}{dt} &= 0.04v^2 + 5v + 140 -u +I(t)\\
+	\frac{d u}{dt} &= a(bv-u).
+	\end{aligned}
+\end{equation}
+With the chosen factors, the neuron experiences a spike when $u\geq30 $mV, in which case the neuron resets to
+\begin{equation}
+\begin{aligned}
+	u &\leftarrow u+d\\
+	v&\leftarrow c
+\end{aligned}
+\end{equation}
+The parameters describe $a$ scale of recovery, $b$ sensitivity, $c$ the reset potential of $v$ and $d$ the reset of variable $u$.\rewrite{Maybe shitty explanation, which could be extended on.} Depending on these parameters one can achieve different behaviours of the neuron e.g. regular spiking, fast spiking and low threshold spiking to name a few \cite{izhikevich_simple_2003}.
 
 \section{Neural Networks}
 
+\subsection{Biological Neural Network}
+
+\subsection{Artificial Neural Networks}
+
 \subsection{Spiking Neural Networks}
 A spiking Neural network is one step closer to a biologic representation of a brain. Instead of conveying information using a gradient in conventional \ac{NN}s, information is propagated using discrete spikes of excitation, similar to biological neurons. Hereby one can distinguish between several ideas of implementation.
-
-
-\subsection{Neuron types}
-Classic\\
-Izhekevich neuron\\
 
 \subsection{Poisson-Networks}
 
@@ -45,6 +94,8 @@ Izhekevich neuron\\
 \subsection{GLM}
 
 \subsection{Balanced Networks}
+Balanced networks differ from the previous approaches that they closely track excitation an inhibition. The derivation of its behaviour is adopted from \cite{boerlin_predictive_2013} and \cite{huang_optimizing_2017}.\\
+We s
 
 \subsection{Learning: SGD and STDP}
 Here explain the conpects for each of the NNs\\
