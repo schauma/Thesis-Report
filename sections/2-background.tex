@@ -39,7 +39,11 @@ A particular ion channel for ion $X$ can be modelled as
 \begin{equation}
 	I_X= g_X \cdot (V-V_X)
 \end{equation}
-These currents are summed together for Sodium, Potassium and
+These currents are summed summed for the different ion channels in question, most commonly for Sodium, Potassium and a leak current. In reality there are a plethora of different channels and channel properties\footnote{See  \url{channelpedia.epfl.ch} for an extensive list}. The $V_X$ are the equilibrium potentials for each of the channels and can be computed using the Nernst equation \cite{johnston_foundations_1995}. \addref{Add a reference to a monography.}
+\begin{equation}
+	C \frac{dV}{dt} = g_{Na} \cdot (V-V_{Na}) + g_K \cdot (V-V_K) + g_l \cdot (V-V_l)
+\end{equation}
+Do model the voltage dependency of the ion channels, the conductances are described with gating variables, usually called $n$, $h$ and $g$
 
 
 \subsection{"IF and LIF"}
