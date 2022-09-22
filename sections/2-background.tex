@@ -43,9 +43,23 @@ These currents are summed summed for the different ion channels in question, mos
 \begin{equation}
 	C \frac{dV}{dt} = g_{Na} \cdot (V-V_{Na}) + g_K \cdot (V-V_K) + g_l \cdot (V-V_l)
 \end{equation}
-Do model the voltage dependency of the ion channels, the conductances are described with gating variables, usually called $n$, $h$ and $g$
-
-
+Do model the voltage dependency of the ion channels, the conductances are described with gating variables, usually called $n$, $h$ and $g$ for Na-Activation, Na-Inactivation and K-activation respectively. One gating variable is set between $[0,1]$ and models the permeability of said gate. Multiple gates are used to fit to each ion channel in order to match experimental data and the model behaviour.\\
+Gates have first order dynamics of the form
+\begin{equation}
+	\frac{dn}{dt} = \alpha_n(1-n) - \beta_n n
+\end{equation}
+for e.g the n gate. The other gates' dynamics are analogous. The functions $\alpha$ and $\beta$ are voltage but not time dependent. The discussion of initial values as well as functions for $\alpha_p, beta_p\quad p = (n,h,m)$ can be found in \cite{hodgkin_quantitative_1952} or \cite{johnston_foundations_1995}. The gates for each ion channel's conductance are found to be
+\begin{equation}
+	\begin{aligned}
+	g_{Na} &= \bar{g_{Na}} n^4\\
+	g_{K} &= \bar{g_{K}} m^3h\\
+	\end{aligned}
+\end{equation}
+and give form to the final model
+\begin{equation}
+	hahha.
+\end{equation}
+We did not define a gate for the leak term as it is assumed constant.
 \subsection{"IF and LIF"}
 The simplest model of neurons are the \ac{IF} and \ac{LIF} neurons.\\
 \paragraph{IF Neurons}
