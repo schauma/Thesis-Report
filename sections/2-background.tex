@@ -48,36 +48,42 @@ Gates have first order dynamics of the form
 \begin{equation}
 	\frac{dn}{dt} = \alpha_n(1-n) - \beta_n n
 \end{equation}
-for e.g the n gate. The other gates' dynamics are analogous. The functions $\alpha$ and $\beta$ are voltage but not time dependent. The discussion of initial values as well as functions for $\alpha_p, beta_p\quad p = (n,h,m)$ can be found in \cite{hodgkin_quantitative_1952} or \cite{johnston_foundations_1995}. The gates for each ion channel's conductance are found to be
+for e.g the n gate. The other gates' dynamics are analogous. The functions $\alpha$ and $\beta$ are voltage but not time dependent. The discussion of initial values as well as functions for $\alpha_p,\ \beta_p\ \ p = (n,h,m)$ can be found in \cite{hodgkin_quantitative_1952} or \cite{johnston_foundations_1995}. The gates for each ion channel's conductance are found to be
 \begin{equation}
 	\begin{aligned}
-	g_{Na} &= \bar{g_{Na}} n^4\\
-	g_{K} &= \bar{g_{K}} m^3h\\
+	g_{Na} &= \bar{g}_{Na} n^4\\
+	g_{K} &= \bar{g}_{K} m^3h\\
 	\end{aligned}
 \end{equation}
 and give form to the final model
-\begin{equation}
-	hahha.
+\begin{equation}\label{eq:HH}
+	\begin{aligned}
+	C\frac{dV}{dt} &= I(t) -\bar{g}_{Na} n^4(V-V_{Na}) - \bar{g}_{K} m^3h(V-V_{K}) -g_L(V-V_{L})\\
+	\frac{dn}{dt} &= (1-n)\alpha_n(V) - \beta_n n (V)\\
+	\frac{dm}{dt} &= (1-m)\alpha_m(V) - \beta_m m (V)\\
+	\frac{dh}{dt} &= (1-h)\alpha_h(V) - \beta_h h (V)
+	\end{aligned}
 \end{equation}
 We did not define a gate for the leak term as it is assumed constant.
 \subsection{"IF and LIF"}
-The simplest model of neurons are the \ac{IF} and \ac{LIF} neurons.\\
+In contrast of the \ac{HH} model in \cref{eq:HH}, the simplest models of neurons are the \ac{IF} and \ac{LIF} models.\\
 \paragraph{IF Neurons}
 \ac{IF} Neurons, as the name implies, integrate the incoming current over time.
 \begin{equation}
 	\frac{d V(t)}{d t} = \frac{1}{C}I(t)
 \end{equation}
 The membrane voltage is governed by the incoming current spikes of connected neurons and the membrane capacitance. The neuron potential does not change without a change of input current and thus presents as a perfect integrator of the input.\\
-\paragraph{LIF Neurons}
+\paragraph{\ac{LIF} Neurons}
 In contrast to that the \ac{LIF} neuron contains a leak term on the RHS which brings the voltage back to its resting potential over time. The model can be expressed as
 \begin{equation}
 	\tau\frac{dV(t)}{dt} = -(V(t)-E_r) + RI(t),
 \end{equation}
-where $\tau = RC$ is the time constant the composed of the membrane resistance $R$ and the membrane capacitance $C$ and the resting potential $E_r$. In the absence of input $I(t)$ the voltage settles  on the membrane potential $E_r$.\\
-The input $I(t)$ is a the sum of Dirac functions indicating a spiking neuron
+where $\tau = RC$ is the time constant the composed of the membrane resistance $R$ and the membrane capacitance $C$ and the resting potential $E_r$. In the absence of input $I(t)$ the voltage settles on the membrane potential $E_r$.\\
+The input $I(t)$ encapsulates external inputs as well as a sum of Dirac functions indicating a spiking neuron
 \begin{equation}
 	I(t) = \sum_k \delta(t-t^k)
 \end{equation}
+\rewrite{This is not truly correct. Forgot weights, but at the same time only when there are more than 1 neuron}
 and $t_k$ being the time of the $k$-th spike. When the membrane voltage exceeds the threshold potential $\bar{v}$, a spike is sent out by the neuron and the voltage sets back to its reset voltage $v_{res}$.
 \subsection{Izhikevich Neuron}
 While the above models deliver a useful and cheap simplification, they lack in accuracy. The Izhikevich model \cite{izhikevich_simple_2003} of the neuron tries be the of both worlds in terms of efficiency and accuracy. It is comprised of 2D ODEs with the membrane potential $v$ as
@@ -116,6 +122,16 @@ Balanced networks differ from the previous approaches that they closely track ex
 We s
 
 \subsection{Learning: SGD and STDP}
+Key to give any \ac{NN} a function, it is integral to learn/train the network. The adaption of synapse weights is necessary to accomplish any functionality. There are various ways to train a network. The most fundamental distinction can be made between supervised, unsupervised and reinforcement learning rules.
+\todi{Add the explanation for unsupervised and supervised and reinforcement}.
+One needs to remember that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information.
+\subsubsection{Unsupervised Learning}
+
+
+\subsubsection{Gradient methods}
+Gradient based methods require differentiability and therefore continuity, thus are only applicable for \acp{ANN}.
+\subsubsection{STDP}
+
 Here explain the conpects for each of the NNs\\
 Give references for the STDP variances\\
 test\\
