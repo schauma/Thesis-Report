@@ -13,6 +13,10 @@ Do not use subtitles after each other without text in between the sections.
 You should probably keep a heading about the related work here even though the entire chapter basically only contains related work.
 
 Here just what has been done for each of the headlines\\
+Previous efforts were already made to control dynamic systems with \acp{SNN}.
+\todi{List here also efforts with other concepts apart from Balanced Networks}
+
+
 
 
 Neural networks in general
@@ -107,7 +111,7 @@ The parameters describe $a$ scale of recovery, $b$ sensitivity, $c$ the reset po
 \subsection{Biological Neural Network}
 
 \subsection{Artificial Neural Networks}
-
+ \todo{Make clear distinction between forward nns and ann. Bcs apparently they are not the same!}
 \subsection{Spiking Neural Networks}
 A spiking Neural network is one step closer to a biologic representation of a brain. Instead of conveying information using a gradient in conventional \ac{NN}s, information is propagated using discrete spikes of excitation, similar to biological neurons. Hereby one can distinguish between several ideas of implementation.
 
@@ -125,13 +129,13 @@ We s
 Key to give any \ac{NN} a function, it is integral to learn/train the network. The adaption of synapse weights is necessary to accomplish any functionality. There are various ways to train a network. The most fundamental distinction can be made between supervised, unsupervised and reinforcement learning rules.
 \todi{Add the explanation for unsupervised and supervised and reinforcement}.
 One needs to remember that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information.
-\subsubsection{Unsupervised Learning}
 
 
 \subsubsection{Gradient methods}
 Gradient based methods require differentiability and therefore continuity, thus are only applicable for \acp{ANN}.\\
  \todi{Explain gradient methods. The derivative of the weights and biases is used for the derivative of the cost function. Efficient methods for building the derivative exists. With reference!}
-\subsubsection{STDP}
+
+\subsubsection{Unsupervised learing: STDP}
 
 Here explain the conpects for each of the NNs\\
 Give references for the STDP variances\\
