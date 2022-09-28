@@ -37,9 +37,23 @@ Lately the learnign of SNNs for the control of dynamic system\\
 
 Further work:\\
 Maybe learning methods to control nonlinear dynamic systems\\
+Maybe we can even do the adverserial attack to try to screw with the network.\\
 
-Goal:\\
+Problem:\\
+Problem is that it is unnatural for classic NN to use temporal data.\\
+They usually quantize it and make a big input layer -> ref\\
+There are recurrent networks but ... they need to have smth bad as well\\
+The LQG control is also not great for some reason I need to find\\
+There are many spkiking network archetypes like poisson and GLm and balanced\\
+Also problem is that for some spiking networks learning rules could be hard to come by.\\
+There are many prospects though as for example ......->refs\\
+Also usually learning rules smth of an inverse and that the brain does not have or do I believe arvind said\\
+
+
+
+Method:\\
 We use a SNN to to control any arbitrary DS\\
+Balanced networks show a some key motives seen in the brain like poisson distribution and smth else ->ref\\
 The SNN is to be trained with a STDP rule\\
 Then compared to optimal weights\\
 Then investigated about robustness and other things as many before\\
@@ -48,6 +62,15 @@ Then we have the potential to find a classic nn and train it with that ???\\
 With that out of the way we can compare the performance of all the methods.\\
 Then we could study the usability for biological interpretation.\\
 Maybe even train time over performance or smth whatever\\
+
+Goal:\\
+The goal is to have a performant SNN that can be taught to control any linear system with robustness for nodes and weights degrading.\\
+It should be as good as a conventional NN or LQG controller.\\
+It should be trained using a method that can resemble the way our brain learns.\\
+Should be minimal (aka no poisson)\\
+It should be general, so any system can be trained on\\
+It should converge, but for the Balanced it has already been proven if I am not mistaken-> check and ref\\
+
 
 
 
