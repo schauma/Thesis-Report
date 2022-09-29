@@ -9,7 +9,13 @@ Link things together with references. This is a reference to a section: \ref{sec
 
 The human brain is a brilliant computing unit comprised of around 86 billion\cite{azevedo_equal_2009} neurons. Each of these neurons can have thousands of connections to other neurons.\addref{Maybe put some exact numbers here and a source}. Between these connections, information travels trough the network as electrical impulses that interact with the neurons own electrical potential. The huge network complex of the human brain is capable of vastly different and intricate tasks.\rewrite{Sounds vague} Some problems that are still next to impossible to solve by machines and classical algorithms alone. Moreover many machine implementations lack the speed, precision or flexibility of the human counterpart.\\
 Researchers want to remedy this by mimicking the brain's internal network structure to solve problems deemed unsuitable for classic algorithms.\\
-These \acp{ANN} have made impressive progress in the fields of image recognition and \addref{Find some more fields with source!}.
+A variety of different architectures have been proposed, with the most prevalent design being a feed-forward network. Information travels only in one direction and is not propagated by spikes but gradients usually set in $[0,1]$ or $[-1,1]$.
+These \acp{ANN} have made impressive progress in the fields of image recognition and \addref{Find some more fields with source!}.\\
+This abstract representation bears advantages e.g in modelling and implementation but also gives away some key features of the human brain. Do to the information traveling only towards the output, feed-forward networks cannot build a memory. Recurrent models exist which allow for memory \addref{cite some LSTM networks} but loose some of the advantages compared to the Feed-Forward.\\
+A third generation of network architectures has risen, which aims to be even more biologically plausible. Inspired from the neuron models of \ac{HH}, they implement spiking behaviour and recurrence found in the human brain.
+
+
+A third generation of \acp{ANN} is now forming and
 
 
 
