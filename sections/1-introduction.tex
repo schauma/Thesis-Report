@@ -70,14 +70,6 @@ With that out of the way we can compare the performance of all the methods.\\
 Then we could study the usability for biological interpretation.\\
 Maybe even train time over performance or smth whatever\\
 
-Goal:\\
-The goal is to have a performant SNN that can be taught to control any linear system with robustness for nodes and weights degrading.\\
-It should be as good as a conventional NN or LQG controller.\\
-It should be trained using a method that can resemble the way our brain learns.\\
-Should be minimal (aka no poisson), so fast and small \\
-It should be general, so any system can be trained on\\
-It should converge, but for the Balanced it has already been proven if I am not mistaken-> check and ref\\
-We want to see how good we are at replicating the control the brain has over out limbs with SNNs and dynamic system\\
 
 Work:\\
 Explain the controller method aka what the math of the controller\\
@@ -143,12 +135,11 @@ Probably delete as a own paragraph but mention smth like that.
 
 \section{Goal}
 The goal means the goal of the degree project. Present following: the goal(s), deliverables and results of the project.\\
-Goal is to write a SNN that can deliver good performance in solving a task that sucks with a conventional NN.
-We test the performance of a SNN and a conventional NN for linear dynamic systems.\\
-The performance of of the SNN should be close to equal to conventional control schemes and better than conventional NNs.\\
-Ideally the SNN has desired features like small number of spikes, precision, learning, poisson distribution etc. more find references.\\
-Ideally we stress the network by removing many neurons and see the performance. maybe to recreate the performance of the one paper.. \\
-Potentially find the optimal minimal network in the network. The paper dass der Typ aus louvain vorgestellt hat.
+
+The goal of this project is to create a \ac{SNN} that can control \rewrite{give exact specifications. For example controllability} any given linear \ac{DS}. Furthermore should the \ac{NN} be robust against failing neurons or connections to some degree. With this we can investigate to find the smallest \ac{SNN} with acceptable performance.
+Its performance should be comparable or supersede conventional control systems, like \ac{LQG} control, or \acp{NN}. We expect better results to conventional \acp{NN} because of the \ac{SNN}'s natural way to use temporal data. For the \ac{SNN} itself we desire similarities to the brain, such as high precision or Poisson distributed spiking.\addref{What do we else want like the brain.Maybe low spike count? And what can we do?  Also References!}
+To mimic the brain's learning, we want to use local training rules that are biologically plausible. The network should be converge to the optimal parameters.\rewrite{This is even more to ask than from a conventional NN, Say in method bcs there it has already been proven if I am not mistaken}. This requirement would allow us to give a justified measure on how close we are replicating the brain's control power compared to our artificial implementation in specific circumstances\rewrite{sounds vague}.
+
 \section{Benefits, Ethics and Sustainability}
 Describe who will benefit from the degree project, the ethical issues (what ethical problems can arise) and the sustainability aspects of the project.
 
