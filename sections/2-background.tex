@@ -124,6 +124,42 @@ A spiking Neural network is one step closer to a biologic representation of a br
 \subsection{Balanced Networks}
 Balanced networks differ from the previous approaches that they closely track excitation an inhibition. The derivation of its behaviour is adopted from \cite{boerlin_predictive_2013} and \cite{huang_optimizing_2017}.\\
 We s
+\rewrite{Add some more general stuff here!}
+
+
+The derivation of the balanced spiking network follows the derivation found in \cite{boerlin_predictive_2013} and \cite{huang_dynamics_2019}.
+The goal is to describe a dynamical system of the form
+\begin{equation}
+	\symbfit{\dot{x}} = \symbfit{Ax} + \symbfit{c}(t)
+\end{equation}
+with $J$ state variables.
+The estimating is done by leaky integration of spiking trains $\symbfup{o}(t)$ in
+\begin{equation}
+	\bm{\dot{\hat{x}}} = -\lambda_d \bm{\hat{x}} + \symbfup{\Gamma} \bmu{o}(t).
+\end{equation}
+$\bmu{\Gamma}$ is a given Matrix of size $\mathbb{R}^{J\times N}$, $N$ being the number of neurons, with the different connection weights between the neurons. This matrix is given as initial and can be optimized by learning later.\\
+In addition to the estimate $\bm{\hat{x}}$ we define a spiking rate variable $\bmu{r}$ following the dynamics of
+\begin{equation}
+	\bmu{\dot{r}} = -\lambda_d\bmu{r} + \lambda_d \bmu{o}(t).
+\end{equation}
+
+The spikes are calculated by minimizing a cost function. A spike is fired if it minimizes the cost function that tracks the error between the true and estimated value over time
+\begin{equation}
+E(t)=\int_0^t \|\symbfup{x}(u)-\hat{\symbfup{x}}(u)\|_2^2 \ du.
+\end{equation}
+
+The cost function integrates the error between the estimate and the real dynamic variable as well as regularization terms.
+\begin{equation}
+E(t)=\int_0^t \left(\|\symbfup{x}(u)-\hat{\symbfup{x}}(u)\|_2^2+\nu\|\symbfup{r}(u)\|_1+\mu\|\symbfup{r}(u)\|_2^2\right)d u
+\end{equation}
+These two regularization terms are added to discourage undesired behaviours.\\
+The first was termed "ping-pong" effect and is described in the supplementary material of \cite{boerlin_predictive_2013}. Tp understand the issue, we imagine a minimal network consisting of 2 neurons with equal kernel but opposite sign.
+
+
+
+The dynamic variable $\bm{x}$ is tracked by firing spikes in when the "pseudo voltage" of a neuron surpasses its
+
+
 
 \subsection{Learning: SGD and STDP}
 Key to give any \ac{NN} the ability to solve a task, it is integral to learn/train the network. The adaption of synapse weights is necessary to accomplish any functionality based on the underlying data\addref{Put this reference in and say its is copied partly from them}\cite{zheng_introductory_2022}. There are various ways to train a network. The most fundamental distinction can be made between supervised, unsupervised and reinforcement learning rules.
