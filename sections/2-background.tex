@@ -130,18 +130,20 @@ We s
 The derivation of the balanced spiking network follows the derivation found in \cite{boerlin_predictive_2013} and \cite{huang_dynamics_2019}.
 The goal is to describe a dynamical system of the form
 \begin{equation}
-	\symbfit{\dot{x}} = \symbfit{Ax} + \symbfit{c}(t)
+	\bmu{\dot{x}} = \bmu{Ax} + \bmu{c}(t)
 \end{equation}
 with $J$ state variables.
 The estimating is done by leaky integration of spiking trains $\symbfup{o}(t)$ in
-\begin{equation}
-	\bm{\dot{\hat{x}}} = -\lambda_d \bm{\hat{x}} + \symbfup{\Gamma} \bmu{o}(t).
+\begin{equation}\label{eq:x_hat}
+	\bmu{\dot{\hat{x}}} = -\lambda_d \bmu{\hat{x}} + \symbfup{\Gamma} \bmu{o}(t).
 \end{equation}
 $\bmu{\Gamma}$ is a given Matrix of size $\mathbb{R}^{J\times N}$, $N$ being the number of neurons, with the different connection weights between the neurons. This matrix is given as initial and can be optimized by learning later.\\
 In addition to the estimate $\bm{\hat{x}}$ we define a spiking rate variable $\bmu{r}$ following the dynamics of
-\begin{equation}
+\begin{equation}\label{eq:rate}
 	\bmu{\dot{r}} = -\lambda_d\bmu{r} + \lambda_d \bmu{o}(t).
 \end{equation}
+The rate variable is connected to the state vector in the
+
 
 The spikes are calculated by minimizing a cost function. A spike is fired if it minimizes the cost function that tracks the error between the true and estimated value over time
 \begin{equation}
@@ -149,15 +151,67 @@ E(t)=\int_0^t \|\symbfup{x}(u)-\hat{\symbfup{x}}(u)\|_2^2 \ du.
 \end{equation}
 
 The cost function integrates the error between the estimate and the real dynamic variable as well as regularization terms.
-\begin{equation}
+\begin{equation}\label{eq:cost_func}
 E(t)=\int_0^t \left(\|\symbfup{x}(u)-\hat{\symbfup{x}}(u)\|_2^2+\nu\|\symbfup{r}(u)\|_1+\mu\|\symbfup{r}(u)\|_2^2\right)d u
 \end{equation}
 These two regularization terms are added to discourage undesired behaviours.\\
-The first was termed "ping-pong" effect and is described in the supplementary material of \cite{boerlin_predictive_2013}. Tp understand the issue, we imagine a minimal network consisting of 2 neurons with equal kernel but opposite sign.
+The first was termed "ping-pong" effect and is described in the supplementary material of \cite{boerlin_predictive_2013}. Tp understand the issue, we imagine a minimal network consisting of 2 neurons with equal kernel but opposite sign. \rewrite{Write better the ping pong effect! Maybe later}\\
+
+The second regularization comes into play when there are kernels with different magnitude. Kernels with small kernel magnitude reach their threshold sooner and therefore fire more frequently. In the extreme case, only small number of neurons fire rapidly while the majority remains idle. By penalizing the rate in the 2-norm it forces the network to spread the firing among the whole network.\\\rewrite{find the right place to explain that!}
+
+
+The dynamic variable $\bmu{x}$ is tracked by firing spikes in when the defined "pseudo voltage" of a neuron surpasses its threshold. The voltage for each neuron is defined by
+\begin{equation}\label{eq:voltage}
+	V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d r_i(t)\quad i  = 1\dots N.
+\end{equation}
+For negligible quadratic cost $\mu$ the voltage can be understood as measure of the error projected on $\bmu{\Gamma}_i$. The explicit derivation of the above equation is found in \cite{boerlin_predictive_2013} and will be adapted \rewrite{Where? Here, in the appendix of at all?}. The voltage definition and the threshold definition
+\begin{equation}
+	T_i=\frac{\nu \lambda_d+\mu \lambda_d^2+\left\|\boldsymbol{\bmu{\Gamma}}_i\right\|^2}{2}
+\end{equation}
+result from integrating the cost function \cref{eq:cost_func} over time step $\epsilon$. Then the condition described earlier fires a spike if the cost gets lowered. If there is no spike fired, the rate and estimated state variable in \cref{eq:x_hat} and \cref{eq:rate} respectively behave as
+\begin{equation}
+	\begin{aligned}
+		\bmu{\dot{\hat{x}}} &= -\lambda_d \bmu{\hat{x}}\\
+		\bmu{\dot{r}} &= -\lambda_d\bmu{r}
+	\end{aligned}
+\end{equation}
+and therefore decay exponentially with $e^{-\lambda_d t}$.\\
+If a spike is fired, the inhomogeneous solution is found by variation of constants in \cref{eq:rate} to
+\begin{equation}
+\begin{aligned}
+	r_i^h &= c_i(t)e^{-\lambda_d t}\\
+	c_i'(t) e^{-\lambda_d t} - c_i(t)\lambda_d e^{-\lambda_d t}&= -\lambda_d c_i(t)e^{-\lambda_d t} + \delta(t- t_i^k)\\
+	c_i'(t) &= \delta(t- t_i^k) e^{\lambda_d t}\\
+	c_i(t) &=  e^{\lambda_d t_i^k} \bm{H}(t-t_i^k)
+\end{aligned}
+\end{equation}
+\rewrite{explain notation of spike time constant with i and k}
+where $\bm{H}(t)$ denotes the Heaviside step function. It can been seen that at the time of firing the spike adds a decaying exponential to the rate variable. Similarly it adds a column of the previously defined connection matrix $\bm{\Gamma}$ to the state vector. Thus we can now compare the effects on cost function \cref{eq:cost_func} and compare its impact. The integral is approximated by a greedy optimization method such that for very small time steps $\epsilon$ the exponential decays $e^{-\lambda_d t - t_i^k}\approx 1$. The greedy optimization is necessary since the unpredictable firing due to noise makes it impossible to predict future spikes.\rewrite{Remember that i read somewhere that the noise is necessary. Maybe mention that here too. And find the reference}. After this step the rewriting the terms and using the defintions of the voltage and threshold we arrive at the critera to spike when
+\begin{equation}\label{eq:condition}
+	V_i> T_i \quad i = 1\dots N
+\end{equation}
+\subsubsection{Neuron Voltage}
+As mentioned above, a neuron spikes if it meets the condition \cref{eq:condition}. But so far we skipped over the dynamics how neuron voltage evolves over time.
+We start by defining the left pseudo-inverse of our output matrix $\bmu{\Gamma}$ \todi{find a coherent name for the matrix}
+\begin{equation}
+	\bmu{L} = \left(\bmu{\Gamma}\bmu{\Gamma}^T\right)^{-1}\bmu{\Gamma}
+\end{equation}
+such that $\bmu{L}\bmu{\Gamma}^T = \bmu{I}$.\\
+Next we take the derivative of \cref{eq:voltage} and arrive at
+\begin{equation}
+	\bmu{\dot{V}}(t)=\bmu{\Gamma}^T\left(\bmu{\dot{x}}(t)-\dot{\hat{\bmu{x}}}(t)\right)-\mu \lambda_d \bmu{\dot{r}}(t).
+\end{equation}
+We now use the pseudo-inverse to rewrite the voltage equation \cref{eq:voltage} as
+\begin{equation}
+\begin{aligned}
+	\bmu{V}(t)&=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d \bmu{r}(t)\\
+	\bmu{L}\bmu{V}(t)&=(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d \bmu{L}\bmu{r}(t)\\
+\end{aligned}
+\end{equation}
 
 
 
-The dynamic variable $\bm{x}$ is tracked by firing spikes in when the "pseudo voltage" of a neuron surpasses its
+
 
 
 
@@ -176,5 +230,5 @@ STDP
 
 
 
-Here explain th¸e conpects for each of the NNs\\
+Here explain the conpects for each of the NNs\\
 Give references for the STDP variances\\
