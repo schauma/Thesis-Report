@@ -118,6 +118,9 @@ A spiking Neural network is one step closer to a biologic representation of a br
 \subsection{Poisson-Networks}
 
 \subsection{Liquid state machines}
+\todi{write how the offline computing is pretty bad for brain things, but good for chess for example. The online computing is what the brain does and it is not yet as developed. add the TU graz paper to refs and some of it's references too, for example nr. 19}
+One alternative method has been the use of \ac{LSM} or more general Reservoir computing.\\
+Reservoir computing in general is
 
 \subsection{GLM}
 
@@ -126,10 +129,10 @@ Balanced networks differ from the previous approaches that they closely track ex
 We s
 \rewrite{Add some more general stuff here!}
 
-
+\todi{The derivation of the method used can be put to method or work/ here we can explain using only words and compare to the other methods and why we chose this one etc}
 The derivation of the balanced spiking network follows the derivation found in \cite{boerlin_predictive_2013} and \cite{huang_dynamics_2019}.
 The goal is to describe a dynamical system of the form
-\begin{equation}
+\begin{equation}\label{eq:x}
 	\bmu{\dot{x}} = \bmu{Ax} + \bmu{c}(t)
 \end{equation}
 with $J$ state variables.
@@ -162,7 +165,8 @@ The second regularization comes into play when there are kernels with different 
 
 The dynamic variable $\bmu{x}$ is tracked by firing spikes in when the defined "pseudo voltage" of a neuron surpasses its threshold. The voltage for each neuron is defined by
 \begin{equation}\label{eq:voltage}
-	V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d r_i(t)\quad i  = 1\dots N.
+	V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d r_i(t)
+\quad i  = 1\dots N.
 \end{equation}
 For negligible quadratic cost $\mu$ the voltage can be understood as measure of the error projected on $\bmu{\Gamma}_i$. The explicit derivation of the above equation is found in \cite{boerlin_predictive_2013} and will be adapted \rewrite{Where? Here, in the appendix of at all?}. The voltage definition and the threshold definition
 \begin{equation}
@@ -198,18 +202,18 @@ We start by defining the left pseudo-inverse of our output matrix $\bmu{\Gamma}$
 \end{equation}
 such that $\bmu{L}\bmu{\Gamma}^T = \bmu{I}$.\\
 Next we take the derivative of \cref{eq:voltage} and arrive at
-\begin{equation}
+\begin{equation}\label{eq:voltage_dt}
 	\bmu{\dot{V}}(t)=\bmu{\Gamma}^T\left(\bmu{\dot{x}}(t)-\dot{\hat{\bmu{x}}}(t)\right)-\mu \lambda_d \bmu{\dot{r}}(t).
 \end{equation}
 We now use the pseudo-inverse to rewrite the voltage equation \cref{eq:voltage} as
-\begin{equation}
+\begin{equation}\label{eq:voltage_2}
 \begin{aligned}
 	\bmu{V}(t)&=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d \bmu{r}(t)\\
 	\bmu{L}\bmu{V}(t)&=(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d \bmu{L}\bmu{r}(t)\\
 \end{aligned}
 \end{equation}
 
-
+We now replace the derivative terms in \cref{eq:voltage_dt} with their respective equations \cref{eq:x} to \cref{eq:rate}. Lastly we set
 
 
 
