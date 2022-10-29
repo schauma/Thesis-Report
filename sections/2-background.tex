@@ -120,7 +120,18 @@ A spiking Neural network is one step closer to a biologic representation of a br
 \subsection{Liquid state machines}
 \todi{write how the offline computing is pretty bad for brain things, but good for chess for example. The online computing is what the brain does and it is not yet as developed. add the TU graz paper to refs and some of it's references too, for example nr. 19}
 One alternative method has been the use of \ac{LSM} or more general Reservoir computing.\\
-Reservoir computing in general is
+The term Reservoir computing was introduced by Benjamin Schrauwen and describes a general group of recurrent network approach.\\
+The "reservoir" is a non-linear map from input to outputs that combines the input in various, even random ways. These contain but are not limited to sums, differences, multiplications, division and exponentiation. In general the output dimension is higher than the dimension of the input, in order to allow for sufficient variety in the mapping. The output of the reservoir, which is usually treated as a black box, is fed in a linear decoder in order to retrieve the desired output signal.\\
+The liquid can be made of any system that fulfils two properties.\\
+\begin{itemize}
+	\item Non-linear nodes of computation
+	\item Memory - Possibility to store information
+\end{itemize}\todi{find a ref for that}
+The reservoir can be a mathematical abstract formulation or physical object, e.g. a literal bucket of water \cite{tanaka_recent_2019}.\\
+After the choice of "liquid" in the reservoir is fixed, its dynamics are not altered. Only the linear decoder is trained to return the desired decoded output. This is a considerable time saver since the training of recurrent networks is expensive. On the contrary the linear decoder can be learned cheaply.\\
+A reservoir computer is called a \ac{LSM} if one chooses a spiking neural network as the reservoir. The requirements mentioned above are fulfilled by the recurrent structure to retain information of the neurons and its non-linear spiking behaviour.
+\rewrite{add that one can reproduce any system with the theorem. Then where it was used successfully. Add a picture  or 2. Maybe from the Graz paper  p.15, p.6 }
+
 
 \subsection{GLM}
 
