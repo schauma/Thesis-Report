@@ -125,13 +125,16 @@ The "reservoir" is a non-linear map from input to outputs that combines the inpu
 The liquid can be made of any system that fulfils two properties.\\
 \begin{itemize}
 	\item Non-linear nodes of computation
-	\item Memory - Possibility to store information
-\end{itemize}\todi{find a ref for that}
-The reservoir can be a mathematical abstract formulation or physical object, e.g. a literal bucket of water \cite{tanaka_recent_2019}.\\
-After the choice of "liquid" in the reservoir is fixed, its dynamics are not altered. Only the linear decoder is trained to return the desired decoded output. This is a considerable time saver since the training of recurrent networks is expensive. On the contrary the linear decoder can be learned cheaply.\\
-A reservoir computer is called a \ac{LSM} if one chooses a spiking neural network as the reservoir. The requirements mentioned above are fulfilled by the recurrent structure to retain information of the neurons and its non-linear spiking behaviour.
-\rewrite{add that one can reproduce any system with the theorem. Then where it was used successfully. Add a picture  or 2. Maybe from the Graz paper  p.15, p.6 }
+	\item Fading memory
+\end{itemize}
+To these points it is usually set for the system to be time invariant\cite{cooper_liquid_2011}.
+A reservoir can be a mathematical abstract formulation or physical object, e.g. a literal bucket of water \cite{tanaka_recent_2019}.\\
+After the choice of "liquid" in the reservoir is fixed, its dynamics are not altered. Only the linear decoder is trained to return the desired decoded output. This is a considerable time saver since the training of recurrent networks is expensive. On the contrary the linear decoder can be learned relatively cheaply.\\
+A reservoir computer is called a \ac{LSM} if one chooses a spiking neural network as the reservoir. The requirements mentioned above are fulfilled by the recurrent structure to retain information of the neurons and its non-linear spiking behaviour.\\
+An important result for \acp{LSM}
+\rewrite{add that one can reproduce any system with the theorem. Then where it was used successfully. Add a picture  or 2. Maybe from the Graz paper p.15, p.6 }
 
+\cite{cooper_liquid_2011s}
 
 \subsection{GLM}
 
