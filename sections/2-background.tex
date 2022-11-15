@@ -114,8 +114,16 @@ The parameters describe $a$ scale of recovery, $b$ sensitivity, $c$ the reset po
  \todo{Make clear distinction between forward nns and ann. Bcs apparently they are not the same!}
 \subsection{Spiking Neural Networks}
 A spiking Neural network is one step closer to a biologic representation of a brain. Instead of conveying information using a gradient in conventional \ac{NN}s, information is propagated using discrete spikes of excitation, similar to biological neurons. Hereby one can distinguish between several ideas of implementation.
+\rewrite{The main difference is the motion of time}
 
-\subsection{Poisson-Networks}
+\subsection{Poisson Networks}
+Poisson networks are built around the idea that information is encoded in the firing rate of a neuron.
+The encoding of a value, e.g. four, is set by endowing the input neurons with a Poisson point process with a suitable encoding rate $r_i$\cite{deneve_efficient_2016}.\\
+One typically uses probabilistic stimuli because observations in the spiking of the human brain do are different in a trial by trial basis.\\
+Input spikes are travelling through the recurrent network with weighted connections. The decoding is done by counting the spikes of output neurons over a certain time window.\\
+The connection weights are subject to change over the learning/training period\cite{almomani_comparative_2019}.\\
+This approach however has some conceptual problems. Firstly, this approach has the problem that responses are limited by the time window the spikes are counted\cite{andrew_spiking_2003}. This means that the rate decoding is to slow to capture the fast travelling information and another needs to be another  faster way to transmit information.
+\rewrite{Say that the CV(explain what it is :sigma/mu and what it says) value is shit so you you need a ton of spikes. Then say that it has some use and some perfomrance when you transmit from an ann and move it to a snn with neuromophic hardware. USe the papers from the nature paper forward  to the right.}
 
 \subsection{Liquid state machines}
 \todi{write how the offline computing is pretty bad for brain things, but good for chess for example. The online computing is what the brain does and it is not yet as developed. add the TU graz paper to refs and some of it's references too, for example nr. 19}
@@ -149,8 +157,6 @@ given a sufficiently large liquid and a suitable feedback and decoder\cite{maass
 	\label{fig:LSM_feedback}
 \end{figure}
 
-
-\subsection{GLM}
 
 \subsection{Balanced Networks}
 Balanced networks differ from the previous approaches that they closely track excitation an inhibition. The derivation of its behaviour is adopted from \cite{boerlin_predictive_2013} and \cite{huang_optimizing_2017}.\\
