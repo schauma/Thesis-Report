@@ -117,14 +117,22 @@ A spiking Neural network is one step closer to a biologic representation of a br
 \rewrite{The main difference is the motion of time}
 
 \subsection{Poisson Networks}
-Poisson networks are built around the idea that information is encoded in the firing rate of a neuron.
+Poisson networks are built around the idea that information is encoded in the firing rate of a neuron. The precise timing of a spike is essentially meaningless\cite{brette_philosophy_2015}. This makes a strong contrast to the approach chosen in this paper, where every spike is timed exactly to minimize a cost function.\rewrite{Maaybe add that our approach does not rule rate out completely.}
 The encoding of a value, e.g. four, is set by endowing the input neurons with a Poisson point process with a suitable encoding rate $r_i$\cite{deneve_efficient_2016}.\\
 One typically uses probabilistic stimuli because observations in the spiking of the human brain do are different in a trial by trial basis.\\
-Input spikes are travelling through the recurrent network with weighted connections. The decoding is done by counting the spikes of output neurons over a certain time window.\\
-The connection weights are subject to change over the learning/training period\cite{almomani_comparative_2019}.\\
-This approach however has some conceptual problems. Firstly, this approach has the problem that responses are limited by the time window the spikes are counted\cite{andrew_spiking_2003}. This means that the rate decoding is to slow to capture the fast travelling information and another needs to be another  faster way to transmit information.
-\rewrite{Say that the CV(explain what it is :sigma/mu and what it says) value is shit so you you need a ton of spikes. Then say that it has some use and some perfomrance when you transmit from an ann and move it to a snn with neuromophic hardware. USe the papers from the nature paper forward  to the right.}
+Input spikes are travelling through the recurrent network with weighted connections. The decoding is done by counting the spikes of output neurons over a certain time window. The time window plays a crucial rule in the decoding. If it is set smaller, spatio temporal patterns can be captured which can convey information about the input. Equally the sensitivity to noise becomes greater. If the time window is set to large, the firing patterns are lost though the impact of random spikes is reduced.\\
+\todo{Write that the error scales pretty badly with the squareroot and therefore we need a lot of spikes to get certain precision. I do not understand how and why. For regular timed spikes we the error scales linearly so we need many fewer spikes. But mention the CV value and explain it. Ref are the boerlin and nature paper. With that explain the pro and con like noise resistance bcs of many spikes and the inefficiency of the rate encoding.}
+Theoretically using a lot of spikes is unproblematic and with large spike counts neuromorphic hardware is still much more energy efficient than deep neural networks if one seeks to deploy it. \addref{Maybe I can find a stat on how much more efficient neuromorphic hardware really is.}\rewrite{sounds a bit bad}
 
+The connection weights are subject to change over the learning/training period\cite{almomani_comparative_2019}.\\
+This approach however has some conceptual problems. Firstly, this approach has the problem that responses are limited by the time window the spikes are counted\cite{andrew_spiking_2003}. This means that the rate decoding is to slow to capture the fast travelling information and another needs to be another  faster way to transmit information. However it has been shown that the firing rate does convey information about the stimuli's magnitude \cite{adrian_impulses_1926}.\\
+The second problem is that due to the Poisson process one needs more spikes to represent an average firing rate.
+
+
+Although the above mentioned problems, rate encoded \acp{SNN} have seen interest by research. A big hurdle of deploying \acp{SNN} is the lack of performant learning algorithms. For this there efforts have been made to train recurrent \acp{ANN} using backpropagation and afterwards convert the trained network to a \ac{SNN}.
+\rewrite{Explain a bit more and make sure that the indeed use rate based encoding. Maybe find a reference that the power consumption is really low even though the use rate based encoding}
+
+\rewrite{Say that the CV(explain what it is :sigma/mu and what it says) value is shit so you you need a ton of spikes. Then say that it has some use and some perfomrance when you transmit from an ann and move it to a snn with neuromophic hardware. USe the papers from the nature paper forward  to the right.}
 \subsection{Liquid state machines}
 \todi{write how the offline computing is pretty bad for brain things, but good for chess for example. The online computing is what the brain does and it is not yet as developed. add the TU graz paper to refs and some of it's references too, for example nr. 19}
 One alternative method has been the use of \ac{LSM} or more general Reservoir computing.\\
