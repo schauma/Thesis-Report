@@ -129,7 +129,7 @@ This approach however has some conceptual problems. Firstly, this approach has t
 The second problem is that due to the Poisson process one needs more spikes to represent an average firing rate.
 
 
-Although the above mentioned problems, rate encoded \acp{SNN} have seen interest by research. A big hurdle of deploying \acp{SNN} is the lack of performant learning algorithms. For this there efforts have been made to train recurrent \acp{ANN} using backpropagation and afterwards convert the trained network to a \ac{SNN}.
+Although the above mentioned problems, rate encoded \acp{SNN} have seen interest by research. A big hurdle of deploying \acp{SNN} is the lack of performant learning algorithms. For this there efforts have been made to train recurrent or convolutional \acp{ANN} using backpropagation and afterwards convert the trained network to a \ac{SNN} using rate encoding\cite{diehl_conversion_2016}\cite{diehl_fast-classifying_2015}.
 \rewrite{Explain a bit more and make sure that the indeed use rate based encoding. Maybe find a reference that the power consumption is really low even though the use rate based encoding}
 
 \rewrite{Say that the CV(explain what it is :sigma/mu and what it says) value is shit so you you need a ton of spikes. Then say that it has some use and some perfomrance when you transmit from an ann and move it to a snn with neuromophic hardware. USe the papers from the nature paper forward  to the right.}
@@ -167,8 +167,16 @@ given a sufficiently large liquid and a suitable feedback and decoder\cite{maass
 
 
 \subsection{Balanced Networks}
-Balanced networks differ from the previous approaches that they closely track excitation an inhibition. The derivation of its behaviour is adopted from \cite{boerlin_predictive_2013} and \cite{huang_optimizing_2017}.\\
-We s¸
+The idea of tightly balanced spiking networks was first proposed by Boerlin et al.\cite{boerlin_predictive_2013}. It uses predictive coding in combination with spikes to simulate arbitrary linear systems.
+The technical derivation will be describen in chaper \rewrite{Add the ref to the chapter}. The approach defines a cost function measuring the networks' accuracy in addition with regularization terms that moderates the spiking behaviour. Using a greedy algorithm this cost function determines the voltage threshold and therefore the neurons' spiking behaviour.\\
+For each neuron voltage can be understood as a projection of the global system error to a local error.\\
+Therefore the spiking rule is set to fire if the Voltage of a neuron becomes to large in order to reset the neuron voltage and reduce part of the system error.
+
+
+Balanced networks differ from the previous rate encoding in that excitation and inhibition is closely tracked. In rate encoded networks both inhibitory and excitatory spikes are received by a single neuron. An change of the variable is then governed by which type dominates.
+
+
+The derivation of its behaviour is adopted from \cite{boerlin_predictive_2013},\cite{huang_spiking_2019} and \cite{huang_optimizing_2017}.
 \rewrite{Add some more general stuff here!}
 
 \todi{The derivation of the method used can be put to method or work/ here we can explain using only words and compare to the other methods and why we chose this one etc}
@@ -183,7 +191,7 @@ The estimating is done by leaky integration of spiking trains $\symbfup{o}(t)$ i
 	\bmu{\dot{\hat{x}}} = -\lambda_d \bmu{\hat{x}} + \symbfup{\Gamma} \bmu{o}(t).
 \end{equation}
 $\bmu{\Gamma}$ is a given Matrix of size $\mathbb{R}^{J\times N}$, $N$ being the number of neurons, with the different connection weights between the neurons. This matrix is given as initial and can be optimized by learning later.\\
-In addition to the estimate $\bm{\hat{x}}$ we define a spiking rate variable $\bmu{r}$ following the dynamics of
+In addition to the estimate $\bmu{\hat{x}}$ we define a spiking rate variable $\bmu{r}$ following the dynamics of
 \begin{equation}\label{eq:rate}
 	\bmu{\dot{r}} = -\lambda_d\bmu{r} + \lambda_d \bmu{o}(t).
 \end{equation}
