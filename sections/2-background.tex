@@ -125,12 +125,12 @@ Input spikes are travelling through the recurrent network with weighted connecti
 Theoretically using a lot of spikes is unproblematic and with large spike counts neuromorphic hardware is still much more energy efficient than deep neural networks if one seeks to deploy it. \addref{Maybe I can find a stat on how much more efficient neuromorphic hardware really is.}\rewrite{sounds a bit bad}
 
 The connection weights are subject to change over the learning/training period\cite{almomani_comparative_2019}.\\
-This approach however has some conceptual problems. Firstly, this approach has the problem that responses are limited by the time window the spikes are counted\cite{andrew_spiking_2003}. This means that the rate decoding is to slow to capture the fast travelling information and another needs to be another  faster way to transmit information. However it has been shown that the firing rate does convey information about the stimuli's magnitude \cite{adrian_impulses_1926}.\\
-The second problem is that due to the Poisson process one needs more spikes to represent an average firing rate.
+This approach however has some conceptual problems. Firstly, this approach has the problem that responses are limited by the time window the spikes are counted\cite{andrew_spiking_2003}. This means that the rate decoding is to slow to capture the fast travelling information and another needs to be another faster way to transmit information. However it has been shown that the firing rate does convey information about the stimuli's magnitude \cite{adrian_impulses_1926}.\\
+The second problem is that due to the Poisson process one needs more spikes to represent an average firing rate. An action potential consumes a lot of the cells energy\cite{attwell_energy_2001}, thus making it unfeasible to use a large number of spikes if one tries to model the brain. Evolution has found a better way to transmit information.
 
 
 Although the above mentioned problems, rate encoded \acp{SNN} have seen interest by research. A big hurdle of deploying \acp{SNN} is the lack of performant learning algorithms. For this there efforts have been made to train recurrent or convolutional \acp{ANN} using backpropagation and afterwards convert the trained network to a \ac{SNN} using rate encoding\cite{diehl_conversion_2016}\cite{diehl_fast-classifying_2015}.
-\rewrite{Explain a bit more and make sure that the indeed use rate based encoding. Maybe find a reference that the power consumption is really low even though the use rate based encoding}
+\rewrite{Maybe find a reference that the power consumption is really low even though the use rate based encoding}
 
 \rewrite{Say that the CV(explain what it is :sigma/mu and what it says) value is shit so you you need a ton of spikes. Then say that it has some use and some perfomrance when you transmit from an ann and move it to a snn with neuromophic hardware. USe the papers from the nature paper forward  to the right.}
 \subsection{Liquid state machines}
@@ -168,12 +168,12 @@ given a sufficiently large liquid and a suitable feedback and decoder\cite{maass
 
 \subsection{Balanced Networks}
 The idea of tightly balanced spiking networks was first proposed by Boerlin et al.\cite{boerlin_predictive_2013}. It uses predictive coding in combination with spikes to simulate arbitrary linear systems.
-The technical derivation will be describen in chaper \rewrite{Add the ref to the chapter}. The approach defines a cost function measuring the networks' accuracy in addition with regularization terms that moderates the spiking behaviour. Using a greedy algorithm this cost function determines the voltage threshold and therefore the neurons' spiking behaviour.\\
+The technical derivation will be described in chapter \rewrite{Add the ref to the chapter}. The approach defines a cost function measuring the networks' accuracy in addition with regularization terms that moderates the spiking behaviour. Using a greedy algorithm this cost function determines the voltage threshold and therefore the neurons' spiking behaviour.\\
 For each neuron voltage can be understood as a projection of the global system error to a local error.\\
 Therefore the spiking rule is set to fire if the Voltage of a neuron becomes to large in order to reset the neuron voltage and reduce part of the system error.
 
 
-Balanced networks differ from the previous rate encoding in that excitation and inhibition is closely tracked. In rate encoded networks both inhibitory and excitatory spikes are received by a single neuron. An change of the variable is then governed by which type dominates.
+Balanced networks differ from the previous rate encoding in that excitation and inhibition is closely tracked. In rate encoded networks both inhibitory and excitatory spikes are received by a single neuron. An change of the variable is then governed by which type dominates. Here a rate coding is also used, however in combination with instantaneous decoding\cite{johnson_minimum-error_2016}.
 
 
 The derivation of its behaviour is adopted from \cite{boerlin_predictive_2013},\cite{huang_spiking_2019} and \cite{huang_optimizing_2017}.
@@ -190,7 +190,7 @@ The estimating is done by leaky integration of spiking trains $\symbfup{o}(t)$ i
 \begin{equation}\label{eq:x_hat}
 	\bmu{\dot{\hat{x}}} = -\lambda_d \bmu{\hat{x}} + \symbfup{\Gamma} \bmu{o}(t).
 \end{equation}
-$\bmu{\Gamma}$ is a given Matrix of size $\mathbb{R}^{J\times N}$, $N$ being the number of neurons, with the different connection weights between the neurons. This matrix is given as initial and can be optimized by learning later.\\
+$\bmu{\Gamma}$ is a given Matrix of size $\mathbb{R}^{J\times N}$, $N$ being the number of neurons, with the different connection weights between the neurons. This matrix is given as initial and can be optimized by training later on.\\
 In addition to the estimate $\bmu{\hat{x}}$ we define a spiking rate variable $\bmu{r}$ following the dynamics of
 \begin{equation}\label{eq:rate}
 	\bmu{\dot{r}} = -\lambda_d\bmu{r} + \lambda_d \bmu{o}(t).
@@ -265,6 +265,8 @@ We now use the pseudo-inverse to rewrite the voltage equation \cref{eq:voltage} 
 
 We now replace the derivative terms in \cref{eq:voltage_dt} with their respective equations \cref{eq:x} to \cref{eq:rate}. Lastly we set
 
+\subsection{Balanced networks as a controller}
+Here describe the derivation of the controller we set out to design
 
 
 
