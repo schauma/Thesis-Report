@@ -34,8 +34,8 @@ in der einfuhurng vlt auch hodgekin huxley erwaehen :)
 
 
 \section{Dynamic systems}
-\section{ autoencoder}
-
+\section{Autoencoder}
+An autoencoder is a type of neural network for learning a representation of a dataset consisting of an encoder and decoder. The encoder is a map of the input space, e.g $\mathbb{R}^n$, to a encoded space $\mathcal{C}$. The decoder is then decoding the data from $\mathcal{C}$ back to $\mathbb{R}^n$. The goal is that the data matches the decoded data
 \section{Neuron model}
 
 \subsection{Biological Neuron model}
@@ -135,7 +135,7 @@ Although the above mentioned problems, rate encoded \acp{SNN} have seen interest
 
 \rewrite{Say that the CV(explain what it is :sigma/mu and what it says) value is shit so you you need a ton of spikes. Then say that it has some use and some perfomrance when you transmit from an ann and move it to a snn with neuromophic hardware. USe the papers from the nature paper forward  to the right.}
 \subsection{Liquid state machines}
-\todi{write how the offline computing is pretty bad for brain things, but good for chess for example. The online computing is what the brain does and it is not yet as developed. add the TU graz paper to refs and some of it's references too, for example nr. 19}
+\todi{write how the offline computing is pretty bad for brain things, but good for chess for example. The online computing is what the brain does and it is not yet as developed.}
 One alternative method has been the use of \ac{LSM} or more general Reservoir computing.\\
 The term Reservoir computing was introduced by Benjamin Schrauwen and describes a general group of recurrent network approach\cite{verstraeten_experimental_2007}.\\
 The "reservoir" is a non-linear map from input to outputs that combines the input in various, even random ways. These contain but are not limited to sums, differences, multiplications, division and exponentiation. In general the output $\bmu{x}(t)$ is higher dimensional that the input $\bmu{v}(t)$, in order to allow for sufficient variety in the mapping. The output of the reservoir, which is usually treated as a black box, is fed in a linear decoder in order to retrieve the desired output signal.\\
@@ -158,7 +158,7 @@ A reservoir computer is called a \ac{LSM} if one chooses a spiking neural networ
 \begin{equation}
 	z^{(n)} = G(z,z^{(1)},z^{(2)},\dots,z^{(n-1)}) + u
 \end{equation}
-given a sufficiently large liquid and a suitable feedback and decoder\cite{maass_computational_2004}. The systematic structure can be in \cref{fig:LSM_feedback}. The feedback $K(x,u)$ is a function of the dynamical system input $u(t)$ and the output $x(t)$. The result of $K(x,u)$ is fed back replaces the previous input $v(t)$ into the Liquid. The decoder $h(x)$ is not linear but can be simplified to be in a cost-performance trade-off when using a sufficiently large Liquid.\\
+given a sufficiently large liquid and a suitable feedback and decoder\cite{maass_computational_2004} and have been used for speech recognition\cite{jin_performance_2017}\cite{zhang_digital_2015}. The systematic structure can be in \cref{fig:LSM_feedback}. The feedback $K(x,u)$ is a function of the dynamical system input $u(t)$ and the output $x(t)$. The result of $K(x,u)$ is fed back replaces the previous input $v(t)$ into the Liquid. The decoder $h(x)$ is not linear but can be simplified to be in a cost-performance trade-off when using a sufficiently large Liquid.\\
 \begin{figure}[htbp]
 	\centering
 	\includesvg[scale= 0.15]{LSM_feedback2}
@@ -273,6 +273,11 @@ Here describe the derivation of the controller we set out to design
 
 
 \subsection{Learning: SGD and STDP}
+STDP\\
+Gradient descent\\
+Hebbian\\
+maybe?
+
 Key to give any \ac{NN} the ability to solve a task, it is integral to learn/train the network. The adaption of synapse weights is necessary to accomplish any functionality based on the underlying data\addref{Put this reference in and say its is copied partly from them}\cite{zheng_introductory_2022}. There are various ways to train a network. The most fundamental distinction can be made between supervised, unsupervised and reinforcement learning rules.
 One needs to remember that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information.\\
 For a review
