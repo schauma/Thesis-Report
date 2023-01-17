@@ -5,11 +5,18 @@
 \todi{Research question: Develop a biologically sensible SNN to control any linear dynamical system.}
 
 
-\section{Choice of Network archetecture}
-The field of \acp{SNN} is under ongoing research. Therefore many different network types and learning approaches have been proposed e.g. \acp{LSM}. In order to stay biologically more realistic we ignore purely rate based spiking networks as there is evidence that the precise spike timing is relevant in nature\cite{brette_philosophy_2015}\cite{putney_precise_2019}.
+\section{Choice of Network architecture}
+
+The field of \acp{SNN} is under ongoing research. Therefore many different network models and learning approaches have been proposed e.g. \acp{LSM}\cite{dewolf_spiking_2016}. In order to stay biologically more realistic we ignore purely rate based spiking networks as there is evidence that the precise spike timing is relevant in nature\cite{brette_philosophy_2015}\cite{putney_precise_2019}.
+On the other side of the specturm it makes little sense to use \ac{HH}'s model. Even though it is very biologically plausible its increased complexity and little abstraction makes it more suited for solely accurate biological neural simulation and less for the engineering task at hand. Additionally there are no training/learning rules available to solve such a high level problem.\\
 
 
 Explain choice of SNN architecture\\
+HH doesnt make sense because to complex.\\
+Recurrent models are possible but also not biologic enough because we want to use the spiking property\\
+LSM was considered but in a LSM you only learn the decoder. For the problem at hand is is more natural to have the dynamics in a neural network. Plus with this approach we learn the decoder as well so there it makes it for a more independent approach.\\
+
+
 
 Design a LQG controller to start with as reference
 First found how to simulate a dynamical system with given input c from Boerlin\\
@@ -24,6 +31,175 @@ Also not so far to do nonlinear systems\\
 Describe the engineering-related contents (preferably with models) and the research methodology and methods that are used in the degree project.
 
 Most likely it generally describes the method used in each step to make sure that you can answer the research question.
+
+
+\section{Simulation of Dynamic systems using \acp{SNN}}
+In the following sections the simulation of dynamic systems using \acp{SNN} is derived and explained. This serves as the a basic building block for the attempted method on how to solve our target set out in section\todi{add reference to the goal section}. We begin with the formal derivation of the network dynamics.
+\subsection{Balanced network simulation}
+
+This section follows the derivation found in \cite{boerlin_predictive_2013} and \cite{huang_dynamics_2019}.
+The goal is to describe a dynamical system of the form
+\begin{equation}\label{eq:x}
+\bmu{\dot{x}} = \bmu{Ax} + \bmu{c}(t)
+\end{equation}
+with $J$ state variables.
+The estimation is done by leaky integration of spike trains $\symbfup{o}(t)$ in
+\begin{equation}\label{eq:x_hat}
+\bmu{\dot{\hat{x}}} = -\lambda_d \bmu{\hat{x}} + \symbfup{\Gamma} \bmu{o}(t).
+\end{equation}
+$\bmu{\Gamma}$ is a given Matrix of size $\mathbb{R}^{J\times N}$, $N$ being the number of neurons. This matrix is given as initial and can be optimized by training later on\cite{brendel_learning_2020}.\\
+In addition to the estimate $\bmu{\hat{x}}$ we define a spiking rate variable $\bmu{r}$ following the dynamics of
+\begin{equation}\label{eq:rate}
+\bmu{\dot{r}} = -\lambda_d\bmu{r} + \bmu{o}(t).
+\end{equation}
+The rate variable is connected to the state vector in the decoding with
+\begin{equation}
+	\bmu{\hat{x}} = \bmu{\Gamma r}.
+\end{equation}
+
+\todi{explain how this is better than just rate encoding}
+The spiking dynamics arise from the minimization of a cost function. A spike is fired if it minimizes the cost function that tracks the error between the true and estimated value over time
+\begin{equation}\label{eq:cost_func_basic}
+E(t)=\int_0^t \|\symbfup{x}(u)-\hat{\symbfup{x}}(u)\|_2^2 \ du.
+\end{equation}
+
+
+\subsection{Greedy optimization of the cost}
+The cost function \cref{eq:cost_func_basic} is minimized using a greedy optimization i.e. a spike is fired if it reduces the cost. For the derivation we use the cost function \cref{eq:cost_func} which is identical to setting $\mu = 0,\nu= 0$.\\
+We express this as
+\begin{equation}\label{eq:spike_condition}
+	E(t|i \text{ spike}) < E(t,i \text{ }\overline{\text{spike}})
+\end{equation}
+
+If there is no spike fired, the rate and estimated state variable in \cref{eq:x_hat} and \cref{eq:rate} respectively behave as
+\begin{equation}\label{eq:no_spike_decay}
+\begin{aligned}
+\bmu{\dot{\hat{x}}} &= -\lambda_d \bmu{\hat{x}}\\
+\bmu{\dot{r}} &= -\lambda_d\bmu{r}
+\end{aligned}
+\end{equation}
+and therefore decay exponentially with $e^{-\lambda_d t}$.\\
+If a spike is fired at time $t^k$, the inhomogeneous solution is found by variation of constants in \cref{eq:rate} to
+\begin{equation}\label{eq:rate_inhomo}
+\begin{aligned}
+r_i^h &= c_i(t)e^{-\lambda_d t}\\
+c_i'(t) e^{-\lambda_d t} - c_i(t)\lambda_d e^{-\lambda_d t}&= -\lambda_d c_i(t)e^{-\lambda_d t} + \delta(t- t^k)\\
+c_i'(t) &= \delta(t- t^k) e^{\lambda_d t}\\
+c_i(t) &=  e^{\lambda_d t^k} \bm{H}(t-t^k)\\
+r_i &=e^{-\lambda_d t} + e^{-\lambda_d (t-t^k)} \bm{H}(t-t^k).
+\end{aligned}
+\end{equation}
+The last equation is the identical the solution of \cref{eq:no_spike_decay} with the addition of a decaying exponential added at time $t_i^k$. $\bm{H}(t)$ denotes the Heaviside step function . Analogously the estimate is updated at time $t^k$ to
+\begin{equation}\label{eq:update_x_spike}
+	\bmu{x} =  \bmu{x} + \bmu{\Gamma}_ie^{-\lambda_d (t-t^k)} \bm{H}(t-t^k).
+\end{equation}
+We look at the error a $\epsilon$ time in the future of $t^k$ and check \cref{eq:spike_condition}
+\begin{equation}
+\begin{aligned}
+& \int_0^{t^k+\epsilon} \left(\underbrace{\left\|\bmu{x}(u)-\hat{\bmu{x}}(u)-\bmu{\Gamma}_i h(u-t^k)\right\|_2^2}_{\text{I}}+
+\underbrace{\nu\left\|\bmu{r}(u)+\lambda_d \bmu{e}_i h(u-t^k)\right\|_1}_{\text{II}}\right.\\
+& \left.+\underbrace{\mu\left\|\bmu{r}(u)+\lambda_d \bmu{e}_i h_d(u-t)\right\|_2^2}_{\text{III}}\right) d u\\
+& <\int_0^{t^k+\epsilon} \left(\|\bmu{x}(u)-\hat{\bmu{x}}(u)\|_2^2+\nu\|\bmu{r}(u)\|_1+\mu\|\bmu{r}(u)\|_2^2\right)d u
+\end{aligned}
+\end{equation}
+where we abbreviated $h(u) = e^{-\lambda_d (u)} \bm{H}(u)$.
+To treat each term individually we start with I. Simplifying the norm we obtain
+\begin{equation}
+	\text{I} = \left\|\bmu{x}(u)-\hat{\bmu{x}}(u)\right\|_2^2 -2h(u-t^k)\bmu{\Gamma}_i^T\left(\bmu{x}(u)-\hat{\bmu{x}}(u)\right) + h^2(u-t^k)\bmu{\Gamma}_i^T\bmu{\Gamma}_i.
+\end{equation}
+For II the 1-norm and the rate holds that the $r_i(u)>0 \quad
+\forall i$. Thus we can simplify $\|r\|_1 = \sum_k r_k$ resulting in
+\begin{equation}
+	\text{II} = \nu\left(\|r\|_1 + h(u-t^k)\right).
+\end{equation}
+Similarly to I, III can be simplified by $\|\bmu{r}\|^2_2 = \bmu{r}^T\bmu{r}$, giving
+\begin{equation}
+	\text{III} = \mu\|\bmu{r}\|^2_2 + \mu h^2(u-t^k) + 2\bmu{r}\cdot\bmu{e}_ih(u-t^k).
+\end{equation}
+After cancellation the remaining terms are grouped grouped by time dependency to yield
+\begin{equation}
+\begin{aligned}
+	&\int_0^{t^k+\epsilon}h(u-t^k)\bmu{\Gamma}_i^T\left(\bmu{x}(u)-\hat{\bmu{x}}(u)\right) - \mu r_i(u) d u \\
+	&> \frac{1}{2} \int_0^{t^k+\epsilon} 	h^2(u-t^k)\bmu{\Gamma}_i^T\bmu{\Gamma}_i + 	\nu h(u-t^k) + \mu h^2(u-t^k) d u
+\end{aligned}
+\end{equation}
+Using the fact that the Heaviside function in \cref{eq:rate_inhomo} and subsequently in $h(u)$ allow us to change the borders of integration to $\int_{t^k}^{t^k+\epsilon}$. Lastly we simplify $h(t) = 1$ if $t\approx \epsilon$ and have
+\begin{equation}
+	\bmu{\Gamma}_i^T\left(\bmu{x}-\hat{\bmu{x}}\right) - \mu r_i>\frac{\|\bmu{\Gamma}\|^2 + \nu + \mu}{2}
+\end{equation}
+
+The voltage definition and the threshold definition
+\begin{equation}
+T_i=\frac{\nu \lambda_d+\mu \lambda_d^2+\left\|\boldsymbol{\bmu{\Gamma}}_i\right\|^2}{2}
+\end{equation}
+result from integrating the cost function \cref{eq:cost_func} over time step $\epsilon$. Then the condition described earlier fires a spike if the cost gets lowered.
+\rewrite{explain notation of spike time constant with i and k}
+where $\bm{H}(t)$ denotes the Heaviside step function. It can been seen that at the time of firing the spike adds a decaying exponential to the rate variable. Similarly it adds a column of the previously defined connection matrix $\bmu{\Gamma}$ to the state vector. Thus we can now compare the effects on cost function \cref{eq:cost_func} and compare its impact. The integral is approximated by a greedy optimization method such that for very small time steps $\epsilon$ the exponential decays $e^{-\lambda_d t - t_i^k}\approx 1$. The greedy optimization is necessary since the unpredictable firing due to noise makes it impossible to predict future spikes.\rewrite{Remember that i read somewhere that the noise is necessary. Maybe mention that here too. And find the reference}. After this step the rewriting the terms and using the defintions of the voltage and threshold we arrive at the critera to spike when
+\begin{equation}\label{eq:condition}
+V_i> T_i \quad i = 1\dots N
+\end{equation}
+
+
+
+\subsection{Regularization}\label{sssection:regularization}
+
+Two regularization terms are added to influence spiking behaviour.\\
+\begin{equation}\label{eq:cost_func}
+E(t)=\int_0^t \left(\|\symbfup{x}(u)-\hat{\symbfup{x}}(u)\|_2^2+\nu\|\symbfup{r}(u)\|_1+\mu\|\symbfup{r}(u)\|_2^2\right)d u
+\end{equation}
+
+The parameter $\nu$ controls the amount of spiking by penalizing the total number of spikes as
+\begin{equation}
+	||r(t)||_1 = \sum_i|r_i(t)| = \sum_i r_i(t).
+\end{equation}
+The firing rate is directly related to the number of spiking and therefore the cost is reduced by fewer spikes.\\
+The second term solves different issues at the same time. To show this we imagine a network of only two neurons. A network of two neurons is sufficient to simulate a scalar \ac{ODE} i.e $\bmu{A}\in \mathbb{R}$. We further assume that the kernel has the form
+\begin{equation}
+	\Gamma = \begin{bmatrix}
+	-1\\1
+	\end{bmatrix}
+\end{equation}
+
+
+
+The first was termed "ping-pong" effect and is described in the supplementary material of \cite{boerlin_predictive_2013}. To understand the issue, we imagine a minimal network consisting of 2 neurons with equal kernel but opposite sign. \rewrite{Write better the ping pong effect! Maybe later}\\
+
+
+The second regularization comes into play when there are kernels with different magnitude. Kernels with small kernel magnitude reach their threshold sooner and therefore fire more frequently. In the extreme case, only small number of neurons fire rapidly while the majority remains idle. By penalizing the rate in the 2-norm it forces the network to spread the firing among the whole network.\\\rewrite{find the right place to explain that!}
+
+
+The dynamic variable $\bmu{x}$ is tracked by firing spikes in when the defined "pseudo voltage" of a neuron surpasses its threshold. The voltage for each neuron is defined by
+\begin{equation}\label{eq:voltage}
+V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d r_i(t)
+\quad i  = 1\dots N.
+\end{equation}
+For negligible quadratic cost $\mu$ the voltage can be understood as measure of the error projected on $\bmu{\Gamma}_i$. The explicit derivation of the above equation is found in \cite{boerlin_predictive_2013} and will be adapted \rewrite{Where? Here, in the appendix of at all?}.
+\subsubsection{Neuron Voltage}
+As mentioned above, a neuron spikes if it meets the condition \cref{eq:condition}. But so far we skipped over the dynamics how neuron voltage evolves over time.
+We start by defining the left pseudo-inverse of our output matrix $\bmu{\Gamma}$ \todi{find a coherent name for the matrix}
+\begin{equation}
+\bmu{L} = \left(\bmu{\Gamma}\bmu{\Gamma}^T\right)^{-1}\bmu{\Gamma}
+\end{equation}
+such that $\bmu{L}\bmu{\Gamma}^T = \bmu{I}$.\\
+Next we take the derivative of \cref{eq:voltage} and arrive at
+\begin{equation}\label{eq:voltage_dt}
+\bmu{\dot{V}}(t)=\bmu{\Gamma}^T\left(\bmu{\dot{x}}(t)-\dot{\hat{\bmu{x}}}(t)\right)-\mu \lambda_d \bmu{\dot{r}}(t).
+\end{equation}
+We now use the pseudo-inverse to rewrite the voltage equation \cref{eq:voltage} as
+\begin{equation}\label{eq:voltage_2}
+\begin{aligned}
+\bmu{V}(t)&=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d \bmu{r}(t)\\
+\bmu{L}\bmu{V}(t)&=(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d \bmu{L}\bmu{r}(t)\\
+\end{aligned}
+\end{equation}
+
+We now replace the derivative terms in \cref{eq:voltage_dt} with their respective equations \cref{eq:x} to \cref{eq:rate}. Lastly we set
+
+\subsection{Balanced networks as a controller}
+Here describe the derivation of the controller we set out to design
+
+
+
 
 \section{Engineering-related and scientific content:}
 Applying engineering related and scientific skills; modelling, analysing, developing, and evaluating engineering-related and scientific content; correct choice of methods based on problem formulation; consciousness of aspects relating to society and ethics (if applicable).
