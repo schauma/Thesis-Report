@@ -127,17 +127,13 @@ Using the fact that the Heaviside function in \cref{eq:rate_inhomo} and subseque
 \begin{equation}
 	\bmu{\Gamma}_i^T\left(\bmu{x}-\hat{\bmu{x}}\right) - \mu r_i>\frac{\|\bmu{\Gamma}\|^2 + \nu + \mu}{2}
 \end{equation}
+We notate the \ac{LHS} as the voltage and the constant \ac{RHS} as the voltage threshold $T_i$
 
-The voltage definition and the threshold definition
+
 \begin{equation}
-T_i=\frac{\nu \lambda_d+\mu \lambda_d^2+\left\|\boldsymbol{\bmu{\Gamma}}_i\right\|^2}{2}
+T_i=\frac{\left\|\boldsymbol{\bmu{\Gamma}}_i\right\|^2 + \nu+\mu}{2}.
 \end{equation}
-result from integrating the cost function \cref{eq:cost_func} over time step $\epsilon$. Then the condition described earlier fires a spike if the cost gets lowered.
-\rewrite{explain notation of spike time constant with i and k}
-where $\bm{H}(t)$ denotes the Heaviside step function. It can been seen that at the time of firing the spike adds a decaying exponential to the rate variable. Similarly it adds a column of the previously defined connection matrix $\bmu{\Gamma}$ to the state vector. Thus we can now compare the effects on cost function \cref{eq:cost_func} and compare its impact. The integral is approximated by a greedy optimization method such that for very small time steps $\epsilon$ the exponential decays $e^{-\lambda_d t - t_i^k}\approx 1$. The greedy optimization is necessary since the unpredictable firing due to noise makes it impossible to predict future spikes.\rewrite{Remember that i read somewhere that the noise is necessary. Maybe mention that here too. And find the reference}. After this step the rewriting the terms and using the defintions of the voltage and threshold we arrive at the critera to spike when
-\begin{equation}\label{eq:condition}
-V_i> T_i \quad i = 1\dots N
-\end{equation}
+\rewrite{Remember that i read somewhere that the noise is necessary. Maybe mention that here too. And find the reference}
 
 
 

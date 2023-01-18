@@ -149,13 +149,13 @@ Probably delete as a own paragraph but mention smth like that.
 \section{Goal}
 The goal means the goal of the degree project. Present following: the goal(s), deliverables and results of the project.\\
 
-The goal of this project is to create a \ac{SNN} that can control \rewrite{give exact specifications. For example controllability} any given linear \ac{DS}. Furthermore should the \ac{NN} be robust against failing neurons or connections to some degree. With this we can investigate to find the smallest \ac{SNN} with acceptable performance.
+The goal of this project is to create a \ac{SNN} that can control any given linear \ac{DS}. Furthermore should the \ac{NN} be robust against failing neurons or connections. %With this we can investigate to find the smallest \ac{SNN} with acceptable performance.
 
 We expect better results to conventional \acp{NN} because of the \ac{SNN}'s natural way to use temporal data. For the \ac{SNN} itself we desire similarities to the brain, such as high precision or Poisson distributed spiking.\addref{What do we else want like the brain.Maybe low spike count? And what can we do?  Also References!}
 To mimic the brain's learning, we want to use local training rules that are biologically plausible. The network should be converge to the optimal parameters.\\
-Additionally, we want to make the \ac{SNN} easy to use. Often \acp{SNN} are designed around a specific problem to use. We aim to make the network work independently of the system at hand.\\
+Ideally, optimality should be reached, making sure that the network found the best parameters for the given system. This is usually a strong condition, as with conventional \acp{NN} using \ac{GD} only guarantee a local optimum. This requirement would allow us to give a justified measure on how close we are replicating the brain's control power compared to our artificial implementation in specific circumstances\rewrite{sounds vague}.
 
-\rewrite{Optimality: This is even more to ask than from a conventional NN, Say in method bcs there it has already been proven if I am not mistaken}. This requirement would allow us to give a justified measure on how close we are replicating the brain's control power compared to our artificial implementation in specific circumstances\rewrite{sounds vague}.
+Lastly, adjusting neural networks to a specific task is usually done by hand and requires time consuming hand tuning of parameters to achieve optimal results. Goal here is to automate as much of the process as possible i.e. the user does not need to adjust hyper-parameters himself. The network should be able to set itself up to find the best set of hyper-parameters given the task at hand, independent of the given control command or size of the system.
 
 \section{Benefits, Ethics and Sustainability}
 \todi{Benefits?}
@@ -206,4 +206,4 @@ Use references!
 
 \section{Outline}
 In text, describe what is presented in Chapters 2 and forward. Exclude the first chapter and references as well as appendix.
-\todi{make the outline in the end!¸}
+\todi{make the outline in the end!}
