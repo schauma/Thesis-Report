@@ -53,7 +53,7 @@ In addition to the estimate $\bmu{\hat{x}}$ we define a spiking rate variable $\
 \bmu{\dot{r}} = -\lambda_d\bmu{r} + \bmu{o}(t).
 \end{equation}
 The rate variable is connected to the state vector in the decoding with
-\begin{equation}
+\begin{equation}\label{eq:decoding}
 	\bmu{\hat{x}} = \bmu{\Gamma r}.
 \end{equation}
 
@@ -130,8 +130,8 @@ Using the fact that the Heaviside function in \cref{eq:rate_inhomo} and subseque
 We notate the \ac{LHS} as the voltage and the constant \ac{RHS} as the voltage threshold $T_i$
 
 
-\begin{equation}
-T_i=\frac{\left\|\boldsymbol{\bmu{\Gamma}}_i\right\|^2 + \nu+\mu}{2}.
+\begin{equation}\label{eq:condition}
+V_i>T_i=\frac{\left\|\boldsymbol{\bmu{\Gamma}}_i\right\|^2 + \nu+\mu}{2}.
 \end{equation}
 \rewrite{Remember that i read somewhere that the noise is necessary. Maybe mention that here too. And find the reference}
 
@@ -155,7 +155,10 @@ The second term solves different issues at the same time. To show this we imagin
 	-1\\1
 	\end{bmatrix}
 \end{equation}
-
+Ignoring the cost terms in \cref{eq:condition} the threshold is set at
+\begin{equation}
+	V_i > \frac{\|\bmu{\Gamma}_i\|^2}{2} after
+\end{equation}
 
 
 The first was termed "ping-pong" effect and is described in the supplementary material of \cite{boerlin_predictive_2013}. To understand the issue, we imagine a minimal network consisting of 2 neurons with equal kernel but opposite sign. \rewrite{Write better the ping pong effect! Maybe later}\\
@@ -170,26 +173,49 @@ V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d r_i(t)
 \quad i  = 1\dots N.
 \end{equation}
 For negligible quadratic cost $\mu$ the voltage can be understood as measure of the error projected on $\bmu{\Gamma}_i$. The explicit derivation of the above equation is found in \cite{boerlin_predictive_2013} and will be adapted \rewrite{Where? Here, in the appendix of at all?}.
-\subsubsection{Neuron Voltage}
-As mentioned above, a neuron spikes if it meets the condition \cref{eq:condition}. But so far we skipped over the dynamics how neuron voltage evolves over time.
-We start by defining the left pseudo-inverse of our output matrix $\bmu{\Gamma}$ \todi{find a coherent name for the matrix}
-\begin{equation}
+\subsection{Neuron Voltage}
+As mentioned above, a neuron spikes if it meets the condition \cref{eq:condition}. But so far it is unclear how neuron voltage evolves over time.
+Denote $\bmu{L}$ the the left pseudo-inverse of $\bmu{\Gamma}$ \begin{equation}
 \bmu{L} = \left(\bmu{\Gamma}\bmu{\Gamma}^T\right)^{-1}\bmu{\Gamma}
 \end{equation}
 such that $\bmu{L}\bmu{\Gamma}^T = \bmu{I}$.\\
-Next we take the derivative of \cref{eq:voltage} and arrive at
+Next, taking the derivative of \cref{eq:voltage} yielding
 \begin{equation}\label{eq:voltage_dt}
 \bmu{\dot{V}}(t)=\bmu{\Gamma}^T\left(\bmu{\dot{x}}(t)-\dot{\hat{\bmu{x}}}(t)\right)-\mu \lambda_d \bmu{\dot{r}}(t).
 \end{equation}
-We now use the pseudo-inverse to rewrite the voltage equation \cref{eq:voltage} as
+Now using the pseudo-inverse to rewrite the voltage equation \cref{eq:voltage} as
 \begin{equation}\label{eq:voltage_2}
 \begin{aligned}
 \bmu{V}(t)&=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d \bmu{r}(t)\\
 \bmu{L}\bmu{V}(t)&=(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d \bmu{L}\bmu{r}(t)\\
+\bmu{x}(t)&=\bmu{L}\bmu{V}(t)  + \hat{\bmu{x}}(t) + \mu \bmu{L}\bmu{r}(t)\\
+\end{aligned}
+\end{equation}
+Now the derivative terms in \cref{eq:voltage_dt} are replaced with  with their respective equations \cref{eq:x}, \cref{eq:x_hat} and \cref{eq:rate}. Lastly we substitute \cref{eq:voltage_2} in \cref{eq:voltage_dt} and obtain
+\begin{equation}
+\begin{aligned}
+	\bmu{\dot{V}} &= \bmu{\Gamma}^T\bmu{ALV}\\
+	 &+ \left(\bmu{\Gamma}^T\bmu{A\Gamma} + \mu\bmu{\Gamma}^T \bmu{AL}+\lambda_d\bmu{\Gamma}^T\bmu{\Gamma + \mu\lambda_d}\right)\bmu{r}\\
+	 &+\left(\bmu{\Gamma}^T\bmu{\Gamma} + \mu\right)\bmu{o} + \bmu{\Gamma}^T\bmu{c}.
+\end{aligned}
+\end{equation}
+The last argument is to consider the network behaviour for larger networks. We increase the number of neurons $N\longrightarrow\infty$ and require that the network output as well as the firing rates remains constant.\\
+When looking at the decoding at \cref{eq:decoding} we therefore need to scale $\bmu{\Gamma}$ by $\frac{1}{N}$. To make sure that the threshold in \cref{eq:condition} will not get dominated by cost terms $\mu$ \& $\nu$, they should also scale with $\frac{1}{N^2}$. As the threshold decreases with $\frac{1}{N^2}$ so does the Voltage itself.\\
+With this in mind, all terms that scale with $\frac{1}{N^2}$ are neglected. As a substitute for the neglected voltage term, a generic leak term is added making these \acp{LIF} neurons. The dynamics are therefore
+\begin{equation}
+\begin{aligned}
+	\bmu{\dot{V}} &= -\lambda_V \bmu{V} + \bmu{W^sr} + \bmu{W^fo} + \bmu{\Gamma}^T \bmu{c}\\
+	\bmu{W^s} &= \bmu{\Gamma}^T\bmu{(A+\lambda}_d\bmu{I)\Gamma}\\
+	\bmu{W^f} & = \bmu{\Gamma}^T\bmu{\Gamma} + \mu\bmu{I}
 \end{aligned}
 \end{equation}
 
-We now replace the derivative terms in \cref{eq:voltage_dt} with their respective equations \cref{eq:x} to \cref{eq:rate}. Lastly we set
+
+
+
+
+
+\todi{find a coherent name for the matrix}
 
 \subsection{Balanced networks as a controller}
 Here describe the derivation of the controller we set out to design
