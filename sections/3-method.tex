@@ -33,7 +33,7 @@ Describe the engineering-related contents (preferably with models) and the resea
 Most likely it generally describes the method used in each step to make sure that you can answer the research question.
 
 
-\section{Simulation of Dynamic systems using \acp{SNN}}
+\section{Simulation of Dynamic systems using \acp{SNN}}\label{sec:simulation}
 In the following sections the simulation of dynamic systems using \acp{SNN} is derived and explained. This serves as the a basic building block for the attempted method on how to solve our target set out in section\todi{add reference to the goal section}. We begin with the formal derivation of the network dynamics.
 \subsection{Balanced network simulation}
 
@@ -137,42 +137,6 @@ V_i>T_i=\frac{\left\|\boldsymbol{\bmu{\Gamma}}_i\right\|^2 + \nu+\mu}{2}.
 
 
 
-\subsection{Regularization}\label{sssection:regularization}
-
-Two regularization terms are added to influence spiking behaviour.\\
-\begin{equation}\label{eq:cost_func}
-E(t)=\int_0^t \left(\|\symbfup{x}(u)-\hat{\symbfup{x}}(u)\|_2^2+\nu\|\symbfup{r}(u)\|_1+\mu\|\symbfup{r}(u)\|_2^2\right)d u
-\end{equation}
-
-The parameter $\nu$ controls the amount of spiking by penalizing the total number of spikes as
-\begin{equation}
-	||r(t)||_1 = \sum_i|r_i(t)| = \sum_i r_i(t).
-\end{equation}
-The firing rate is directly related to the number of spiking and therefore the cost is reduced by fewer spikes.\\
-The second term solves different issues at the same time. To show this we imagine a network of only two neurons. A network of two neurons is sufficient to simulate a scalar \ac{ODE} i.e $\bmu{A}\in \mathbb{R}$. We further assume that the kernel has the form
-\begin{equation}
-	\Gamma = \begin{bmatrix}
-	-1\\1
-	\end{bmatrix}
-\end{equation}
-Ignoring the cost terms in \cref{eq:condition} the threshold is set at
-\begin{equation}
-	V_i > \frac{\|\bmu{\Gamma}_i\|^2}{2} after
-\end{equation}
-
-
-The first was termed "ping-pong" effect and is described in the supplementary material of \cite{boerlin_predictive_2013}. To understand the issue, we imagine a minimal network consisting of 2 neurons with equal kernel but opposite sign. \rewrite{Write better the ping pong effect! Maybe later}\\
-
-
-The second regularization comes into play when there are kernels with different magnitude. Kernels with small kernel magnitude reach their threshold sooner and therefore fire more frequently. In the extreme case, only small number of neurons fire rapidly while the majority remains idle. By penalizing the rate in the 2-norm it forces the network to spread the firing among the whole network.\\\rewrite{find the right place to explain that!}
-
-
-The dynamic variable $\bmu{x}$ is tracked by firing spikes in when the defined "pseudo voltage" of a neuron surpasses its threshold. The voltage for each neuron is defined by
-\begin{equation}\label{eq:voltage}
-V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d r_i(t)
-\quad i  = 1\dots N.
-\end{equation}
-For negligible quadratic cost $\mu$ the voltage can be understood as measure of the error projected on $\bmu{\Gamma}_i$. The explicit derivation of the above equation is found in \cite{boerlin_predictive_2013} and will be adapted \rewrite{Where? Here, in the appendix of at all?}.
 \subsection{Neuron Voltage}
 As mentioned above, a neuron spikes if it meets the condition \cref{eq:condition}. But so far it is unclear how neuron voltage evolves over time.
 Denote $\bmu{L}$ the the left pseudo-inverse of $\bmu{\Gamma}$ \begin{equation}
@@ -181,18 +145,18 @@ Denote $\bmu{L}$ the the left pseudo-inverse of $\bmu{\Gamma}$ \begin{equation}
 such that $\bmu{L}\bmu{\Gamma}^T = \bmu{I}$.\\
 Next, taking the derivative of \cref{eq:voltage} yielding
 \begin{equation}\label{eq:voltage_dt}
-\bmu{\dot{V}}(t)=\bmu{\Gamma}^T\left(\bmu{\dot{x}}(t)-\dot{\hat{\bmu{x}}}(t)\right)-\mu \lambda_d \bmu{\dot{r}}(t).
+\bmu{\dot{V}}(t)=\bmu{\Gamma}^T\left(\bmu{\dot{x}}(t)-\dot{\hat{\bmu{x}}}(t)\right)-\mu \bmu{\dot{r}}(t).
 \end{equation}
 Now using the pseudo-inverse to rewrite the voltage equation \cref{eq:voltage} as
 \begin{equation}\label{eq:voltage_2}
 \begin{aligned}
-\bmu{V}(t)&=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d \bmu{r}(t)\\
-\bmu{L}\bmu{V}(t)&=(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d \bmu{L}\bmu{r}(t)\\
+\bmu{V}(t)&=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \bmu{r}(t)\\
+\bmu{L}\bmu{V}(t)&=(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \bmu{L}\bmu{r}(t)\\
 \bmu{x}(t)&=\bmu{L}\bmu{V}(t)  + \hat{\bmu{x}}(t) + \mu \bmu{L}\bmu{r}(t)\\
 \end{aligned}
 \end{equation}
 Now the derivative terms in \cref{eq:voltage_dt} are replaced with  with their respective equations \cref{eq:x}, \cref{eq:x_hat} and \cref{eq:rate}. Lastly we substitute \cref{eq:voltage_2} in \cref{eq:voltage_dt} and obtain
-\begin{equation}
+\begin{equation}\label{eq:voltage_limit}
 \begin{aligned}
 	\bmu{\dot{V}} &= \bmu{\Gamma}^T\bmu{ALV}\\
 	 &+ \left(\bmu{\Gamma}^T\bmu{A\Gamma} + \mu\bmu{\Gamma}^T \bmu{AL}+\lambda_d\bmu{\Gamma}^T\bmu{\Gamma + \mu\lambda_d}\right)\bmu{r}\\
@@ -206,7 +170,7 @@ With this in mind, all terms that scale with $\frac{1}{N^2}$ are neglected. As a
 \begin{aligned}
 	\bmu{\dot{V}} &= -\lambda_V \bmu{V} + \bmu{W^sr} + \bmu{W^fo} + \bmu{\Gamma}^T \bmu{c}\\
 	\bmu{W^s} &= \bmu{\Gamma}^T\bmu{(A+\lambda}_d\bmu{I)\Gamma}\\
-	\bmu{W^f} & = \bmu{\Gamma}^T\bmu{\Gamma} + \mu\bmu{I}
+	\bmu{W^f} & = -\left(\bmu{\Gamma}^T\bmu{\Gamma} + \mu\bmu{I}\right)
 \end{aligned}
 \end{equation}
 
@@ -217,12 +181,161 @@ With this in mind, all terms that scale with $\frac{1}{N^2}$ are neglected. As a
 
 \todi{find a coherent name for the matrix}
 
+
+
+\subsection{Regularization}\label{sssection:regularization}
+
+Two regularization terms are added to influence spiking behaviour.\\
+\begin{equation}\label{eq:cost_func}
+E(t)=\int_0^t \left(\|\symbfup{x}(u)-\hat{\symbfup{x}}(u)\|_2^2+\nu\|\symbfup{r}(u)\|_1+\mu\|\symbfup{r}(u)\|_2^2\right)d u
+\end{equation}
+
+The parameter $\nu$ controls the amount of spiking by penalizing the total number of spikes as
+\begin{equation}
+||r(t)||_1 = \sum_i|r_i(t)| = \sum_i r_i(t).
+\end{equation}
+The firing rate is directly related to the number of spiking and therefore the cost is reduced by fewer spikes.\\
+The second term solves different issues at the same time. One problem concerns networks that have decoding kernels with the same direction but opposite sign. To show this we imagine a network of only two neurons. A network of two neurons is sufficient to simulate a scalar \ac{ODE} i.e $\bmu{A}\in \mathbb{R}$. We further assume that the kernel has the form
+\begin{equation}
+\Gamma = \begin{bmatrix}
+-1\\1
+\end{bmatrix}
+\end{equation}
+Ignoring the cost terms in \cref{eq:condition} the threshold is set at
+\begin{equation}
+V_i > \frac{\|\bmu{\Gamma}_i\|^2}{2}
+\end{equation}
+after which that a spike is fired and the voltage of neuron $i$  resets to
+\begin{equation}
+V_i = V_i + \bmu{W^s}_{ii} = V_i + \|\bmu{\Gamma}_i\|^2_2 \quad \text{ with } \bmu{W^f} = \begin{bmatrix}
+-1& 1\\
+1& -1
+\end{bmatrix}
+\end{equation}
+ideally setting the Voltage to $-T_i$. This can be seen when looking at the threshold as
+\begin{equation}
+T_i =\frac{ \bmu{\|\Gamma}_i\|^2}{2}= \frac{-\text{diag}(\bmu{W^f})}{2}.
+\end{equation}
+The repolarization of the spiking neuron acts as a depolarization or pushing the voltage towards its threshold for neurons with opposing sign. The problem now is that for neurons with the same kernel magnitude the depolarization is larger enough to push this neuron over the threshold. The subsequent spike re-polarizes the neuron but in turn excites the first neuron over its threshold. This pattern repeats and destroys network performance.\\\addref{maybe a picture}
+For the given example above, the threshold is given by 0.5 for both. The neurons' voltages of are identical up to the sign, since they are tracking the error for the same variable. At the time one neurons reaches the threshold of 0.5 the second neuron's voltage is close to -0.5 considering noise (in a perfect system minus the value of the spiking neuron). After the spike is fired, the first neuron is reset to -0.5 stemming from
+\begin{equation}\label{eq:reset}
+\begin{aligned}
+\bmu{V} &= \bmu{V} + \bmu{W^fo} = \bmu{V} + \bmu{W^f}\begin{bmatrix}
+1\\
+0
+\end{bmatrix} = \bmu{V} + \bmu{W^f}_{:0}\\
+\bmu{V} &= \begin{bmatrix}
+0.5\\
+-0.5\\
+\end{bmatrix} +
+\begin{bmatrix}
+-1\\
+1\\
+\end{bmatrix} =
+\begin{bmatrix}
+-0.5\\
+0.5
+\end{bmatrix}
+\end{aligned}
+\end{equation}
+$\bmu{W^f}_{00}$ whereas the second neuron gets pushed up to 0.5 , causing a spike. This in turn reverts the changes of \cref{eq:reset} resulting in a loop. This problem is caused by the greedy optimization, looking only at the immediate future to decrease the cost.\\
+To fix this we set the threshold slightly higher. As seen above in \cref{eq:condition}, this can be done by either raising the linear or quadratic cost.\\
+The second issue fixed by adding quadratic cost is when there are
+neurons with similar kernel direction but non normalized. In a perfect noise free scenario the neuron with the smaller threshold will always fire first. The neurons reset after the spike will reset the neurons with similar direction, inhibiting the second neuron from ever firing. The linear cost do not make a difference since it is penalizing the global number of spikes but does not discern where the spikes are fired. With the quadratic cost the norm of spike rates distributed among many neurons is reduced compared to few.
+
+\vspace{2cm}
+\hrule
+The first was termed "ping-pong" effect and is described in the supplementary material of \cite{boerlin_predictive_2013}. To understand the issue, we imagine a minimal network consisting of 2 neurons with equal kernel but opposite sign. \rewrite{Write better the ping pong effect! Maybe later}\\
+
+
+The second regularization comes into play when there are kernels with different magnitude. Kernels with small kernel magnitude reach their threshold sooner and therefore fire more frequently. In the extreme case, only small number of neurons fire rapidly while the majority remains idle. By penalizing the rate in the 2-norm it forces the network to spread the firing among the whole network.\\\rewrite{find the right place to explain that!}
+
+
+The dynamic variable $\bmu{x}$ is tracked by firing spikes in when the defined "pseudo voltage" of a neuron surpasses its threshold. The voltage for each neuron is defined by
+\begin{equation}\label{eq:voltage}
+V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d r_i(t)
+\quad i  = 1\dots N.
+\end{equation}
+For negligible quadratic cost $\mu$ the voltage can be understood as measure of the error projected on $\bmu{\Gamma}_i$. The explicit derivation of the above equation is found in \cite{boerlin_predictive_2013} and will be adapted \rewrite{Where? Here, in the appendix of at all?}.
+\section{Control of Dynamic systems using \acp{SNN}}
 \subsection{Balanced networks as a controller}
-Here describe the derivation of the controller we set out to design
-
-
-
-
+We now make the step to use the balanced network approach from above as a controller mechanism.\\
+The idea was taken from \cite{huang_optimizing_2017} and is illustrated in \cref{fig:schematic}. With the given reference signal, the network receives the feedback error of the system. The networks spikes are decoded into a control signal which is further fed into the dynamical system.\\
+The system itself is simulated using a common numerical method i.e. explicit Euler. Yet the goal is to capture the entire problem using \acp{SNN}. The control signal $\bmu{u}$ is generated using the an independent \ac{SNN} which is in turn the command $c$ for a separate \ac{SNN} simulating the states with feedback to the controlling \ac{SNN}.
+\begin{figure}
+	\centering
+	\todi{Add figure}
+	\caption{Schematic to illustrate the use of balanced networks as controllers.}
+	\label{fig:schematic}
+\end{figure}
+\subsection{Dynamics}
+The derivation of this method is similar to the one in \cref{sec:simulation}. Names and variables are reused if not stated here.\\
+The system in question has the form
+\begin{equation}\label{eq:contsys}
+	\bmu{\dot{x}} = \bmu{Ax} + \bmu{Bu}.
+\end{equation}
+The basic definitions of the \ac{SNN} remain the same with rate $\bmu{r}$ as well as decoding weights $\bmu{\Gamma}$. Additionally, \cite{huang_optimizing_2017} defines instantaneous decoding weights $\bmu{\Omega}$ with the same shape as $\bmu{\Gamma}\in \mathbb{R}^{J\times N}$. It is important to note that $J$ does not represent the number of state variables but the number of inputs. The decoding is the same as in \cref{eq:decoding} with the added $\bmu{\Omega}$ giving.
+\begin{equation}
+	\bmu{u}(t) = \bmu{\Gamma r} + \bmu{\Omega o}.
+\end{equation}
+The derivation of the network dynamics in \cite{huang_dynamics_2019} is similar to \cite{boerlin_predictive_2013} and the derivation presented above. Differences arise in the computation of the cost function as the spike changes the system to
+\begin{equation}\label{eq:control_spike_change}
+	\begin{aligned}
+	\bmu{u} &= \bmu{u} + h(t-t^k)\bmu{\Gamma}_k + \bmu{\Omega}_k\\
+	\bmu{r} &= \bmu{r} + h(t-t^k)\bmu{e}_k\\
+	\bmu{\hat{x}} &= \bmu{\hat{x}} + h(t-t^k)\int_{0}^{t-t^k}e^{(\bmu{A}+\lambda_d\bmu{I})\zeta}d\zeta \bmu{B\Gamma}_k + e^{A(t-t^k)}\bmu{B\Omega}_k
+	\end{aligned}
+\end{equation}
+where $\bmu{\Gamma}_k$ and $\bmu{\Omega}_k$ correspond to the $k$-th column of $\bmu{\Gamma}$, $\bmu{\Omega}$ and $h$ the same as defined above. Results are similar for the rate and control signal whereas the state update is obtained by formally integrating the system. The rest of the derivations are analogous and completely derived in \cite{huang_optimizing_2017}. The results summarize to \crefrange{eq:control_dyn_begin}{eq:control_dyn_end}.
+\begin{align}
+	\bmu{V} &= \bmu{\Omega}^T\bmu{B}^T\left(\bmu{x} -\bmu{\hat{x}}\right) - \mu \bmu{r}\label{eq:control_dyn_begin}\\
+	\bmu{\dot{V}} &= -\lambda_V\bmu{V} + \bmu{\Omega}^T \bmu{B}^T \bmu{c}(t) + \bmu{W^fo} + \bmu{W^sr}\label{eq:control_dyn_2}\\
+	\bmu{c} &= \bmu{\dot{x}} - \bmu{Ax}\\
+	\bmu{W^f} &= - \left(\bmu{\Omega}^T\bmu{B}^T\bmu{B\Omega} + \mu\bmu{I}\right)\\
+	\bmu{W^s} &= -\bmu{\Omega}^T\bmu{B}^T\bmu{B\Gamma}\\
+	T_i &= \frac{\bmu{\Omega}_i^T\bmu{B}^T\bmu{B\Omega}_i + \nu  + \mu}{2}
+	\label{eq:control_dyn_end}
+\end{align}
+Note that the notation differs in the original paper and the reference signal is denoted by $\bmu{\hat{x}}$ instead of $\bmu{x}$ here and $\bmu{\Omega}_i$ again refers to the $i$-th column of $\bmu{\Omega}$.
+\subsection{The instantaneous decoding weights}
+The necessity of instantaneous decoding is necessary otherwise no spiking can occur. In \cref{eq:control_spike_change} the control signal is integrated with the matrix exponential. The problem is that the integral
+\begin{equation}
+	\lim_{t\longrightarrow 0 } \int_0^t e^{(\bmu{A}+\lambda_d\bmu{I})\zeta}d\zeta = 0
+\end{equation}
+for our small $\epsilon$ time horizon.\\
+This is true for any matrix exponential $e^{\bmu{\Lambda}\zeta}$ seen by Taylor expansion
+\begin{equation}
+	\begin{aligned}
+	\lim_{t\longrightarrow 0 }\int_0^t e^{\bmu{\Lambda}\zeta}d\zeta &= \lim_{t\longrightarrow 0 } \int_0^t \sum_{k=0}^\infty \frac{\left(\bmu{\Lambda}\zeta\right)^k}{k!} d\zeta\\
+	&=\lim_{t\longrightarrow 0 }\sum_{k=1}^\infty t\frac{\left(\bmu{\Lambda}t\right)^{k-1}}{k!} = 0.
+	\end{aligned}
+\end{equation}
+This means that the rate decoding vanishes in the derivation of \crefrange{eq:control_dyn_begin}{eq:control_dyn_end}. Therefore the firing threshold condition becomes
+\begin{equation}
+	-\mu \bmu{r}_i > \frac{\nu  + \mu}{2}
+\end{equation}
+if $\bmu{\Omega}$ is ignored which is an insatiable condition since $\bmu{r}$ is always non-negative.
+\subsection{Extension with direct Error feedback}
+The same group of \cite{huang_optimizing_2017} later published a new but very similar approach in \cite{huang_spiking_2019} which is based on the same idea, however the approach in \cite{huang_spiking_2019} makes the error a direct part of the voltage dynamics. The difference arises from the an new derivation avoiding the pseudo-inverse $\bmu{L}$.\\
+Instead, during the analogous step of \cref{eq:voltage_dt} they set $\bmu{\hat{x}}$
+and $\bmu{x}$ to follow the same dynamics, namely
+\begin{equation}
+	\bmu{\dot{x}} = \bmu{Ax} + \bmu{c}(t)
+\end{equation}
+for the reference signal and
+\begin{equation}
+	\bmu{\dot{\hat{x}}} = \bmu{A\hat{x}} + \bmu{Bu}
+\end{equation}
+for the system.\\
+In total this adjustment changes the dynamics of \cref{eq:control_dyn_2} to
+\begin{equation}
+	\bmu{\dot{V}} = -\lambda_V\bmu{V} + \bmu{\Omega}^T \bmu{B}^T\bmu{Ae}(t) + \bmu{\Omega}^T \bmu{B}^T \bmu{c}(t) + \bmu{W^fo} + \bmu{W^sr}.
+\end{equation}
+Important to note is that due to the investigation of the network's limit behaviour in \cite{huang_optimizing_2017}, similarly done in \cref{eq:voltage_limit} and the subsequent neglect of certain terms, changes the definition of $\bmu{W^s}$. In the derivation in \cite{huang_spiking_2019} this is not done and therefore terms remain changing $\bmu{W^s}$'s definition to
+\begin{equation}
+	\bmu{W^s} = -\bmu{\Omega}^T\bmu{B}^T\bmu{B\Gamma} + \mu\bmu{I}.
+\end{equation}
+\todi{add that there is always noise somewhere}
 \section{Engineering-related and scientific content:}
 Applying engineering related and scientific skills; modelling, analysing, developing, and evaluating engineering-related and scientific content; correct choice of methods based on problem formulation; consciousness of aspects relating to society and ethics (if applicable).
 
