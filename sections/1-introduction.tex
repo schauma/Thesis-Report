@@ -25,6 +25,8 @@ While state of the art feed-forward networks are still outperforming \acp{SNN}, 
 
 
 \todi{This is a seperator}
+
+
 Present the background for the area. Give the context by explaining the parts that are needed to understand the degree project and thesis. (Still, keep in mind that this is an introductory part, which does not require too detailed description).
 
 Use references\footnote{You can also add footnotes if you want to clarify the content on the same page.}
@@ -37,7 +39,6 @@ Detailed description of the area should be moved to Chapter 2, where detailed in
 This background presents background to writing a report in latex.
 
 
-Example citation \cite{Jones2017} or for two authors: \cite{Jones2017, Liu2017}
 
 Look at sample table \ref{tab:sample-table-label} for a table sample.
 
@@ -58,21 +59,28 @@ Boxes can be used to organize content
 	}
 \end{tcolorbox}
 
+\section{Background}
+\todi{Background.}
+
 \section{Problem}
+
 
 
 \todi{Now list the goal: We want to do it for DS and check how good they are. Then method and then work. Take from below}
 
 
-Conventional Feed-Forward neural networks do are not designed to work with temporal data. They are static input output machines. This makes sense in the context of certain tasks but at the same time limits the power of these networks. There are workarounds to fit temporal data, for example by sampling the previous values back into the network \addref{give some refs} or to quantize the whole input if the complete time horizon is available. For example with audio data the file is segmented into parts and fed into the network.\addref{Find refs for that.}
-\todi{find refs for that.}
-This is often done when \acp{ANN} are proposed for the control of LTI systems\addref{find more refs.}.\\
-Secondly when it comes to simulation of biologic dynamic systems usually LQG control is used. LQG has been used widely for modelling biological movements and control.\rewrite{Add that LQR made many improvements but is also trash because of the matrix inversion, and nonlinear things in biology. Maybe also that it is an offline thing? Not sure whether thats true or if it is already online/can do noise but i believe yes.}
+Conventional Feed-Forward neural networks do are not designed to work with temporal data. They are static input output machines. This makes sense in the context of many tasks but at the same time limits the power of these networks. There are workarounds to fit temporal data, for example by sampling the previous values back into the network used for example in time series forecasting \cite{tang_feedforward_1993}\cite{yang_cascade_2022}\cite{uncini_audio_2003} or to quantize the whole input if the complete time horizon is available. For example with recorded audio data.\\
+Instead, recurrent neural networks are often proposed for these kinds of tasks. However recurrent neural networks experience problems when training with back-propagation\cite{bengio_learning_1994}. For \acp{RNN} and deep Feed-forward Neural Networks the gradients used in the back-propagation algorithm can explode or vanish. Different methods have been proposed to combat this problem, e.g. batch normalization\cite{ioffe_batch_2015}, using alternative activation functions(ReLU)\cite{nair_rectified_2010} or gradient clipping\cite{pascanu_difficulty_2013} to name a few. For recurrent models in particular different architectures have been suggested, most prominently among them the LSTM cell \cite{hochreiter_long_1997} with enormous success \cite{mayer_system_2006, sak_long_2014, li_constructing_2015}.\\
+Yet, recurrent methods do not represent a very plausible formulation for biological networks. or biological movement\addref{true?}.
+For the control of biological movements (often) \ac{LQR} is a proposed model for biological control \cite{li_iterative_2004}
+Secondly when it comes to simulation of biologic dynamic systems usually \ac{LQG} control is used\addref{find refs}. LQG has been used widely for modelling biological movements and control.\rewrite{Add that LQR made many improvements but is also trash because of the matrix inversion, and nonlinear things in biology. Maybe also that it is an offline thing? Not sure whether thats true or if it is already online/can do noise but i believe yes.}
 \todi{this is another smaller separator}
 \acp{SNN} are inherently designed in time since neural impulses are integrated over time. This makes the use for temporal data natural.\\
 The use of snn is online, can deal with much noise and offers an alternative way to reason for motor movement.
 
-
+ \addref{backprop is not bio feasable bcs neurons are local and cannot traverse whole network}
+ \addref{Feedforward have no memory. Makes it hard for many tasks to be useful. With recurrence you get memory.}
+ \todi{add other snn models. e.g reach, sorn maybe or others,FORCE}
 We hope that with SNN we have even better performance\\
 From very biological to very abstract there have been many proposals\\
 Cost performance trade off.\\

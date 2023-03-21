@@ -51,13 +51,12 @@ where L can be e.g. MSE and the regularization term $C$ can enforce sparsity or 
 \section{Neuron model}
 
 \subsection{Biological Neuron model}
-\todi{there are more than the HH now. Check wiki of HH model}
-The most biologically accurate model of neuron spiking is the \ac{HH} model. The \ac{HH}-model considers the neuron with its ion channels. The membrane acts as a capacitance and the travelling ions in each ion channel contribute a current to the overall membrane potential. These ion gates are voltage dependent and are defined positive in direction out of the cell.\\
+The first biologically accurate model of neuron spiking behaviour is the \ac{HH} model from 1952\cite{hodgkin_currents_1952}. Since then the \ac{HH} model has been extended in multiple ways to cover more e.g. different ion channels. The \ac{HH}-model considers the neuron with its ion channels. The membrane acts as a capacitance and the travelling ions in each ion channel contribute a current to the overall membrane potential. These ion gates are voltage dependent and are defined positive in direction out of the cell.\\
 A particular ion channel for ion $X$ can be modelled as
 \begin{equation}
 	I_X= g_X \cdot (V-V_X)
 \end{equation}
-These currents are summed summed for the different ion channels in question, most commonly for Sodium, Potassium and a leak current. In reality there are a plethora of different channels and channel properties\footnote{See  \url{channelpedia.epfl.ch} for an extensive list}. The $V_X$ are the equilibrium potentials for each of the channels and can be computed using the Nernst equation \cite{johnston_foundations_1995}. \addref{Add a reference to a monography.}
+These currents are summed summed for the different ion channels in question, most commonly for Sodium, Potassium and a leak current. In reality there are a plethora of different channels and channel properties\footnote{See  \url{channelpedia.epfl.ch} for an extensive list}. The $V_X$ are the equilibrium potentials for each of the channels and can be computed using the Nernst equation \cite{johnston_foundations_1995}.
 \begin{equation}
 	C \frac{dV}{dt} = g_{Na} \cdot (V-V_{Na}) + g_K \cdot (V-V_K) + g_l \cdot (V-V_l)
 \end{equation}
@@ -122,31 +121,52 @@ The parameters describe $a$ scale of recovery, $b$ sensitivity, $c$ the reset po
 
 \section{Neural Networks}
 
-\subsection{Biological Neural Network}
-
 \subsection{Artificial Neural Networks}
  \todo{Make clear distinction between forward nns and ann. Bcs apparently they are not the same!}
-\subsection{Spiking Neural Networks}
+
+
+ \subsection{Plasticity}
+ STDP\\
+ Gradient descent\\
+ Hebbian\\
+ maybe?
+
+ Key to give any \ac{NN} the ability to solve a task is to learn/train the it. The adaption of weights and biases is necessary to accomplish any functionality based on the underlying data\cite{zheng_introductory_2022}. There are various ways to train a network. For \acp{ANN}, gradient based algorithms are often the method of choice. They use the error from the loss function do compute the derivative $\frac{\partial L}{\partial \theta_{ij}}$ to adjust each parameter $\theta$, i.e. weights and biases with
+ \begin{equation}
+ 	\theta_{ij} = \theta_{ij} - \eta \frac{\partial L}{\partial \theta_{ij}}
+ \end{equation}
+ until a local minima is reached. The computation of gradients is done efficiently using the backpropagation algorithm (reverse accumulation from \ac{AD}), in which the gradients are propagated from the output backwards towards the input by making use of the chain rule and the fact that the \ac{NN} has a layered structure. An in-debt explanation is given in e.g \cite{goodfellow_deep_2016} or \cite{nielsen_neural_2015}.
+
+
+ There are a plethora of different learning techniques available, see \cite{abdolrasol_artificial_2021}\cite{sun_survey_2019} for a review. The most fundamental distinction can be made between supervised, unsupervised and reinforcement learning rules.
+ One needs to remember that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information. A short summary of learning rules in \ac{SNN} is given in a later chapter.\\
+
+ \subsubsection{Supervised Learning methods}
+ Gradient based methods require differentiability and therefore continuity, thus are only applicable for \acp{ANN}.\\
+ \todi{Explain gradient methods. The derivative of the weights and biases is used for the derivative of the cost function. Efficient methods for building the derivative exists. With reference!}
+
+
+\section{Spiking Neural Networks}
 A spiking Neural network is one step closer to a biologic representation of a brain. Instead of conveying information using a gradient in conventional \ac{NN}s, information is propagated using discrete spikes of excitation, similar to biological neurons. Hereby one can distinguish between several ideas of implementation.
 \rewrite{The main difference is the motion of time}
 
-\subsection{Poisson Networks}
-Poisson networks are built around the idea that information is encoded in the firing rate of a neuron. The precise timing of a spike is essentially meaningless\cite{brette_philosophy_2015}. This makes a strong contrast to the approach chosen in this paper, where every spike is timed exactly to minimize a cost function.\rewrite{Maaybe add that our approach does not rule rate out completely.}
+\subsection{Rate Networks}
+Poisson networks are built around the idea that information is encoded in the firing rate of a neuron. The precise timing of a spike is essentially meaningless\cite{brette_philosophy_2015}. This makes a strong contrast to the approach chosen in this paper, where every spike will be timed exactly to minimize a cost function.\rewrite{Maybe add that our approach does not rule rate out completely.}
 The encoding of a value, e.g. four, is set by endowing the input neurons with a Poisson point process with a suitable encoding rate $r_i$\cite{deneve_efficient_2016}.\\
 One typically uses probabilistic stimuli because observations in the spiking of the human brain do are different in a trial by trial basis.\\
-Input spikes are travelling through the recurrent network with weighted connections. The decoding is done by counting the spikes of output neurons over a certain time window. The time window plays a crucial rule in the decoding. If it is set smaller, spatio temporal patterns can be captured which can convey information about the input. Equally the sensitivity to noise becomes greater. If the time window is set to large, the firing patterns are lost though the impact of random spikes is reduced.\\
-\todo{Write that the error scales pretty badly with the squareroot and therefore we need a lot of spikes to get certain precision. I do not understand how and why. For regular timed spikes we the error scales linearly so we need many fewer spikes. But mention the CV value and explain it. Ref are the boerlin and nature paper. With that explain the pro and con like noise resistance bcs of many spikes and the inefficiency of the rate encoding.}
-Theoretically using a lot of spikes is unproblematic and with large spike counts neuromorphic hardware is still much more energy efficient than deep neural networks if one seeks to deploy it. \addref{Maybe I can find a stat on how much more efficient neuromorphic hardware really is.}\rewrite{sounds a bit bad}
+Input spikes are travelling through the recurrent network with weighted connections. The decoding is done by counting the spikes of output neurons over a certain time window. The time window plays a crucial rule in the decoding. If it is set smaller, spatio temporal patterns can be captured which can convey information about the input. Equally the sensitivity to noise becomes higher. If the time window is set to large, the firing patterns are lost due to exceedingly large averaging though the impact of random spikes is reduced.\\
+Using this method is comparatively simple way of encoding as firing rates are used in favour of the individual spikes which are modelled by random processes. Additionally this approach is biologically not completely unsound. In nature it has been shown that the firing rate does convey information about the stimuli's magnitude. \cite{adrian_impulses_1926}.\\
+The connection weights are subject to change over the learning/training period\cite{almomani_comparative_2019} and can be trained with different training algorithms e.g. (anti-)Hebbian, STDP, gradient based or more involved training methods\cite{demin_recurrent_2018}. See \cite{yi_learning_2023} for an overview.\\
 
-The connection weights are subject to change over the learning/training period\cite{almomani_comparative_2019}.\\
-This approach however has some conceptual problems. Firstly, this approach has the problem that responses are limited by the time window the spikes are counted\cite{andrew_spiking_2003}. This means that the rate decoding is to slow to capture the fast travelling information and another needs to be another faster way to transmit information. However it has been shown that the firing rate does convey information about the stimuli's magnitude \cite{adrian_impulses_1926}.\\
-The second problem is that due to the Poisson process one needs more spikes to represent an average firing rate. An action potential consumes a lot of the cells energy\cite{attwell_energy_2001}, thus making it unfeasible to use a large number of spikes if one tries to model the brain. Evolution has found a better way to transmit information.
 
+The issue with a Poisson process to put out spikes for its respective rate is that the Poisson process needs many spikes to transmit a signal accurately. For N neurons representing a given value the error or variance scales with $\frac{1}{\sqrt{N}}$\cite{boerlin_predictive_2013}\todo{I can deliver the derivation of that number if necessary}. This means to get accurate results a huge amount of spikes need to be fired. This is intuitive as the time between spikes is exponentially distributed and the more samples are available the better the rate parameter can be estimated.
+Theoretically using a large number of spikes is unproblematic and even with large spike counts neuromorphic hardware is still much more energy efficient than deep neural networks when deployed\cite{indiveri_importance_2019}.
+
+
+Though there are more issues to this method. Firstly, this approach has the problem that responses are limited by the time window in which spikes are counted\cite{andrew_spiking_2003}. This means that the rate decoding is to slow to capture the fast travelling information\cite{guo_neural_2021} and there need to be faster ways to transmit information.
+The second problem is that due to the Poisson process one needs more spikes to represent an average firing rate. An action potential consumes a lot of the cells energy\cite{attwell_energy_2001}, thus making it unfeasible to use a large number of spikes if one tries to model the brain. There are more efficient ways to transmit information\\
 
 Although the above mentioned problems, rate encoded \acp{SNN} have seen interest by research. A big hurdle of deploying \acp{SNN} is the lack of performant learning algorithms. For this there efforts have been made to train recurrent or convolutional \acp{ANN} using backpropagation and afterwards convert the trained network to a \ac{SNN}\cite{pfeiffer_deep_2018} using rate encoding\cite{diehl_conversion_2016}\cite{diehl_fast-classifying_2015}.
-\rewrite{Maybe find a reference that the power consumption is really low even though the use rate based encoding}
-
-\rewrite{Say that the CV(explain what it is :sigma/mu and what it says) value is shit so you you need a ton of spikes. Then say that it has some use and some perfomrance when you transmit from an ann and move it to a snn with neuromophic hardware. USe the papers from the nature paper forward  to the right.}
 \subsection{Liquid state machines}
 \todi{write how the offline computing is pretty bad for brain things, but good for chess for example. The online computing is what the brain does and it is not yet as developed.}
 One alternative method has been the use of \ac{LSM} or more general Reservoir computing.\\
@@ -165,7 +185,7 @@ The liquid can be made of any system that fulfils two properties.\\
 \end{itemize}
 To these points it is usually set for the system to be time invariant\cite{cooper_liquid_2011}.
 A reservoir can be a mathematical abstract formulation or physical object, e.g. a literal bucket of water \cite{tanaka_recent_2019}.\\
-After the choice of "liquid" in the reservoir is fixed, its dynamics are not altered. Only the linear decoder is trained to return the desired decoded output. This is a considerable time saver since the training of recurrent networks is expensive. On the contrary the linear decoder can be learned relatively cheaply.\\
+After the choice of "liquid" in the reservoir is fixed, its dynamics are not altered. Only the linear decoder is trained to return the desired decoded output\cite{jaeger_echo_2010}. This is a considerable time saver since the training of recurrent networks is expensive. On the contrary the linear decoder can be learned relatively cheaply.\\
 A reservoir computer is called a \ac{LSM} if one chooses a spiking neural network as the reservoir. The requirements mentioned above are fulfilled by the recurrent structure to retain information of the neurons and its non-linear spiking behaviour.\\
 \acp{LSM} are capable of computing any dynamical system of any order of the form of
 \begin{equation}
@@ -181,38 +201,29 @@ given a sufficiently large liquid and a suitable feedback and decoder\cite{maass
 
 \subsection{Balanced Networks}
 The idea of tightly balanced spiking networks was first proposed by Boerlin et al.\cite{boerlin_predictive_2013}. It uses predictive coding in combination with spikes to simulate arbitrary linear systems.
-The technical derivation will be described in chapter \rewrite{Add the ref to the chapter}. The approach defines a cost function measuring the networks' accuracy in addition with regularization terms that moderates the spiking behaviour. Using a greedy algorithm this cost function determines the voltage threshold and therefore the neurons' spiking behaviour.\\
-For each neuron voltage can be understood as a projection of the global system error to a local error.\\
-Therefore the spiking rule is set to fire if the Voltage of a neuron becomes to large in order to reset the neuron voltage and reduce part of the system error.
+The technical derivation will be described in \cref{ssec:balanced_network_sim}. The approach defines a cost function measuring the networks' accuracy in addition with regularization terms that moderates the spiking behaviour. Using a greedy algorithm this cost function determines the voltage threshold and therefore the neurons' spiking behaviour.\\
+For each neuron voltage can be understood as a projection of the global system error to a local error. One neuron is only tracking the system error under this projection. When the error under this projection reaches a threshold, a spike is fired.\\
+The firing of a neuron resets its voltage as well as correcting the system to reset the perceived projected error.\\
 
-
-Balanced networks differ from the previous rate encoding in that excitation and inhibition is closely tracked. In rate encoded networks both inhibitory and excitatory spikes are received by a single neuron. An change of the variable is then governed by which type dominates. Here a rate coding is also used, however in combination with instantaneous decoding\cite{johnson_minimum-error_2016}.
-
-
-The derivation of its behaviour is adopted from \cite{boerlin_predictive_2013},\cite{huang_spiking_2019} and \cite{huang_optimizing_2017}.
-\rewrite{Add some more general stuff here!}
-
-\todi{The derivation of the method used can be put to method or work/ here we can explain using only words and compare to the other methods and why we chose this one etc}
-\todi{Reference to method for the derivation}
-\subsection{Learning: SGD and STDP}
-STDP\\
-Gradient descent\\
-Hebbian\\
-maybe?
-
-Key to give any \ac{NN} the ability to solve a task, it is integral to learn/train the network. The adaption of synapse weights is necessary to accomplish any functionality based on the underlying data\addref{Put this reference in and say its is copied partly from them}\cite{zheng_introductory_2022}. There are various ways to train a network. The most fundamental distinction can be made between supervised, unsupervised and reinforcement learning rules.
-One needs to remember that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information.\\
-For a review
-
-\subsubsection{Supervised Learning methods}
-Gradient based methods require differentiability and therefore continuity, thus are only applicable for \acp{ANN}.\\
-\todi{Explain gradient methods. The derivative of the weights and biases is used for the derivative of the cost function. Efficient methods for building the derivative exists. With reference!}
-
-\subsubsection{Unsupervised Learning methods}
-STDP
-\subsubsection{Reinforcement learning}
+Balanced networks differ from the previous rate encoding in that excitation and inhibition is closely tracked. In rate encoded networks both inhibitory and excitatory spikes are received by a single neuron. An change of the variable is then governed by which type dominates. Here a rate coding is used, however in the matter of control, a combination with instantaneous decoding is \cite{johnson_minimum-error_2016} utilized.\\
+Additionally, every neuron is given an specific area of the system to surveil. The projection of the system error therefore has therefore immense influence on an individual neuron's spiking behaviour. On the other hand on rate networks a population of neurons is given a value to represent and the population spiking rate encodes this value. An individual spike in this population does not have a direct relevance to the system and a discrete impact on its behaviour.\\
+\todo{Add more differences prob and explain more why we use this one.}
 
 
 
-Here explain the conpects for each of the NNs\\
-Give references for the STDP variances\\
+\subsection{Plasticity}
+It's important to remember that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information.\\
+Gradient based methods require differentiability and therefore continuity, thus are only applicable for \acp{ANN}. This means that they cannot be used for \acp{SNN} since spikes introduce discontinuities. Methods have been proposed to use backpropagation in spiking networks\cite{lee_training_2016} yet they do not provide a biologically plausible way to learn. The problem is that in biology neurons do not have access to the global error from the loss function but only to their pre-synaptic neurons.
+\subsubsection{(Anti-) Hebbian Learning and STDP}
+The Hebbian learning rule is one of the oldest learning rules for neural networks. Its key idea is can be summarizes as "Neurons that fire together, wire together". If the postsynaptic neuron fires shortly after the presynaptic neuron, the connection strength is increased. Oppositely, if the postsynaptic neuron fires before the presynaptic, their connection strength is decreased.\\
+The longer the delay between firing activation, the smaller the increase. This behaviour of potentiation and depression is pictured in \cref{fig:stdp} and build the bases for the spike time dependent plasticity rule (STDP).
+\begin{figure}
+	\centering
+	\includegraphics[scale = 0.15]{stdp}
+	\caption{Graphical representation of STDP learning rule. Weight change depending on the time between pre- and postsynaptic activation. Negative time is the time between the postsynaptic neuron firing before the presynaptic. Graphic taken from \cite{yi_learning_2023}.}
+\end{figure}
+
+These rules have the add
+
+
+
