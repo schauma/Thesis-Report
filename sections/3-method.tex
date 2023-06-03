@@ -11,6 +11,9 @@ The field of \acp{SNN} is under ongoing research. Therefore many different netwo
 On the other side of the specturm it makes little sense to use \ac{HH}'s model. Even though it is very biologically plausible its increased complexity and little abstraction makes it more suited for solely accurate biological neural simulation and less for the engineering task at hand. Additionally there are no training/learning rules available to solve such a high level problem.\\
 
 
+
+
+
 Explain choice of SNN architecture\\
 HH doesnt make sense because to complex.\\
 Recurrent models are possible but also not biologic enough because we want to use the spiking property\\
@@ -35,6 +38,7 @@ Most likely it generally describes the method used in each step to make sure tha
 
 \section{Simulation of Dynamic systems using \acp{SNN}}\label{sec:simulation}
 In the following sections the simulation of dynamic systems using \acp{SNN} is derived and explained. This serves as the a basic building block for the attempted method on how to solve our target set out in section\todi{add reference to the goal section}. We begin with the formal derivation of the network dynamics.
+
 \subsection{Balanced network simulation}\label{ssec:balanced_network_sim}
 
 This section follows the derivation found in \cite{boerlin_predictive_2013} and \cite{huang_dynamics_2019}.
@@ -290,7 +294,7 @@ where $\bmu{\Gamma}_k$ and $\bmu{\Omega}_k$ correspond to the $k$-th column of $
 \begin{align}
 	\bmu{V} &= \bmu{\Omega}^T\bmu{B}^T\left(\bmu{x} -\bmu{\hat{x}}\right) - \mu \bmu{r}\label{eq:control_dyn_begin}\\
 	\bmu{\dot{V}} &= -\lambda_V\bmu{V} + \bmu{\Omega}^T \bmu{B}^T \bmu{c}(t) + \bmu{W^fo} + \bmu{W^sr}\label{eq:control_dyn_2}\\
-	\bmu{c} &= \bmu{\dot{x}} - \bmu{Ax}\\
+	\bmu{c} &= \bmu{\dot{x}} - \bmu{Ax}\\\label{eq:feeback_c}
 	\bmu{W^f} &= - \left(\bmu{\Omega}^T\bmu{B}^T\bmu{B\Omega} + \mu\bmu{I}\right)\\
 	\bmu{W^s} &= -\bmu{\Omega}^T\bmu{B}^T\bmu{B\Gamma}\\
 	T_i &= \frac{\bmu{\Omega}_i^T\bmu{B}^T\bmu{B\Omega}_i + \nu  + \mu}{2}
@@ -319,7 +323,7 @@ if $\bmu{\Omega}$ is ignored which is an insatiable condition since $\bmu{r}$ is
 The same group of \cite{huang_optimizing_2017} later published a new but very similar approach in \cite{huang_spiking_2019} which is based on the same idea, however the approach in \cite{huang_spiking_2019} makes the error a direct part of the voltage dynamics. The difference arises from the an new derivation avoiding the pseudo-inverse $\bmu{L}$.\\
 Instead, during the analogous step of \cref{eq:voltage_dt} they set $\bmu{\hat{x}}$
 and $\bmu{x}$ to follow the same dynamics, namely
-\begin{equation}
+\begin{equation}\label{eq:feedback_c2}
 	\bmu{\dot{x}} = \bmu{Ax} + \bmu{c}(t)
 \end{equation}
 for the reference signal and
@@ -337,9 +341,29 @@ Important to note is that due to the investigation of the network's limit behavi
 \end{equation}
 \todi{add that there is always noise somewhere}
 
-\subsection{Direct feedback}
+\subsection{Direct error}
+The most important insight of the approach in \cref{eq:feeback_c,eq:feedback_c2} is that the signal $\bmu{c}(t)$ is the pricipal source of control in the system. Moreover it is explicitly calculated from the system $\bmu{A}$ as well as the information of the reference signal and its derivative.
 
-\todi{Write here that approach that I didnt do yet.}
+
+
+
+\section{Learning of network parameters}
+All the methods described above work on the optimally ideal weights for the dynamics. However in nature often new skills or dynamics are learned and not optimally tuned for the problem at hand. In the following chapter the optimally of derived is explained and local learning rules for the weights are introduced.\\
+
+\subsection{Optimal weights}
+
+\subsubsection{Fast connection weights $\bmu{W}^f$}
+
+\subsubsection{Slow connection weights $\bmu{W}^s$}
+
+
+\subsection{Learning of fast connection weights $\bmu{W}^f$}
+
+
+\subsection{Learning of slow connection weights $\bmu{W}^s$}
+The recurrent weights $\bmu{W}^s$ are called slow because they are in conjunction with the filtered spike train $\bmu{r}(t)$ in \cref{eq:voltage_limit} in contrast to $\bmu{W}^f$ which are reset the neuron voltage after a spike.
+
+
 
 \section{Engineering-related and scientific content:}
 Applying engineering related and scientific skills; modelling, analysing, developing, and evaluating engineering-related and scientific content; correct choice of methods based on problem formulation; consciousness of aspects relating to society and ethics (if applicable).
