@@ -32,8 +32,46 @@ What is a neural network? -> not here ref a paper. kurze erkl'rung in der einfue
 in der einfuhurng vlt auch hodgekin huxley erwaehen :)
 
 
+Copying nature to solve engineering problems is not a novel practise and also for neural networks this is not new. Many different network architectures with different levels of biologic plausibility have been investigated and published. Biologic realness can be chosen on different parts of the network. Apart from very specific implementations many \acp{SNN} can be grouped by
+\begin{itemize}
+	\item Neuron model
+	\begin{itemize}
+		\item LIF or IF
+		\item Izhikevich
+	\end{itemize}
+	\item Architecture
+	\begin{itemize}
+		\item Recurrent
+		\item Layered
+	\end{itemize}
+	\item Encoding
+	\begin{itemize}
+		\item Poisson process
+		\item Population coding
+		\item TTFS
+		\item Phase coding
+	\end{itemize}
+	\item Decoding
+	\begin{itemize}
+		\item Linear
+		\item Quadratic
+		\item Non-linear
+	\end{itemize}
+	\item Learning rule
+	\begin{itemize}
+		\item (Reward modulated) STDP
+		\item Anti-Hebbian
+		\item BBTT
+		\item Surrogate Gradients
+		\item $\dots$
+	\end{itemize}
+	\item Plasticity
+	\begin{itemize}
+		\item Adjusting weights
+		\item Dynamic threshold
+	\end{itemize}
+\end{itemize}
 
-\section{Dynamic systems}
 \section{Autoencoder}
 An autoencoder is a type of neural network for learning a representation of its input. It consists of an encoder and decoder function $z =f(x)$ \& $\hat{x} = g(z)$. The encoder function from the input space, e.g $\mathbb{R}^n$, to a encoded space $\mathcal{C}$. The decoder is then decoding the data from $\mathcal{Z}$ back to $\mathbb{R}^n$. The goal is that the representation is as accurate as possible. This is easy in case the if $\mathcal{Z}$ is equal or larger than the input space. Then every possible input can be encoded by its own value as
 \begin{equation}
@@ -193,6 +231,8 @@ given a sufficiently large liquid and a suitable feedback and decoder\cite{maass
 	\caption{Adding suitable feedback allows \acp{LSM} to be universal approximator. Adapted from \cite{maass_computational_2007}}
 	\label{fig:LSM_feedback}
 \end{figure}
+
+\subsection{Intelligent Synapses (Friedeman Zenke)}
 
 \subsection{Balanced Networks}
 The idea of tightly balanced spiking networks was first proposed by Boerlin et al.\cite{boerlin_predictive_2013}. It uses predictive coding in combination with spikes to simulate arbitrary linear systems.

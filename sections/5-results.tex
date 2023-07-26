@@ -1,4 +1,4 @@
-\chapter{<Result>}
+\chapter{Results}
 Describe the results of the degree project.
 Analyses of results
 
@@ -25,5 +25,196 @@ What is the influence of the input
 You have to juggle the values of learning rate and input amplitude to reach ideal results
 
 
+
+\section{Results on the Simulation from \cref{sec:res_simulation}}
+\subsection{Toy Example}
+\begin{figure}[h!]
+	\centering
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Simulation/basic_example.pdf}
+	\caption{Baseline example}
+	\label{fig:sim_res_1}
+\end{figure}
+
+The results from simulating the network with given input $\bmu{c}(t)$ can be seen in \cref{fig:sim_res_1}. In this scalar example the ODE
+\begin{equation}\label{eq:leaky_integration_example}
+\dot{x} = -10x +c(t)
+\end{equation}
+is simulated with 2 neurons. One neuron corrects the network simulation of the system up and down respectively. As shown before this correction happens immediately after each spike by adding weights of the relevant decoding vector to the trajectory. Since this example is following a scalar variable with 2 neurons the decoding matrix $\bmu{\Gamma}\in \mathbb{R}^{1\times2}$ and set to $\left[0.09,-0.09\right]$ for this example. This can be seen in \cref{fig:sim_res_1}, the neural network simulation jumps up after each spike by 0.09 is added. The external input follows a linear increase until 0.15s after which it remains constant.\\
+For reference a conventional numeric solution is given which lies directly between the two neurons threshold, visualized with dotted lines.\\
+\begin{figure}[h!]
+	\centering
+	\begin{subfigure}[t]{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../../plots/Simulation/small_lambdaD.pdf}
+		\caption{Reduced Readout Decay rate}
+		\label{fig:sim_low_lambda}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../../plots/Simulation/small_gamma.pdf}
+		\caption{Reduced Threshold}
+		\label{fig:sim_low_gamma}
+	\end{subfigure}
+	\caption{Variation of Readout Decay and Decoder for simple 1D system.}
+	\label{fig:sim_res_2}
+\end{figure}
+Already for this toy example different parameters can be tuned to get different results. In \cref{fig:sim_low_lambda} the readout decay is reduced compared to \cref{fig:sim_res_1} which reduces how fast the output tends to zero. This also elevates the importance of a single spike as it has longer lasting effects on the output, seen by the system showing fewer spikes than before.\\
+Alternatively, if the decoding weights can be scaled to let each spike make a smaller change in the output seen in \cref{fig:sim_low_gamma}. Since the threshold is closely tied to the Decoding weights this also reduces the spike threshold and therefore yields more accurate results.\\
+
+\subsection{Toy example in 2D}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width = \textwidth]{../../plots/Simulation/simple_2d.pdf}
+	\caption{Simple 2D example with numerical solution and spike response. Curves for $x$ in yellow/blue. Curves for $y$ in purple/red. The networks output closely tracks the perfect numerical solution. For the network each decoding vector was chosen from a normal distribution and normalized to $\left\lVert\bmu{\Gamma}_i\right\rVert_2 =0.3$. Beneath a raster plot for each spiking neuron \\ On the left the threshold for each neuron's projected error.}
+	\label{fig:sim_res_simple}
+\end{figure}
+
+
+
+\subsection{Geometry in 2D}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width = \textwidth]{../../plots/Simulation/2d_simple_spikes.pdf}
+	\caption{Simple 2D example with numerical solution and spike response. Curves for $x$ in yellow/blue. Curves for $y$ in purple/red. The networks output closely tracks the perfect numerical solution. For the network each decoding vector was chosen from a normal distribution and normalized to $\left\lVert\bmu{\Gamma}_i\right\rVert_2 =0.3$. Beneath a raster plot for each spiking neuron \\ On the left the threshold for each neuron's projected error.}
+	\label{fig:sim_res_geometric}
+\end{figure}
+In two dimensions the network with its allows for a geometric interpretation. For this we let the network simulate a simple leaky integration of inputs as in \cref{eq:leaky_integration_example} but in two dimensions. We have the corresponding results in \cref{fig:sim_res_geometric} on the right. On the left we a phase plot in the $xy$-axis.
+
+
+\subsection{Importance of Feedforward/Decoding weights}
+So far we have not given much attention to decoding/feedforward weights. Yet they play a crucial rule in the performance of our network as seen in \cref{fig:sim_res_3}. Here we simulate again a simple leaky integration as in \cref{eq:leaky_integration_example} however this time in 2D. With the output, in each test we also plot a bounding box for the relative error.\\
+The bounding box of the error is the normal to each of the decoding weights. In \cref{eq:x_hat} the network output gets the $i$th column $\bmu{\Gamma}$ added when the $i$th neuron spikes. From the minimization of the cost we know that the spike of neuron $i$ reduces the error in projected by $\bmu{\Gamma}_i$. If we know imagine the origin of the \cref{fig:sim_res_3} l to always be on top of the true trajectory of $\left[x ,\ y\right]^T$, the network's error is just deviation from the origin.
+
+Explain phase plot
+explain the normal to the decoding weights
+Explain the 3 plots
+Dont forget to explain the Trichter in the bad plots
+\begin{figure}[h!]
+		\centering
+	\begin{subfigure}[t]{0.6\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../../plots/Simulation/2d_perfect_gamma.pdf}
+		\caption{Network }
+		\label{fig:sim_perfect_gamma}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.6\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../../plots/Simulation/2d_random_gamma.pdf}
+		\caption{Reduced Threshold}
+		\label{fig:sim_random_gamma}
+	\end{subfigure}
+	\hfill
+\begin{subfigure}[t]{0.6\textwidth}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Simulation/2d_bad_gamma.pdf}
+	\caption{Reduced Threshold}
+	\label{fig:sim_bad_gamma}
+\end{subfigure}
+	\caption{Network output after leaky integration of oscillating input with different decoding vectors.}
+	\label{fig:sim_res_3}
+\end{figure}
+
+
+\subsection{Bigger Systems}
+\begin{figure}[h!]
+	\centering
+		\includegraphics[width=\textwidth]{../../plots/Simulation/big_system.pdf}
+	\caption{Trajectory of dynamic mass spring system with 100 masses and 2 thousand neurons. Only the first 3 trajectories are plotted and the spikes for the first 200 neurons.	}
+	\label{fig:big_systems}
+\end{figure}
+
+So far we have only looked simple systems in 1D or 2D. However our network can also simulate more complex higher dimensional systems.
+In the example in \cref{fig:big_systems} we simulated a linear n-mass spring system with the dynamics
+\begin{equation}
+	m_i\ddot{x}_i = K\cdot \begin{bmatrix}
+	1&-2&1
+	\end{bmatrix} \cdot	\begin{bmatrix}
+	x_{i-1}\\
+	x_i\\
+	x_{i+1}
+	\end{bmatrix} + c_i(t).
+\end{equation}
+The external forces were each offset sinusoidal waves with varying frequency and amplitude for the first 3 masses and random forces for the rest. As can be seen from the figure, the network perfectly overlays the numerical solution.
+
+
+\subsection{Varying cost parameters $\mu,\nu$}
+\begin{figure}[h!]
+	\centering
+	\begin{subfigure}[t]{0.6\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../../plots/Simulation/2d_cost_none.pdf}
+		\caption{Network }
+		\label{fig:sim_no_cost}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.6\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../../plots/Simulation/2d_cost_nu.pdf}
+		\caption{Reduced Threshold}
+		\label{fig:sim_nu_cost}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.6\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../../plots/Simulation/2d_cost_mu.pdf}
+		\caption{Reduced Threshold}
+		\label{fig:sim_mu_cost}
+	\end{subfigure}
+	\caption{Network output after leaky integration of oscillating input with different decoding vectors.}
+	\label{fig:sim_res_4}
+\end{figure}
+
+\section{Results on the control}
+For the evaluation of the results for the control problem derived in \cref{sec:control} we first note a few important implementational details in order to get useful results. \\
+Afterwards we compare the performance of the two different derivations from \cref{ssec:control_dynamics,ssec:extension} for specific examples as well as their limits.\todo{For example dirac doesnt work,Actually anything with a discontinuity doesnt work???,long simulation times. All for the one with  error.}
+Lastly we take a closer look at the main reason for this system to work and how we can adopt it to our learning problem in \cref{sec:learning}.
+
+\subsection{Implementation details}
+Before any simulation can be run it is important that certain detail in the implementation are set in the correct order for the results to make sense.
+
+
+\subsubsection{Multiple spikes per timestep}
+Although this also applies for the simulation step in \cref{sec:res_simulation}, its affects are much more pronounced in the control setting.\\
+As the dynamics outlined suggest the simulation step includes a check if a threshold has been reached. \\
+A simple implementation in MatLab pseudo code is seen in \cref{lst:single_spike}.
+
+\begin{lstlisting}[language=Matlab, caption=Single spike implementation,label=lst:single_spike]
+
+for t_step = 1:N_step
+	V = update_Voltages(V,dt,Ws,Wf,c,...);
+	[value, index] = max(V-Threshold);
+	spikes(index,t_step) = 1;
+	V = V + Wf(:,k);
+	...
+end
+\end{lstlisting}
+While this works for a variety of problems it does not give results for any given system and reference trajectory.\\
+Especially problems with an abrupt change underperform since the network is only allowed to correct the error by one spike. However by jumps and rapid changes this is not sufficient to compensate errors and then networks struggles for many iterations to recover, ruining the overall accuracy in the process.\\
+Now the direct way to fix this to find all neurons that have reached their thresholds. Since networks have many neurons, letting every neuron spike increases the networks ability to correct errors. A potential implementation is seen in \cref{lst:multi_spike}.
+\begin{lstlisting}[language=Matlab, caption=Letting every neuron spike in parallel,label=lst:multi_spike]
+
+for t_step = 1:N_step
+V = update_Voltages(V,dt,Ws,Wf,c,...);
+spiking_neurons = V>Threshold; % procudes a list
+spikes(spiking_neurons,t_step) = 1;
+V = V + Wf(:,spiking_neurons);
+...
+end
+\end{lstlisting}
+The problem with this implementation is that the error gets tracked by multiple neurons simultaneously and also in both in positive and negative direction. To illustrate this we consider a simple example where we have a single control variable $u$ and $2N$ neurons, where N neurons track positive and negative error respectively.\\
+Disregarding noise, the threshold is reached by N neurons synchronously. As long as the total error is larger than the compensation of N neurons in the first place, the N neurons on the opposite site becomes overly depolarized to the extend that all N neurons will spike in the next iteration regardless of the real system error.\\
+The result is that the networks behaves normally while a rapid change is regulated but will evolve into N neurons spiking in alternating cadence.\\
+
+
+
+
+
+
+\subsection{Direct error}
+The most important insight of the approach in \cref{eq:feeback_c,eq:feedback_c2} is that the signal $\bmu{c}(t)$ is the principal source of control in the system. Moreover it is explicitly calculated from the system $\bmu{A}$ as well as the information of the reference signal and its derivative.
 
 

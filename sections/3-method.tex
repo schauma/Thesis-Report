@@ -261,7 +261,7 @@ V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d r_i(t)
 \quad i  = 1\dots N.
 \end{equation}
 For negligible quadratic cost $\mu$ the voltage can be understood as measure of the error projected on $\bmu{\Gamma}_i$. The explicit derivation of the above equation is found in \cite{boerlin_predictive_2013} and will be adapted \rewrite{Where? Here, in the appendix of at all?}.
-\section{Control of Dynamic systems using \acp{SNN}}
+\section{Control of Dynamic systems using \acp{SNN}}\label{sec:control}
 \subsection{Balanced networks as a controller}
 We now make the step to use the balanced network approach from above as a controller mechanism.\\
 The idea was taken from \cite{huang_optimizing_2017} and is illustrated in \cref{fig:schematic}. With the given reference signal, the network receives the feedback error of the system. The networks spikes are decoded into a control signal which is further fed into the dynamical system.\\
@@ -272,7 +272,7 @@ The system itself is simulated using a common numerical method i.e. explicit Eul
 	\caption{Schematic to illustrate the use of balanced networks as controllers.}
 	\label{fig:schematic}
 \end{figure}
-\subsection{Dynamics}
+\subsection{Dynamics}\label{ssec:control_dynamics}
 The derivation of this method is similar to the one in \cref{sec:simulation}. Names and variables are reused if not stated here.\\
 The system in question has the form
 \begin{equation}\label{eq:contsys}
@@ -319,7 +319,7 @@ This means that the rate decoding vanishes in the derivation of \crefrange{eq:co
 	-\mu \bmu{r}_i > \frac{\nu  + \mu}{2}
 \end{equation}
 if $\bmu{\Omega}$ is ignored which is an insatiable condition since $\bmu{r}$ is always non-negative.
-\subsection{Extension with direct Error feedback}
+\subsection{Extension with direct Error feedback}\label{ssec:extension}
 The same group of \cite{huang_optimizing_2017} later published a new but very similar approach in \cite{huang_spiking_2019} which is based on the same idea, however the approach in \cite{huang_spiking_2019} makes the error a direct part of the voltage dynamics. The difference arises from the an new derivation avoiding the pseudo-inverse $\bmu{L}$.\\
 Instead, during the analogous step of \cref{eq:voltage_dt} they set $\bmu{\hat{x}}$
 and $\bmu{x}$ to follow the same dynamics, namely
@@ -341,28 +341,38 @@ Important to note is that due to the investigation of the network's limit behavi
 \end{equation}
 \todi{add that there is always noise somewhere}
 
-\subsection{Direct error}
-The most important insight of the approach in \cref{eq:feeback_c,eq:feedback_c2} is that the signal $\bmu{c}(t)$ is the pricipal source of control in the system. Moreover it is explicitly calculated from the system $\bmu{A}$ as well as the information of the reference signal and its derivative.
 
-
-
-
-\section{Learning of network parameters}
+\section{Learning of network parameters}\label{sec:learning}
 All the methods described above work on the optimally ideal weights for the dynamics. However in nature often new skills or dynamics are learned and not optimally tuned for the problem at hand. In the following chapter the optimally of derived is explained and local learning rules for the weights are introduced.\\
-
-\subsection{Optimal weights}
-
-\subsubsection{Fast connection weights $\bmu{W}^f$}
-
-\subsubsection{Slow connection weights $\bmu{W}^s$}
 
 
 \subsection{Learning of fast connection weights $\bmu{W}^f$}
 
 
 \subsection{Learning of slow connection weights $\bmu{W}^s$}
-The recurrent weights $\bmu{W}^s$ are called slow because they are in conjunction with the filtered spike train $\bmu{r}(t)$ in \cref{eq:voltage_limit} in contrast to $\bmu{W}^f$ which are reset the neuron voltage after a spike.
-
+The recurrent weights $\bmu{W}^s$ are called slow because they are in conjunction with the filtered spike train $\bmu{r}(t)$ in \cref{eq:voltage_limit} in contrast to $\bmu{W}^f$ which are reset the neuron voltage after a spike.\\
+For learning $\bmu{W}^s$ an adaptive learning approach from \cite{bourdoukan_enforcing_nodate} is used.\\
+For this we consider a "learner" dynamic system of the form
+\begin{equation}
+	\dot{\hat{\bmu{x}}} = \bmu{M}\hat{\bmu{x}} + \bmu{c}(t)
+\end{equation}
+where the matrix $\bmu{M}$ changes to allow $\hat{\bmu{x}}$ to follow the same dynamics of $\bmu{x}$ given by \begin{equation}
+	\bmu{\dot{x}} = \bmu{Ax} + \bmu{c}(t).
+\end{equation}
+Over time, $\bmu{M}$ should converge to $\bmu{A}$. To facilitate this, the error $\bmu{e} = \bmu{x} - \hat{\bmu{x}}$ is feed back into the learner system $\dot{\hat{\bmu{x}}} =\bmu{M}\hat{\bmu{x}} + \bmu{c}(t)  + K\bmu{e}$ to direct $\bmu{M}$.
+The adjustment of $\bmu{M}$ in the modified dynamics
+\begin{equation}
+	\dot{\hat{\bmu{x}}} = \left(\bmu{M} + K\bmu{I}\right)\hat{\bmu{x}} + \bmu{c}(t) + K\bmu{x}
+\end{equation}
+is then calculated by using minimizing the loss
+\begin{equation}
+	L = \frac{1}{2}\bmu{e}^T\bmu{e}
+\end{equation}
+with respect to the matrix parameters $M_{ij}$ and changing their value according to
+\begin{equation}
+	\dot{M}_{ij} = -\frac{\partial L}{\partial M_{ij}} = \left(\frac{\partial \hat{\bmu{x}}}{\partial M_{ij}}\right)^T\bmu{e}.
+\end{equation}
+%wo
 
 
 \section{Engineering-related and scientific content:}
