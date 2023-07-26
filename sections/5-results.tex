@@ -179,6 +179,7 @@ Before any simulation can be run it is important that certain detail in the impl
 
 \subsubsection{Multiple spikes per timestep}
 Although this also applies for the simulation step in \cref{sec:res_simulation}, its affects are much more pronounced in the control setting.\\
+\paragraph{Single Spike}
 As the dynamics outlined suggest the simulation step includes a check if a threshold has been reached. \\
 A simple implementation in MatLab pseudo code is seen in \cref{lst:single_spike}.
 
@@ -194,21 +195,41 @@ end
 \end{lstlisting}
 While this works for a variety of problems it does not give results for any given system and reference trajectory.\\
 Especially problems with an abrupt change underperform since the network is only allowed to correct the error by one spike. However by jumps and rapid changes this is not sufficient to compensate errors and then networks struggles for many iterations to recover, ruining the overall accuracy in the process.\\
+\paragraph{Parallel Spikes}
 Now the direct way to fix this to find all neurons that have reached their thresholds. Since networks have many neurons, letting every neuron spike increases the networks ability to correct errors. A potential implementation is seen in \cref{lst:multi_spike}.
 \begin{lstlisting}[language=Matlab, caption=Letting every neuron spike in parallel,label=lst:multi_spike]
 
 for t_step = 1:N_step
-V = update_Voltages(V,dt,Ws,Wf,c,...);
-spiking_neurons = V>Threshold; % procudes a list
-spikes(spiking_neurons,t_step) = 1;
-V = V + Wf(:,spiking_neurons);
-...
+	V = update_Voltages(V,dt,Ws,Wf,c,...);
+	spiking_neurons = V>Threshold; % procudes a list
+	spikes(spiking_neurons,t_step) = 1;
+	V = V + Wf(:,spiking_neurons);
+	...
 end
 \end{lstlisting}
-The problem with this implementation is that the error gets tracked by multiple neurons simultaneously and also in both in positive and negative direction. To illustrate this we consider a simple example where we have a single control variable $u$ and $2N$ neurons, where N neurons track positive and negative error respectively.\\
-Disregarding noise, the threshold is reached by N neurons synchronously. As long as the total error is larger than the compensation of N neurons in the first place, the N neurons on the opposite site becomes overly depolarized to the extend that all N neurons will spike in the next iteration regardless of the real system error.\\
-The result is that the networks behaves normally while a rapid change is regulated but will evolve into N neurons spiking in alternating cadence.\\
+The problem with this implementation is that the error gets tracked by multiple neurons simultaneously and also in both in positive and negative direction. To illustrate this we consider a simple example where we have a single control variable $u$ and $2N$ neurons, where $N$ neurons track positive and negative error respectively.\\
+Disregarding noise, the threshold is reached by $N$ neurons synchronously. As long as the total error is larger than the compensation of $N$ neurons in the first place, this works just fine. However this is not permanent and at some point all $N$ neurons firing overly depolarize the opposite side neurons to the extend that they all fire in the next iteration regardless of the real system error.\\
+The root cause is that a single spike influences the whole network. In this extreme case 1 spike resets all other $N-1$ neurons that were spiking as well and therefore would not give any performance boost compared to the previous approach.\\
+The network with this implementation behaves normally while a rapid change is present but will evolve into $N$ neurons spiking in alternating cadence respectively.\\
+To remedy this it is necessary that one dimension of the error is only projected onto two neurons. While this can be achieved by carefully selecting the decoder it is not a generic approach. Moreover this reverses the idea of multiple neurons tracking the error in order to increase the networks performance and would result in zero change.\\
+Therefore we need to let a single neuron spike multiple times.
 
+\paragraph{Multiple Spikes}
+The correct way to handle this problem is to allow more than one spike per timestep but compute each spike's change in the network separately. This way we can achieve the necessary performance without the problems of the previous approach. A implementation of such a regime is seen in \cref{lst:correct_spike}
+
+\begin{lstlisting}[language=Matlab, caption=Letting each neurons spike as many times a necessary while computing each spike's influence sequentially.,label=lst:correct_spike]
+
+for t_step = 1:N_step
+	V = update_Voltages(V,dt,Ws,Wf,c,...);
+	[value, index] = max(V-Threshold);
+	while value > 0
+		spikes(index,t_step) = 1;
+		V = V + Wf(:,k);
+		...
+		[value, index] = max(V-Threshold);
+	end
+end
+\end{lstlisting}
 
 
 
