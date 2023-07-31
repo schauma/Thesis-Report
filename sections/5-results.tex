@@ -253,8 +253,7 @@ However in the testing it was noticed that this derivation only works acceptable
 After testing the relative importance of terms it was noted that the term $\mu\lambda_d^2$ does improve the performance with a smaller number of neurons significantly compared to the other terms and was therefore added in the results following below.\\
 Furthermore the authors give later examples that show their use of the extra term.
 This can be seen in all examples but especially in example figure 2. Conveniently the authors provided a picture of the their $\bmu{W}^s$ matrix which clearly shows a nonzero entry on the main diagonal. The example showcases the case $\bmu{\Gamma} = \bmu{0}$ which, given the definition of $\bmu{W}^s$ in \cref{eq:Ws_wrong}, yields $\bmu{W}^s = \bmu{0}$. Examining the colormap reveals that the values on the diagonal equal to 1 which is the same $\mu\lambda_d^2$ in the given example. The same can be validated for the other examples.\\
-Running the same example results in a subpar performance shown in \cref{fig:bad_Ws}. To match the
-
+Running the same example results in a subpar performance shown in \cref{fig:bad_Ws}. To match the behaviour shown in the paper we needed to either involve the omitted term or increase the number of neurons to $N= 500$. Even though in \cref{fig:bad_Ws_compensated} it might look like the behaviour is similar it is important to point out that over time the network's performance deteriorates over time similar to \cref{fig:bad_Ws} and certainly cannot match the behaviour shown in \cite{huang_optimizing_2017}.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/Control/controller_without_extra_term.pdf}
@@ -279,7 +278,8 @@ ohne extra term
  anzahl neuron die man hinzufuegen muss um ausgleich zu haben
 
 
-
+\paragraph{Error sign}
+The second change concerns the
 
 The error sign is wrong
 
