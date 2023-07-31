@@ -296,7 +296,7 @@ where $\bmu{\Gamma}_k$ and $\bmu{\Omega}_k$ correspond to the $k$-th column of $
 	\bmu{\dot{V}} &= -\lambda_V\bmu{V} + \bmu{\Omega}^T \bmu{B}^T \bmu{c}(t) + \bmu{W^fo} + \bmu{W^sr}\label{eq:control_dyn_2}\\
 	\bmu{c} &= \bmu{\dot{x}} - \bmu{Ax}\\\label{eq:feeback_c}
 	\bmu{W^f} &= - \left(\bmu{\Omega}^T\bmu{B}^T\bmu{B\Omega} + \mu\bmu{I}\right)\\
-	\bmu{W^s} &= -\bmu{\Omega}^T\bmu{B}^T\bmu{B\Gamma}\\
+	\bmu{W^s} &= -\bmu{\Omega}^T\bmu{B}^T\bmu{B\Gamma}\label{eq:Ws_wrong}\\
 	T_i &= \frac{\bmu{\Omega}_i^T\bmu{B}^T\bmu{B\Omega}_i + \nu  + \mu}{2}
 	\label{eq:control_dyn_end}
 \end{align}
