@@ -303,25 +303,17 @@ We now consider the error term with $e(t) = x-\hat{x}$
 	\bmu{\dot{V}}&=  -10c \cdot\begin{bmatrix}-1\\1\end{bmatrix}e(t).
 \end{aligned}
 \end{equation}
-Now, let's consider a scenario where the network is falling short of the reference value, leading us to deduce that $e(t)>0$. Consequently, we can promptly conclude that the error term is conflicting with the intended definition of our voltage. This is achieved by inadvertently increasing the voltage of Neuron 1 in the wrong direction.\\
-One way to resolve this issue is to add an artificial minus sign the error. However this only brings changes the problem to the case when $\bmu{A} = 10$. The other solution is to interpret the phrasing of the original paper literally and assume $\bmu{A}$ as a literal "gain" which therefore is usually greater than zero and take $|A|$ for the computation, yielding proper results. How either of these additions could emerge out of the derivation is so far unclear.\todo{Double check the example and verify it. Additionally maybe ask arvind about the whole thing.}
+Now, let's examine a scenario where the network is falling short of the reference value, leading us to deduce that $e(t)>0$. Consequently, we can conclude that the error term is conflicting with the intended definition of our voltage by inadvertently increasing the voltage of Neuron 1 in the wrong direction while it is Neuron 2 that should increase its voltage.\\
+One way to resolve this issue is to add an artificial minus sign the error. However this only brings changes the problem to the case when $\bmu{A} = 10$. The other solution is to interpret the phrasing of the original paper literally and assume $\bmu{A}$ as a literal "gain" which therefore is usually greater than zero and take $|A|$ for the computation, yielding proper results. How either of these additions could emerge out of the derivation is so far unclear.\todo{Double check the example and verify it. Additionally maybe ask arvind about the whole thing.}\\
+Only with either of these additions it was possible to reproduce the results show in the paper \cite{huang_spiking_2019}.\\
+However it is interesting to note that in different test scenarios it was found that the error term contributes only a small amount to the voltage in \cref{eq:direct_error_voltage} and therefore could be omitted in many cases directly.
+This holds also true for the example here where the omitted error makes the network less accurate but still usable compared to the method introduced in the original work which diverges rapidly.\\
 
+\paragraph{Output Feedback}
+How can I understand the output feedback? ASK ARVIND
+Useless Output feedback???
 
-
-
-The error sign is wrong
-
-There is a term missing in the paper without error for def of Ws
-Can be fixed with an extra sign or using abs on the matrix
-
-also i did not find a system where the error was significant in the performance
-
-\paragraph{Example in paper is useless...}
-
-
-\paragraph{Useless Output feedback???}
-
-\paragraph{Adjustment for the Outputfeedback, even though it is useless}
+Adjustment for the Outputfeedback, even though it is useless
 
 
 \subsection{Numerical treatment of spikes? Aka scale by 1/dt}
@@ -335,11 +327,25 @@ Looks like they perform identical???
 
 
 \subsection{Limits}
+prob noise?
+inexact derivatives
 
 
 
-
-\subsection{Direct error}
-The most important insight of the approach in \cref{eq:feeback_c,eq:feedback_c2} is that the signal $\bmu{c}(t)$ is the principal source of control in the system. Moreover it is explicitly calculated from the system $\bmu{A}$ as well as the information of the reference signal and its derivative.
-
+\subsection{Direct error/Feedforward}
+The most important insight of the approach in \cref{eq:feeback_c,eq:feedback_c2} is that the signal $\bmu{c}(t)$ is the principal source of control in the system. Moreover it is explicitly calculated from the system $\bmu{A}$ as well as the information of the reference signal and its derivative.\\
+If one considers the output feedback once more and where one does not have access to the target state $\bmu{x}$ but only its output $\bmu{y} = \bmu{Cx}$, the derivation breaks down. Instead the feedforward input $ \bmu{c}$ would need to be defined in terms of $\bmu{y}$ and $\bmu{CA\hat{x}}$. This would eliminate the error term outright as it would now be implicitly part of $\bmu{c}$. The derivation would be similar
+\begin{equation}
+\begin{aligned}
+\bmu{V} &= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{y} - \bmu{\hat{y}}\right) - \lambda_d\mu \bmu{r}\\
+\bmu{\dot{V}} &= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{\dot{\hat{y}}}\right) - \lambda_d\mu \bmu{\dot{r}}\\
+&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{C}\bmu{\dot{\hat{x}}}\right) - \lambda_d\mu \bmu{\dot{r}}\\
+&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{C}(\bmu{A}\bmu{\hat{x}} + \bmu{B}\bmu{u})\right) - \lambda_d\mu \bmu{\dot{r}}\\
+&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{C}(\bmu{A}\bmu{\hat{x}} + \bmu{B}\bmu{u})\right) - \mu \lambda_d\left(-\lambda_d\bmu{r} + \lambda_d\bmu{o}\right)\\
+&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{C}(\bmu{A}\bmu{\hat{x}} + \bmu{B}\left(\frac{1}{\lambda_d}\bmu{\Gamma} \bmu{r} + \bmu{\Omega} \bmu{o}\right)\right) - \lambda_d^2\mu \left(-\bmu{r} + \bmu{o}\right)\\
+&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\underbrace{\left(\bmu{y} - \bmu{CA\hat{x}}\right)}_{\bmu{c}} + \left(\frac{1}{\lambda_d}\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\bmu{CB\Gamma} + \mu\lambda_d^2\bmu{I} \right)\bmu{r} \nonumber \\
+&\phantom{{}=\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\underbrace{\left(\bmu{y} - \bmu{CA\hat{x}}\right)}_{\bmu{c}}} - \left(\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\bmu{CB\Omega} - \mu\lambda_d^2\bmu{I} \right)\bmu{o}
+\end{aligned}
+\end{equation}
+with the exception that is now the difference of the reference output and the network output instead of the the state. Otherwise the equation is identical to the previous derivation.
 
