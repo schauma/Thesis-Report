@@ -332,7 +332,7 @@ for the reference signal and
 \end{equation}
 for the system.\\
 In total this adjustment changes the dynamics of \cref{eq:control_dyn_2} to
-\begin{equation}
+\begin{equation}\label{eq:direct_error_voltage}
 	\bmu{\dot{V}} = -\lambda_V\bmu{V} + \bmu{\Omega}^T \bmu{B}^T\bmu{Ae}(t) + \bmu{\Omega}^T \bmu{B}^T \bmu{c}(t) + \bmu{W^fo} + \bmu{W^sr}.
 \end{equation}
 Important to note is that due to the investigation of the network's limit behaviour in \cite{huang_optimizing_2017}, similarly done in \cref{eq:voltage_limit} and the subsequent neglect of certain terms, changes the definition of $\bmu{W^s}$. In the derivation in \cite{huang_spiking_2019} this is not done and therefore terms remain changing $\bmu{W^s}$'s definition to

@@ -279,14 +279,53 @@ ohne extra term
 
 
 \paragraph{Error sign}
-The second change concerns the
+The second important implementational detail is that concerns the error term in \cref{eq:direct_error_voltage} and the corresponding plots shown in \cite{huang_spiking_2019}. Using the derivation found therein it was not possible to reproduce the results. After investigating the problem was found to be in the sign of the error term. To illustrate this it is useful to consider their basic example of a scalar system
+\begin{equation}
+	\dot{x} = -10 x + u\\
+\end{equation}
+but only two neurons with weights
+\begin{equation}
+\begin{aligned}
+\bmu{\Omega} &= c\cdot\left[-1 , 1\right] \quad c>0\\
+\bmu{\Gamma} &= \left[0,0\right]
+\end{aligned}
+\end{equation}
+and no additional cost terms.\\
+This configuration allows for a straightforward allocation of functions to individual neurons. In the provided illustration, Neuron 2's voltage tracks the error whenever the network output $\hat{x}$ lags behind the reference value $x$. It becomes active if the deviation surpasses
+\begin{equation}
+	V_2 = 1c\left(x-\hat{x} \right) < \frac{c^2}{2}
+\end{equation}
+prompting a corrective response to increase the network output.
+We now consider the error term with $e(t) = x-\hat{x}$
+\begin{equation}
+\begin{aligned}
+	\bmu{\dot{V}}&= \bmu{\Omega B}^T \bmu{A}e(t) + \dots\\
+	\bmu{\dot{V}}&=  -10c \cdot\begin{bmatrix}-1\\1\end{bmatrix}e(t).
+\end{aligned}
+\end{equation}
+Now, let's consider a scenario where the network is falling short of the reference value, leading us to deduce that $e(t)>0$. Consequently, we can promptly conclude that the error term is conflicting with the intended definition of our voltage. This is achieved by inadvertently increasing the voltage of Neuron 1 in the wrong direction.\\
+One way to resolve this issue is to add an artificial minus sign the error. However this only brings changes the problem to the case when $\bmu{A} = 10$. The other solution is to interpret the phrasing of the original paper literally and assume $\bmu{A}$ as a literal "gain" which therefore is usually greater than zero and take $|A|$ for the computation, yielding proper results. How either of these additions could emerge out of the derivation is so far unclear.\todo{Double check the example and verify it. Additionally maybe ask arvind about the whole thing.}
+
+
+
 
 The error sign is wrong
 
 There is a term missing in the paper without error for def of Ws
+Can be fixed with an extra sign or using abs on the matrix
+
+also i did not find a system where the error was significant in the performance
+
+\paragraph{Example in paper is useless...}
+
+
+\paragraph{Useless Output feedback???}
+
+\paragraph{Adjustment for the Outputfeedback, even though it is useless}
+
 
 \subsection{Numerical treatment of spikes? Aka scale by 1/dt}
-
+Do it for the control signal but also for the reference signal (when there are jumps in the derivative for example)
 \subsection{Performance Comparison}
 Test1: kind of step function 1d with a couple neurons
 Test2: many dimensions random neuron decoders and some oscilating ref
