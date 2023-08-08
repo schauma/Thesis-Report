@@ -315,6 +315,10 @@ Useless Output feedback???
 
 Adjustment for the Outputfeedback, even though it is useless
 
+If you have output feedback you still need to give the whole state to the network
+so even though you have output, same goes for the derivative. So it is just useful if you want to give some output but not you know the whole system and the state so you can control. Which kind of makes it a bit useless.\\
+Because this formulation does not allow e to be the error between network and reference. It has to be error between states. So my controller is just a greedy P controller?
+
 
 \subsection{Numerical treatment of spikes? Aka scale by 1/dt}
 Do it for the control signal but also for the reference signal (when there are jumps in the derivative for example)
@@ -327,14 +331,15 @@ Looks like they perform identical???
 
 
 \subsection{Limits}
-prob noise?
-inexact derivatives
+prob noise in the inputs?
+inexact derivatives?
 
 
 
-\subsection{Direct error/Feedforward}
+
+\subsection{Direct error/Feed-Forward}
 The most important insight of the approach in \cref{eq:feeback_c,eq:feedback_c2} is that the signal $\bmu{c}(t)$ is the principal source of control in the system. Moreover it is explicitly calculated from the system $\bmu{A}$ as well as the information of the reference signal and its derivative.\\
-If one considers the output feedback once more and where one does not have access to the target state $\bmu{x}$ but only its output $\bmu{y} = \bmu{Cx}$, the derivation breaks down. Instead the feedforward input $ \bmu{c}$ would need to be defined in terms of $\bmu{y}$ and $\bmu{CA\hat{x}}$. This would eliminate the error term outright as it would now be implicitly part of $\bmu{c}$. The derivation would be similar
+If one considers the output feedback once more and where one does not have access to the target state $\bmu{x}$ but only its output $\bmu{y} = \bmu{Cx}$, the derivation breaks down. Instead the feed-forward input $ \bmu{c}$ would need to be defined in terms of $\bmu{y}$ and $\bmu{CA\hat{x}}$. This would eliminate the error term outright as it would now be implicitly part of $\bmu{c}$. The derivation would be similar
 \begin{equation}
 \begin{aligned}
 \bmu{V} &= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{y} - \bmu{\hat{y}}\right) - \lambda_d\mu \bmu{r}\\
@@ -343,9 +348,16 @@ If one considers the output feedback once more and where one does not have acces
 &= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{C}(\bmu{A}\bmu{\hat{x}} + \bmu{B}\bmu{u})\right) - \lambda_d\mu \bmu{\dot{r}}\\
 &= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{C}(\bmu{A}\bmu{\hat{x}} + \bmu{B}\bmu{u})\right) - \mu \lambda_d\left(-\lambda_d\bmu{r} + \lambda_d\bmu{o}\right)\\
 &= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{C}(\bmu{A}\bmu{\hat{x}} + \bmu{B}\left(\frac{1}{\lambda_d}\bmu{\Gamma} \bmu{r} + \bmu{\Omega} \bmu{o}\right)\right) - \lambda_d^2\mu \left(-\bmu{r} + \bmu{o}\right)\\
-&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\underbrace{\left(\bmu{y} - \bmu{CA\hat{x}}\right)}_{\bmu{c}} + \left(\frac{1}{\lambda_d}\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\bmu{CB\Gamma} + \mu\lambda_d^2\bmu{I} \right)\bmu{r} \nonumber \\
-&\phantom{{}=\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\underbrace{\left(\bmu{y} - \bmu{CA\hat{x}}\right)}_{\bmu{c}}} - \left(\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\bmu{CB\Omega} - \mu\lambda_d^2\bmu{I} \right)\bmu{o}
+&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\underbrace{\left(\bmu{\dot{y}} - \bmu{CA\hat{x}}\right)}_{\bmu{c}} + \left(\frac{1}{\lambda_d}\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\bmu{CB\Gamma} + \mu\lambda_d^2\bmu{I} \right)\bmu{r} \nonumber \\
+&\phantom{{}=\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\underbrace{\left(\bmu{\dot{y}} - \bmu{CA\hat{x}}\right)}_{\bmu{c}}} - \left(\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\bmu{CB\Omega} - \mu\lambda_d^2\bmu{I} \right)\bmu{o}
 \end{aligned}
 \end{equation}
-with the exception that is now the difference of the reference output and the network output instead of the the state. Otherwise the equation is identical to the previous derivation.
+with the exception that is now the difference of the reference output and the network output instead of the the state. Otherwise the equation is identical to the original derivation. \todo{Should I keep this in? If so where should I put it?}\\
+
+All this supports the idea that the feed-forward inputs are the governing force in the network's performance. Furthermore by the removal of the trajectory and only the use of its derivative show more the characteristics of an open loop PD controller.\\\todo{Is that really so?}
+The benefit of this approach is that given that using this approach we do not need to know the state in order to track any trajectories but just the output or more the derivative of the output\\
+that we dont know the state\\
+that the C is not square
+
+
 
