@@ -10,6 +10,29 @@ Use references!
 Do not use subtitles after each other without text in between the sections.
 
 \section{Related Work}
+
+Spiking neural networks for control have been used in many different contexts, e.g for robotic movement, digit recognition\cite{lee_training_2016} or object detection\cite{soures_deep_2019}\cite{zhou_deep_2020}.\\
+In \cite{bouganis_training_2010} spiking neurons are used to control target reaching movements of a 4-DoF robotic arm using a plausible neuron model and learning rule. In their approach they lean into the DIRECT model of \cite{bullock_self-organizing_1993}, which learns the a priori unknown robot kinematics by randomly repeating movement commands and learning the resulting translation of the end effector.\\
+Another approach for robotic arm control comes from \cite{dewolf_spiking_2016} using the \ac{NEF}\cite{eliasmith_neural_2004}, in which different regions of the brain have been simulated to generate the trajectory as well as the control signals.\todo{Is this to general?}\\
+The authors of \cite{bing_supervised_2019} summarized several approaches for robotic control of flying or driving robots and used layered spiking neurons with a local learning rule to train the network to reach the target while avoiding obstacles.\\
+While each of these models inherit some biologic plausibility, they only take one or a few aspects of biological plausibility into their model, be it the neuron model, the learning rule, encoding or network structure. Furthermore are these approaches often targeted towards the application of robotic arm and not general control of dynamic systems.\\
+Spiking neurons have also been used for PID controllers. In \cite{lu_spiking_2011} it is shown that a PID controller is possible using three neurons, one for P,I and D respectively. However no example using the network as an example is shown. Furthermore the learning is based on individual parameter tuning for each neuron. Lastly the robustness of 3 neurons is not biologically plausible.\\
+In \cite{stagsted_towards_2020} a PID controller is designed using spiking neurons on neuromorphic hardware in order to control a 1-DoF UAE.\\
+However it is unclear how the network was trained on the neuromorphic hardware or how this approach can be adapted to bigger systems.\\
+
+
+TODO &&&&
+start looking at the F.Zenke stuff\\
+Check the review papers that are open
+
+
+
+This one only learn the kinematics and not any dynamic system.\\
+
+Name prewitten libs for neural simulation
+brian nengo NeMo norse snntorch spinnaker
+bindsnet \& snntorch based on pytorch
+
 You should probably keep a heading about the related work here even though the entire chapter basically only contains related work.
 
 Here just what has been done for each of the headlines\\
@@ -182,7 +205,6 @@ The parameters describe $a$ scale of recovery, $b$ sensitivity, $c$ the reset po
 \section{Spiking Neural Networks}
 A spiking Neural network is one step closer to a biologic representation of a brain. Instead of conveying information using a gradient in conventional \ac{NN}s, information is propagated using discrete spikes of excitation, similar to biological neurons. Hereby one can distinguish between several ideas of implementation.
 \rewrite{The main difference is the motion of time}
-
 \subsection{Rate Networks}
 Poisson networks are built around the idea that information is encoded in the firing rate of a neuron. The precise timing of a spike is essentially meaningless\cite{brette_philosophy_2015}. This makes a strong contrast to the approach chosen in this paper, where every spike will be timed exactly to minimize a cost function.\rewrite{Maybe add that our approach does not rule rate out completely.}
 The encoding of a value, e.g. four, is set by endowing the input neurons with a Poisson point process with a suitable encoding rate $r_i$\cite{deneve_efficient_2016}.\\
@@ -224,7 +246,7 @@ A reservoir computer is called a \ac{LSM} if one chooses a spiking neural networ
 \begin{equation}
 	z^{(n)} = G(z,z^{(1)},z^{(2)},\dots,z^{(n-1)}) + u
 \end{equation}
-given a sufficiently large liquid and a suitable feedback and decoder\cite{maass_computational_2004} and have been used for speech recognition\cite{jin_performance_2017}\cite{zhang_digital_2015}. The systematic structure can be in \cref{fig:LSM_feedback}. The feedback $K(x,u)$ is a function of the dynamical system input $u(t)$ and the output $x(t)$. The result of $K(x,u)$ is fed back replaces the previous input $v(t)$ into the Liquid. The decoder $h(x)$ is not linear but can be simplified to be in a cost-performance trade-off when using a sufficiently large Liquid.\\
+given a sufficiently large liquid and a suitable feedback and decoder\cite{maass_computational_2004} and have been used for speech recognition\cite{jin_performance_2017}\cite{zhang_digital_2015} or object detection\cite{soures_deep_2019}. The systematic structure can be in seen in \cref{fig:LSM_feedback}. The feedback $K(x,u)$ is a function of the dynamical system input $u(t)$ and the output $x(t)$. The result of $K(x,u)$ is fed back replaces the previous input $v(t)$ into the Liquid. The decoder $h(x)$ is not linear but can be simplified to be in a cost-performance trade-off when using a sufficiently large Liquid.\\
 \begin{figure}[htbp]
 	\centering
 	\includesvg[scale= 0.15]{LSM_feedback2}
