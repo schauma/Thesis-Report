@@ -55,45 +55,7 @@ What is a neural network? -> not here ref a paper. kurze erkl'rung in der einfue
 in der einfuhurng vlt auch hodgekin huxley erwaehen :)
 
 
-Copying nature to solve engineering problems is not a novel practise and also for neural networks this is not new. Many different network architectures with different levels of biologic plausibility have been investigated and published. Biologic realness can be chosen on different parts of the network. Apart from very specific implementations many \acp{SNN} can be grouped by
-\begin{itemize}
-	\item Neuron model
-	\begin{itemize}
-		\item LIF or IF
-		\item Izhikevich
-	\end{itemize}
-	\item Architecture
-	\begin{itemize}
-		\item Recurrent
-		\item Layered
-	\end{itemize}
-	\item Encoding
-	\begin{itemize}
-		\item Poisson process
-		\item Population coding
-		\item TTFS
-		\item Phase coding
-	\end{itemize}
-	\item Decoding
-	\begin{itemize}
-		\item Linear
-		\item Quadratic
-		\item Non-linear
-	\end{itemize}
-	\item Learning rule
-	\begin{itemize}
-		\item (Reward modulated) STDP
-		\item Anti-Hebbian
-		\item BBTT
-		\item Surrogate Gradients
-		\item $\dots$
-	\end{itemize}
-	\item Plasticity
-	\begin{itemize}
-		\item Adjusting weights
-		\item Dynamic threshold
-	\end{itemize}
-\end{itemize}
+
 
 \section{Autoencoder}
 An autoencoder is a type of neural network for learning a representation of its input. It consists of an encoder and decoder function $z =f(x)$ \& $\hat{x} = g(z)$. The encoder function from the input space, e.g $\mathbb{R}^n$, to a encoded space $\mathcal{C}$. The decoder is then decoding the data from $\mathcal{Z}$ back to $\mathbb{R}^n$. The goal is that the representation is as accurate as possible. This is easy in case the if $\mathcal{Z}$ is equal or larger than the input space. Then every possible input can be encoded by its own value as
@@ -108,6 +70,7 @@ which is not useful. $\mathcal{Z}$ has to many DOF and can "memorize" each input
 	L(x,\hat{x}) + C(z)
 \end{equation}
 where L can be e.g. MSE and the regularization term $C$ can enforce sparsity or other properties\cite{goodfellow_deep_2016}.
+
 
 \section{Neuron model}
 
@@ -180,10 +143,64 @@ With the chosen factors, the neuron experiences a spike when $u\geq30 $mV, in wh
 \end{equation}
 The parameters describe $a$ scale of recovery, $b$ sensitivity, $c$ the reset potential of $v$ and $d$ the reset of variable $u$.\rewrite{Maybe shitty explanation, which could be extended on.} Depending on these parameters one can achieve different behaviours of the neuron e.g. regular spiking, fast spiking and low threshold spiking to name a few \cite{izhikevich_simple_2003}.
 
+
+
+\subsection{Synaptic intelligence}
+In addition to the neuron model
+
+
+
+
 \section{Neural Networks}
 
 \subsection{Artificial Neural Networks}
  \todo{Make clear distinction between forward nns and ann. Bcs apparently they are not the same!}
+
+
+Copying nature to solve engineering problems is not a novel practise and also for neural networks this is not new. Many different network architectures with different levels of biologic plausibility have been investigated and published and there is no consent in the design decisions. As a result different choices are made by different researches leading to various approaches that are similar and yet different. Biologic realness can be chosen on different parts of the network. Therefore it is impossible to inspect each nuisance explicitly. Apart from very specific implementations we illustrate below many \acp{SNN} can be categorized in different segments of which we highlight certain designs seen in the literature.\\
+
+\subsubsection{Neuron model}
+	As outlined above the neuron model can have different complexities and accuracy. By far the most used model in the literature are \ac{LIF} and \ac{IF} model.
+\subsubsection{Encoding}
+	The coding of information plays a crucial role it a \ac{SNN}. Since the network is working on discrete spikes, a methodology needs to be implemented to convert e.g continuous values in spikes. To let the network be susceptible to the outer world, a subset of neurons of the network are exposed to these external inputs.\\
+	\paragraph{\ac{TTFS}}
+	In this coding scheme the information of an input is solely encoded in the time between the external input and the time neurons fire a spike. A simple visualization could be by implementing the stronger the input the sooner the input neuron spikes after the input onset.\\
+	An extension of this idea is rank order coding, where the ordering of spikes encodes information\cite{thorpe_spike-based_2001}.\\
+	\paragraph{Phase coding}
+	Phase coding is a slight variation of the \ac{TTFS} code. In certain areas of the brain show oscillations similar to a clock\cite{jacobs_critical_2013}. The premise of phase coding is that the oscillation of this clock can be used to convey information. Thus, a spike relative to the phase of a clock cycle entails information on the input signal.\\
+	\paragraph{Rate coding}
+	Rate coding transforms the intensity of a signal to a spiking pattern with a corresponding frequency. The intensity is often normalized to realistic spiking frequencies. Since the brain is noisy, the spike is not fired with the respective rat but rather with a Poisson process given suitable rate $\lambda$.
+	Using a Poisson point process comes with the drawback of comparatively high spiking to represent a value accurately due to noise.
+	\paragraph{Population coding}
+	Population coding extends the neuron encoding to multiple neurons. Instead of one neuron firing, a group of neurons is combined to encode information. This allows for redundancy and robustness. Inside this population the information can be embedded in different dynamics of this population. One way could be to consider the firing rate of the neurons as a group. Alternatively pattern analysis can be performed to read out information in the distribution of spikes in the group.\\
+
+\subsubsection{Connectivity/Topology}
+	The structure of neural networks is distinguished between hierarchical and recurrent topologies. In hierarchical topologies there are segments of neurons that follow a (often unidirectional) structure. Feed-forward \acp{NN} a simple example of this architecture.\\
+	Recurrent networks allow for loops in the connectivity of neurons and therefore enable feedback and temporal patterns.\\
+	There can be hybrid implementation where there are different groups of neurons are connected in sequence.\\
+	Using \acp{RNN} offers a broader range of applications but has to deal with (as of this day) inferior or more complex learning paradigms.\\
+\subsubsection{Learning Algorithms}
+	\begin{itemize}
+	\item (Reward modulated) STDP
+	\item Anti-Hebbian
+	\item BBTT
+	\item Real time
+	\item Surrogate Gradients
+	\item $\dots$
+\end{itemize}
+\subsubsection{Plasticity}
+	\begin{itemize}
+	\item Adjusting weights
+	\item Dynamic threshold
+\end{itemize}
+\subsubsection{Decoding}
+	\begin{itemize}
+	\item Linear
+	\item Quadratic
+	\item Non-linear
+	\item see the open paper!
+\end{itemize}
+
 
 
  \subsection{Plasticity}
@@ -254,7 +271,6 @@ given a sufficiently large liquid and a suitable feedback and decoder\cite{maass
 	\label{fig:LSM_feedback}
 \end{figure}
 
-\subsection{Intelligent Synapses (Friedeman Zenke)}
 
 \subsection{Balanced Networks}
 The idea of tightly balanced spiking networks was first proposed by Boerlin et al.\cite{boerlin_predictive_2013}. It uses predictive coding in combination with spikes to simulate arbitrary linear systems.
