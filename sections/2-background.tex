@@ -123,11 +123,13 @@ Copying nature to solve engineering problems is not a novel practise and also fo
 	Another important fact to remember is that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information. Since spikes are discrete events the derivative is zero during no spike periods and undefined during a spike.\\
 	To remedy this, adaptations of the classic Backpropagation algorithm have been proposed.\\
 	If the network at hand is recurrent, often the \ac{BBTT} is used. Its concept is based on using the conventional Backpropagation algorithm by "unrolling" the recurrent into a feed-forward network in time. In addition to the original network inputs additional inputs are designated in the feed-forward that feed the internal network state to the next layer, representing the next time step.\\
-	With this structure in place the gradients can now be computed either by propagating the error backwards or by forward propagation of the activity gradient. The former is commonly known as the normal \ac{BPTT} the latter is called \ac{RTRL}\cite{williams_gradient-based_1995}.
+	With this structure in place the gradients can now be computed either by propagating the error backwards or by forward propagation of the activity gradient. The former is commonly known as the normal \ac{BPTT} the latter is called \ac{RTRL}\cite{williams_gradient-based_1995}. While they allow the computation of the exact gradients, they can suffer from issues like vanishing or exploding gradients \cite{pascanu_difficulty_2013}\cite{bengio_learning_1994} resulting in getting trapped in local minima easily or divergence. This is due to the unrolling in time, in which the network will become as deep as the input sequence long.\\
 
-
-	In the case of \acp{SNN} it is often relied on the SpikeProp\cite{bohte_spikeprop_2000}
-	^^Continue!
+	If the network is furthermore spiking, the \ac{BPTT} is used in addition to  to spiking networks. This leads to the SpikeProp\cite{bohte_spikeprop_2000} algorithm. In SpikeProp the discontinuity the optimization is done on the firing times and the discontinuity is replaced by a linear function. Since, variations have emerged with improving convergence\cite{mckennoch_fast_2006}, e.g using different replacement functions \cite{thiruvarudchelvan_analysis_2013}\cite{neftci_surrogate_2019} or adaptive learning weights \cite{shrestha_adaptive_2015}.
+	Alternatively, instead of optimizing the firing times and replacing the discontinuity on the spike trains, SuperSpike\cite{zenke_superspike_2018} replaces the discontinuities in the membrane potential with an approximate continuous function.\\
+	Tending towards more biologically plausible methods, \ac{STDP} is the most prominent method.\\
+	It increases synaptic weight of a synaptic connection if a presynaptic spike is followed by a postsynaptic spike and reduces the weight if the spikes occur independently i.e the postsynaptic neuron fires first.\\
+	This unsupervised local learning rule is based on Hebb's principle observed in nature. Since then a plethora of variations have been proposed and demonstrated successful.\todo{Ref some variations}
 
 
 
@@ -138,9 +140,6 @@ Copying nature to solve engineering problems is not a novel practise and also fo
 	\begin{itemize}
 	\item (Reward modulated) STDP and many variations
 	\item Anti-Hebbian and normal hebbian
-	\item Surrogate Gradients
-	\item Spike-prop
-	\item SuperSpike
 	\item spike time dependent back prop
 	\item $\dots$
 	\end{itemize}
