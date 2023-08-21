@@ -21,10 +21,7 @@ In \cite{stagsted_towards_2020} a PID controller is designed using spiking neuro
 However it is unclear how the network was trained on the neuromorphic hardware or how this approach can be adapted to bigger systems.\\
 
 
-TODO &&&&
-start looking at the F.Zenke stuff\\
-Check the review papers that are open
-
+\todo{start looking at the F.Zenke stuff\\Check the review papers that are open}
 
 
 This one only learn the kinematics and not any dynamic system.\\
@@ -155,17 +152,31 @@ Copying nature to solve engineering problems is not a novel practise and also fo
 
 
 
- \subsection{Learning rules}
- \todo{Give more detail to key learning rules}\\
-
- Key to give any \ac{NN} the ability to solve a task is to learn/train the it. The adaption of weights and biases is necessary to accomplish any functionality based on the underlying data\cite{zheng_introductory_2022}. There are various ways to train a network. For \acp{ANN}, gradient based algorithms are often the method of choice. They use the error from the loss function do compute the derivative $\frac{\partial L}{\partial \theta_{ij}}$ to adjust each parameter $\theta$, i.e. weights and biases with
+\subsection{Learning rules}
+\todo{Give more detail to key learning rules}
+Key to give any \ac{NN} the ability to solve a task is to learn/train the it. The adaption of weights and biases is necessary to accomplish any functionality based on the underlying data\cite{zheng_introductory_2022}. There are various ways to train a network. For \acp{ANN}, gradient based algorithms are often the method of choice. They use the error from the loss function do compute the derivative $\frac{\partial L}{\partial \theta_{ij}}$ to adjust each parameter $\theta$, i.e. weights and biases with
  \begin{equation}
  	\theta_{ij} = \theta_{ij} - \eta \frac{\partial L}{\partial \theta_{ij}}
  \end{equation}
  until a local minima is reached. The computation of gradients is done efficiently using the backpropagation algorithm (reverse accumulation from \ac{AD}), in which the gradients are propagated from the output backwards towards the input by making use of the chain rule and the fact that the \ac{NN} has a layered structure. An in-debt explanation is given in e.g \cite{goodfellow_deep_2016} or \cite{nielsen_neural_2015}.
+\todo{This came from 2 different segments. Merge somehow!}
+\todo{Flesh this part out quite a bit!}
+It's important to remember that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information.\\
+Gradient based methods require differentiability and therefore continuity, thus are only applicable for \acp{ANN}. This means that they cannot be used for \acp{SNN} since spikes introduce discontinuities. Methods have been proposed to use backpropagation in spiking networks\cite{lee_training_2016} yet they do not provide a biologically plausible way to learn. The problem is that in biology neurons do not have access to the global error from the loss function but only to their pre-synaptic neurons.
+\subsubsection{(Anti-) Hebbian Learning and STDP}
+The Hebbian learning rule is one of the oldest learning rules for neural networks with large experimental evidence in biology(see for example \cite{feldman_spike-timing_2012} for a summary). Its key idea can be summarized as "Neurons that fire together, wire together". If the postsynaptic neuron fires shortly after the presynaptic neuron, the connection strength is increased. Oppositely, if the postsynaptic neuron fires before the presynaptic, their connection strength is decreased.\\
+The longer the delay between firing activation, the smaller the increase. This behaviour of potentiation and depression is pictured in \cref{fig:stdp} and build the bases for the spike time dependent plasticity rule (STDP).
+\begin{figure}
+	\centering
+	\includegraphics[scale = 0.15]{stdp}
+	\caption{Graphical representation of STDP learning rule. Weight change depending on the time between pre- and postsynaptic activation. Negative time is the time between the postsynaptic neuron firing before the presynaptic. Graphic taken from \cite{yi_learning_2023}.}
+	\label{fig:stdp}
+\end{figure}
+In addition to the Hebbian rule, there is also the anti-Hebbian rule that is reverses the aforementioned behaviour. This means that regular firing of pre- and postsynaptic neurons is discouraged and more irregular and distributed spiking is favoured. This can be understood as mirroring \cref{fig:stdp} along the x-axis.\\
 
+These rules are based in biology and satisfy the restrictions found in nature. Many learning rules adapted from \acp{ANN} lack these properties e.g. locality. Locality demands that the basis of learning is restricted to having only the information of the direct pre- and postsynaptic neuron available. This already rules out most backpropagation algorithms as the come derive the derivative with respect to a global cost function.\\
 
-
+Of course there many variations and extensions have been proposed, e.g. \ac{SRDP}\cite{kempter_hebbian_1999}, which have been summarized in  \cite{yi_learning_2023}.
 
 
 \section{Neuron model}
@@ -240,24 +251,7 @@ v&\leftarrow c
 The parameters describe $a$ scale of recovery, $b$ sensitivity, $c$ the reset potential of $v$ and $d$ the reset of variable $u$.\rewrite{Maybe shitty explanation, which could be extended on.} Depending on these parameters one can achieve different behaviours of the neuron e.g. regular spiking, fast spiking and low threshold spiking to name a few \cite{izhikevich_simple_2003}.
 
 
-\section{Learning Rules}
-\todo{Flesh this part out quite a bit!}
-It's important to remember that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information.\\
-Gradient based methods require differentiability and therefore continuity, thus are only applicable for \acp{ANN}. This means that they cannot be used for \acp{SNN} since spikes introduce discontinuities. Methods have been proposed to use backpropagation in spiking networks\cite{lee_training_2016} yet they do not provide a biologically plausible way to learn. The problem is that in biology neurons do not have access to the global error from the loss function but only to their pre-synaptic neurons.
-\subsubsection{(Anti-) Hebbian Learning and STDP}
-The Hebbian learning rule is one of the oldest learning rules for neural networks with large experimental evidence in biology(see for example \cite{feldman_spike-timing_2012} for a summary). Its key idea can be summarized as "Neurons that fire together, wire together". If the postsynaptic neuron fires shortly after the presynaptic neuron, the connection strength is increased. Oppositely, if the postsynaptic neuron fires before the presynaptic, their connection strength is decreased.\\
-The longer the delay between firing activation, the smaller the increase. This behaviour of potentiation and depression is pictured in \cref{fig:stdp} and build the bases for the spike time dependent plasticity rule (STDP).
-\begin{figure}
-	\centering
-	\includegraphics[scale = 0.15]{stdp}
-	\caption{Graphical representation of STDP learning rule. Weight change depending on the time between pre- and postsynaptic activation. Negative time is the time between the postsynaptic neuron firing before the presynaptic. Graphic taken from \cite{yi_learning_2023}.}
-	\label{fig:stdp}
-\end{figure}
-In addition to the Hebbian rule, there is also the anti-Hebbian rule that is reverses the aforementioned behaviour. This means that regular firing of pre- and postsynaptic neurons is discouraged and more irregular and distributed spiking is favoured. This can be understood as mirroring \cref{fig:stdp} along the x-axis.\\
 
-These rules are based in biology and satisfy the restrictions found in nature. Many learning rules adapted from \acp{ANN} lack these properties e.g. locality. Locality demands that the basis of learning is restricted to having only the information of the direct pre- and postsynaptic neuron available. This already rules out most backpropagation algorithms as the come derive the derivative with respect to a global cost function.\\
-
-Of course there many variations and extensions have been proposed, e.g. \ac{SRDP}\cite{kempter_hebbian_1999}, which have been summarized in  \cite{yi_learning_2023}.
 
 
 
