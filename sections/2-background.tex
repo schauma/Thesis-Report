@@ -72,82 +72,6 @@ which is not useful. $\mathcal{Z}$ has to many DOF and can "memorize" each input
 where L can be e.g. MSE and the regularization term $C$ can enforce sparsity or other properties\cite{goodfellow_deep_2016}.
 
 
-\section{Neuron model}
-
-\subsection{Biological Neuron model}
-The first biologically accurate model of neuron spiking behaviour is the \ac{HH} model from 1952\cite{hodgkin_currents_1952}. Since then the \ac{HH} model has been extended in multiple ways to cover more e.g. different ion channels. The \ac{HH}-model considers the neuron with its ion channels. The membrane acts as a capacitance and the travelling ions in each ion channel contribute a current to the overall membrane potential. These ion gates are voltage dependent and are defined positive in direction out of the cell.\\
-A particular ion channel for ion $X$ can be modelled as
-\begin{equation}
-	I_X= g_X \cdot (V-V_X)
-\end{equation}
-These currents are summed summed for the different ion channels in question, most commonly for Sodium, Potassium and a leak current. In reality there are a plethora of different channels and channel properties\footnote{See  \url{channelpedia.epfl.ch} for an extensive list}. The $V_X$ are the equilibrium potentials for each of the channels and can be computed using the Nernst equation \cite{johnston_foundations_1995}.
-\begin{equation}
-	C \frac{dV}{dt} = g_{Na} \cdot (V-V_{Na}) + g_K \cdot (V-V_K) + g_l \cdot (V-V_l)
-\end{equation}
-Do model the voltage dependency of the ion channels, the conductances are described with gating variables, usually called $n$, $h$ and $g$ for Na-Activation, Na-Inactivation and K-activation respectively. One gating variable is set between $[0,1]$ and models the permeability of said gate. Multiple gates are used to fit to each ion channel in order to match experimental data and the model behaviour.\\
-Gates have first order dynamics of the form
-\begin{equation}
-	\frac{dn}{dt} = \alpha_n(1-n) - \beta_n n
-\end{equation}
-for e.g the n gate. The other gates' dynamics are analogous. The functions $\alpha$ and $\beta$ are voltage but not time dependent. The discussion of initial values as well as functions for $\alpha_p,\ \beta_p\ \ p = (n,h,m)$ can be found in \cite{hodgkin_quantitative_1952} or \cite{johnston_foundations_1995}. The gates for each ion channel's conductance are found to be
-\begin{equation}
-	\begin{aligned}
-	g_{Na} &= \bar{g}_{Na} n^4\\
-	g_{K} &= \bar{g}_{K} m^3h\\
-	\end{aligned}
-\end{equation}
-and give form to the final model
-\begin{equation}\label{eq:HH}
-	\begin{aligned}
-	C\frac{dV}{dt} &= I(t) -\bar{g}_{Na} n^4(V-V_{Na}) - \bar{g}_{K} m^3h(V-V_{K}) -g_L(V-V_{L})\\
-	\frac{dn}{dt} &= (1-n)\alpha_n(V) - \beta_n n (V)\\
-	\frac{dm}{dt} &= (1-m)\alpha_m(V) - \beta_m m (V)\\
-	\frac{dh}{dt} &= (1-h)\alpha_h(V) - \beta_h h (V)
-	\end{aligned}
-\end{equation}
-We did not define a gate for the leak term as it is assumed constant.
-\subsection{"IF and LIF"}
-In contrast of the \ac{HH} model in \cref{eq:HH}, the simplest models of neurons are the \ac{IF} and \ac{LIF} models.\\
-\paragraph{IF Neurons}
-\ac{IF} Neurons, as the name implies, integrate the incoming current over time.
-\begin{equation}
-	\frac{d V(t)}{d t} = \frac{1}{C}I(t)
-\end{equation}
-The membrane voltage is governed by the incoming current spikes of connected neurons and the membrane capacitance. The neuron potential does not change without a change of input current and thus presents as a perfect integrator of the input.\\
-\paragraph{\ac{LIF} Neurons}
-In contrast to that the \ac{LIF} neuron contains a leak term on the RHS which brings the voltage back to its resting potential over time. The model can be expressed as
-\begin{equation}
-	\tau\frac{dV(t)}{dt} = -(V(t)-E_r) + RI(t),
-\end{equation}
-where $\tau = RC$ is the time constant the composed of the membrane resistance $R$ and the membrane capacitance $C$ and the resting potential $E_r$. In the absence of input $I(t)$ the voltage settles on the membrane potential $E_r$.\\
-The input $I(t)$ encapsulates external inputs as well as a sum of Dirac functions indicating a spiking neuron
-\begin{equation}
-	I(t) = \sum_k \delta(t-t^k)
-\end{equation}
-\rewrite{This is not truly correct. Forgot weights, but at the same time only when there are more than 1 neuron}
-and $t_k$ being the time of the $k$-th spike. When the membrane voltage exceeds the threshold potential $\bar{v}$, a spike is sent out by the neuron and the voltage sets back to its reset voltage $v_{res}$.
-\subsection{Izhikevich Neuron}
-While the above models deliver a useful and cheap simplification, they lack in accuracy. The Izhikevich model \cite{izhikevich_simple_2003} of the neuron tries be the of both worlds in terms of efficiency and accuracy. It is comprised of 2D ODEs with the membrane potential $v$ as
-\begin{equation}
-	\begin{aligned}
-	\frac{d v}{dt} &= 0.04v^2 + 5v + 140 -u +I(t)\\
-	\frac{d u}{dt} &= a(bv-u).
-	\end{aligned}
-\end{equation}
-With the chosen factors, the neuron experiences a spike when $u\geq30 $mV, in which case the neuron resets to
-\begin{equation}
-\begin{aligned}
-	u &\leftarrow u+d\\
-	v&\leftarrow c
-\end{aligned}
-\end{equation}
-The parameters describe $a$ scale of recovery, $b$ sensitivity, $c$ the reset potential of $v$ and $d$ the reset of variable $u$.\rewrite{Maybe shitty explanation, which could be extended on.} Depending on these parameters one can achieve different behaviours of the neuron e.g. regular spiking, fast spiking and low threshold spiking to name a few \cite{izhikevich_simple_2003}.
-
-
-
-\subsection{Synaptic intelligence}
-In addition to the neuron model
-
 
 
 
@@ -160,7 +84,7 @@ In addition to the neuron model
 Copying nature to solve engineering problems is not a novel practise and also for neural networks this is not new. Many different network architectures with different levels of biologic plausibility have been investigated and published and there is no consent in the design decisions. As a result different choices are made by different researches leading to various approaches that are similar and yet different. Biologic realness can be chosen on different parts of the network. Therefore it is impossible to inspect each nuisance explicitly. Apart from very specific implementations we illustrate below many \acp{SNN} can be categorized in different segments of which we highlight certain designs seen in the literature.\\
 
 \subsubsection{Neuron model}
-	As outlined above the neuron model can have different complexities and accuracy. By far the most used model in the literature are \ac{LIF} and \ac{IF} model.
+	As outlined in more in detail below neuron models can have different complexities and accuracy. By far the most used model in the literature are \ac{LIF} and \ac{IF} model.
 \subsubsection{Encoding}
 	The coding of information plays a crucial role it a \ac{SNN}. Since the network is working on discrete spikes, a methodology needs to be implemented to convert e.g continuous values in spikes. To let the network be susceptible to the outer world, a subset of neurons of the network are exposed to these external inputs.\\
 	\paragraph{\ac{TTFS}}
@@ -185,21 +109,34 @@ Copying nature to solve engineering problems is not a novel practise and also fo
 	The choice of plasticity determines how the network adapts its parameters during learning. There are mostly two different routes used in the literature. The dominant of these is the adjustment of synaptic weights similar to \acp{ANN}. It is noteworthy that most learning algorithms are based on this approach.\\
 	The alternative is to work on adjusting thresholds instead\cite{chen_adaptive_2022,amin_automated_2021}. One can adjust the frequency or likeliness of a neuron firing by lowering or increasing making it harder or easier for a neuron to spike respectively. Increasing the threshold after a spike was fired allows for the modelling of refractory periods seen in biological neurons.\\
 	Threshold adaptation can also be in conjunction to weight adaption policy. In \cite{sun_synapse-threshold_2023} adaptive synapses are trained alongside connection weights.\\
-	Another part of plasticity can come into play with synaptic intelligence??????&&
+	An unrelated but noteworthy part of plasticity concerns synaptic intelligence\cite{bibid}. As pf now this has only been implemented on \acp{ANN} with Feed-forward architecture\todo{really? nature paper nochmal lesen} but
 
 \begin{itemize}
 	\item Adjusting weights
 	\item Dynamic threshold
 	\item synaptic intelligence
 \end{itemize}
-
-
-
 \subsubsection{Learning Algorithms}
+
+	There are a plethora of different learning techniques available, see \cite{abdolrasol_artificial_2021}\cite{sun_survey_2019} for a review. The most fundamental distinction can be made between supervised, unsupervised and reinforcement learning rules.
+	Another distinction can be made by the biologic plausibility of a given learning rule. For example the Backpropagation algorithms is biologically implausible in various ways but most importantly its non-locality. During the training each neuron gets assigned its contribution to the global error. However in nature a neuron only has access to information to its neighbouring neurons.\\
+	Another important fact to remember is that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information. Since spikes are discrete events the derivative is zero during no spike periods and undefined during a spike.\\
+	To remedy this, adaptations of the classic Backpropagation algorithm have been proposed.\\
+	If the network at hand is recurrent, often the \ac{BBTT} is used. Its concept is based on using the conventional Backpropagation algorithm by "unrolling" the recurrent into a feed-forward network in time. In addition to the original network inputs additional inputs are designated in the feed-forward that feed the internal network state to the next layer, representing the next time step.\\
+	With this structure in place the gradients can now be computed either by propagating the error backwards or by forward propagation of the activity gradient. The former is commonly known as the normal \ac{BPTT} the latter is called \ac{RTRL}\cite{williams_gradient-based_1995}.
+
+
+	In the case of \acp{SNN}...\todo{finish}
+
+
+
+	A short summary of learning rules in \ac{SNN} is given in a later chapter.\\
+
+
 
 	\begin{itemize}
 	\item (Reward modulated) STDP and many variations
-	\item Anti-Hebbian
+	\item Anti-Hebbian and normal hebbian
 	\item BBTT
 	\item Real time
 	\item Surrogate Gradients
@@ -220,11 +157,8 @@ Copying nature to solve engineering problems is not a novel practise and also fo
 
 
 
- \subsection{Plasticity}
- STDP\\
- Gradient descent\\
- Hebbian\\
- maybe?
+ \subsection{Learning rules}
+ \todo{Give more detail to key learning rules}\\
 
  Key to give any \ac{NN} the ability to solve a task is to learn/train the it. The adaption of weights and biases is necessary to accomplish any functionality based on the underlying data\cite{zheng_introductory_2022}. There are various ways to train a network. For \acp{ANN}, gradient based algorithms are often the method of choice. They use the error from the loss function do compute the derivative $\frac{\partial L}{\partial \theta_{ij}}$ to adjust each parameter $\theta$, i.e. weights and biases with
  \begin{equation}
@@ -233,8 +167,101 @@ Copying nature to solve engineering problems is not a novel practise and also fo
  until a local minima is reached. The computation of gradients is done efficiently using the backpropagation algorithm (reverse accumulation from \ac{AD}), in which the gradients are propagated from the output backwards towards the input by making use of the chain rule and the fact that the \ac{NN} has a layered structure. An in-debt explanation is given in e.g \cite{goodfellow_deep_2016} or \cite{nielsen_neural_2015}.
 
 
- There are a plethora of different learning techniques available, see \cite{abdolrasol_artificial_2021}\cite{sun_survey_2019} for a review. The most fundamental distinction can be made between supervised, unsupervised and reinforcement learning rules.
- One needs to remember that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information. A short summary of learning rules in \ac{SNN} is given in a later chapter.\\
+
+
+
+\section{Neuron model}
+
+\subsection{Biological Neuron model}
+The first biologically accurate model of neuron spiking behaviour is the \ac{HH} model from 1952\cite{hodgkin_currents_1952}. Since then the \ac{HH} model has been extended in multiple ways to cover more e.g. different ion channels. The \ac{HH}-model considers the neuron with its ion channels. The membrane acts as a capacitance and the travelling ions in each ion channel contribute a current to the overall membrane potential. These ion gates are voltage dependent and are defined positive in direction out of the cell.\\
+A particular ion channel for ion $X$ can be modelled as
+\begin{equation}
+I_X= g_X \cdot (V-V_X)
+\end{equation}
+These currents are summed summed for the different ion channels in question, most commonly for Sodium, Potassium and a leak current. In reality there are a plethora of different channels and channel properties\footnote{See  \url{channelpedia.epfl.ch} for an extensive list}. The $V_X$ are the equilibrium potentials for each of the channels and can be computed using the Nernst equation \cite{johnston_foundations_1995}.
+\begin{equation}
+C \frac{dV}{dt} = g_{Na} \cdot (V-V_{Na}) + g_K \cdot (V-V_K) + g_l \cdot (V-V_l)
+\end{equation}
+Do model the voltage dependency of the ion channels, the conductances are described with gating variables, usually called $n$, $h$ and $g$ for Na-Activation, Na-Inactivation and K-activation respectively. One gating variable is set between $[0,1]$ and models the permeability of said gate. Multiple gates are used to fit to each ion channel in order to match experimental data and the model behaviour.\\
+Gates have first order dynamics of the form
+\begin{equation}
+\frac{dn}{dt} = \alpha_n(1-n) - \beta_n n
+\end{equation}
+for e.g the n gate. The other gates' dynamics are analogous. The functions $\alpha$ and $\beta$ are voltage but not time dependent. The discussion of initial values as well as functions for $\alpha_p,\ \beta_p\ \ p = (n,h,m)$ can be found in \cite{hodgkin_quantitative_1952} or \cite{johnston_foundations_1995}. The gates for each ion channel's conductance are found to be
+\begin{equation}
+\begin{aligned}
+g_{Na} &= \bar{g}_{Na} n^4\\
+g_{K} &= \bar{g}_{K} m^3h\\
+\end{aligned}
+\end{equation}
+and give form to the final model
+\begin{equation}\label{eq:HH}
+\begin{aligned}
+C\frac{dV}{dt} &= I(t) -\bar{g}_{Na} n^4(V-V_{Na}) - \bar{g}_{K} m^3h(V-V_{K}) -g_L(V-V_{L})\\
+\frac{dn}{dt} &= (1-n)\alpha_n(V) - \beta_n n (V)\\
+\frac{dm}{dt} &= (1-m)\alpha_m(V) - \beta_m m (V)\\
+\frac{dh}{dt} &= (1-h)\alpha_h(V) - \beta_h h (V)
+\end{aligned}
+\end{equation}
+We did not define a gate for the leak term as it is assumed constant.
+\subsection{"IF and LIF"}
+In contrast of the \ac{HH} model in \cref{eq:HH}, the simplest models of neurons are the \ac{IF} and \ac{LIF} models.\\
+\paragraph{IF Neurons}
+\ac{IF} Neurons, as the name implies, integrate the incoming current over time.
+\begin{equation}
+\frac{d V(t)}{d t} = \frac{1}{C}I(t)
+\end{equation}
+The membrane voltage is governed by the incoming current spikes of connected neurons and the membrane capacitance. The neuron potential does not change without a change of input current and thus presents as a perfect integrator of the input.\\
+\paragraph{\ac{LIF} Neurons}
+In contrast to that the \ac{LIF} neuron contains a leak term on the RHS which brings the voltage back to its resting potential over time. The model can be expressed as
+\begin{equation}
+\tau\frac{dV(t)}{dt} = -(V(t)-E_r) + RI(t),
+\end{equation}
+where $\tau = RC$ is the time constant the composed of the membrane resistance $R$ and the membrane capacitance $C$ and the resting potential $E_r$. In the absence of input $I(t)$ the voltage settles on the membrane potential $E_r$.\\
+The input $I(t)$ encapsulates external inputs as well as a sum of Dirac functions indicating a spiking neuron
+\begin{equation}
+I(t) = \sum_k \delta(t-t^k)
+\end{equation}
+\rewrite{This is not truly correct. Forgot weights, but at the same time only when there are more than 1 neuron}
+and $t_k$ being the time of the $k$-th spike. When the membrane voltage exceeds the threshold potential $\bar{v}$, a spike is sent out by the neuron and the voltage sets back to its reset voltage $v_{res}$.
+\subsection{Izhikevich Neuron}
+While the above models deliver a useful and cheap simplification, they lack in accuracy. The Izhikevich model \cite{izhikevich_simple_2003} of the neuron tries be the of both worlds in terms of efficiency and accuracy. It is comprised of 2D ODEs with the membrane potential $v$ as
+\begin{equation}
+\begin{aligned}
+\frac{d v}{dt} &= 0.04v^2 + 5v + 140 -u +I(t)\\
+\frac{d u}{dt} &= a(bv-u).
+\end{aligned}
+\end{equation}
+With the chosen factors, the neuron experiences a spike when $u\geq30 $mV, in which case the neuron resets to
+\begin{equation}
+\begin{aligned}
+u &\leftarrow u+d\\
+v&\leftarrow c
+\end{aligned}
+\end{equation}
+The parameters describe $a$ scale of recovery, $b$ sensitivity, $c$ the reset potential of $v$ and $d$ the reset of variable $u$.\rewrite{Maybe shitty explanation, which could be extended on.} Depending on these parameters one can achieve different behaviours of the neuron e.g. regular spiking, fast spiking and low threshold spiking to name a few \cite{izhikevich_simple_2003}.
+
+
+\section{Learning Rules}
+\todo{Flesh this part out quite a bit!}
+It's important to remember that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information.\\
+Gradient based methods require differentiability and therefore continuity, thus are only applicable for \acp{ANN}. This means that they cannot be used for \acp{SNN} since spikes introduce discontinuities. Methods have been proposed to use backpropagation in spiking networks\cite{lee_training_2016} yet they do not provide a biologically plausible way to learn. The problem is that in biology neurons do not have access to the global error from the loss function but only to their pre-synaptic neurons.
+\subsubsection{(Anti-) Hebbian Learning and STDP}
+The Hebbian learning rule is one of the oldest learning rules for neural networks with large experimental evidence in biology(see for example \cite{feldman_spike-timing_2012} for a summary). Its key idea can be summarized as "Neurons that fire together, wire together". If the postsynaptic neuron fires shortly after the presynaptic neuron, the connection strength is increased. Oppositely, if the postsynaptic neuron fires before the presynaptic, their connection strength is decreased.\\
+The longer the delay between firing activation, the smaller the increase. This behaviour of potentiation and depression is pictured in \cref{fig:stdp} and build the bases for the spike time dependent plasticity rule (STDP).
+\begin{figure}
+	\centering
+	\includegraphics[scale = 0.15]{stdp}
+	\caption{Graphical representation of STDP learning rule. Weight change depending on the time between pre- and postsynaptic activation. Negative time is the time between the postsynaptic neuron firing before the presynaptic. Graphic taken from \cite{yi_learning_2023}.}
+	\label{fig:stdp}
+\end{figure}
+In addition to the Hebbian rule, there is also the anti-Hebbian rule that is reverses the aforementioned behaviour. This means that regular firing of pre- and postsynaptic neurons is discouraged and more irregular and distributed spiking is favoured. This can be understood as mirroring \cref{fig:stdp} along the x-axis.\\
+
+These rules are based in biology and satisfy the restrictions found in nature. Many learning rules adapted from \acp{ANN} lack these properties e.g. locality. Locality demands that the basis of learning is restricted to having only the information of the direct pre- and postsynaptic neuron available. This already rules out most backpropagation algorithms as the come derive the derivative with respect to a global cost function.\\
+
+Of course there many variations and extensions have been proposed, e.g. \ac{SRDP}\cite{kempter_hebbian_1999}, which have been summarized in  \cite{yi_learning_2023}.
+
+
 
 \section{Spiking Neural Networks}
 A spiking Neural network is one step closer to a biologic representation of a brain. Instead of conveying information using a gradient in conventional \ac{NN}s, information is propagated using discrete spikes of excitation, similar to biological neurons. Hereby one can distinguish between several ideas of implementation.
@@ -301,21 +328,4 @@ Additionally, every neuron is given an specific area of the system to surveil. T
 
 
 
-\subsection{Plasticity}
-It's important to remember that \acp{ANN} and \acp{SNN} require completely different learning algorithms because of their different transport of information.\\
-Gradient based methods require differentiability and therefore continuity, thus are only applicable for \acp{ANN}. This means that they cannot be used for \acp{SNN} since spikes introduce discontinuities. Methods have been proposed to use backpropagation in spiking networks\cite{lee_training_2016} yet they do not provide a biologically plausible way to learn. The problem is that in biology neurons do not have access to the global error from the loss function but only to their pre-synaptic neurons.
-\subsubsection{(Anti-) Hebbian Learning and STDP}
-The Hebbian learning rule is one of the oldest learning rules for neural networks with large experimental evidence in biology(see for example \cite{feldman_spike-timing_2012} for a summary). Its key idea can be summarized as "Neurons that fire together, wire together". If the postsynaptic neuron fires shortly after the presynaptic neuron, the connection strength is increased. Oppositely, if the postsynaptic neuron fires before the presynaptic, their connection strength is decreased.\\
-The longer the delay between firing activation, the smaller the increase. This behaviour of potentiation and depression is pictured in \cref{fig:stdp} and build the bases for the spike time dependent plasticity rule (STDP).
-\begin{figure}
-	\centering
-	\includegraphics[scale = 0.15]{stdp}
-	\caption{Graphical representation of STDP learning rule. Weight change depending on the time between pre- and postsynaptic activation. Negative time is the time between the postsynaptic neuron firing before the presynaptic. Graphic taken from \cite{yi_learning_2023}.}
-	\label{fig:stdp}
-\end{figure}
-In addition to the Hebbian rule, there is also the anti-Hebbian rule that is reverses the aforementioned behaviour. This means that regular firing of pre- and postsynaptic neurons is discouraged and more irregular and distributed spiking is favoured. This can be understood as mirroring \cref{fig:stdp} along the x-axis.\\
-
-These rules are based in biology and satisfy the restrictions found in nature. Many learning rules adapted from \acp{ANN} lack these properties e.g. locality. Locality demands that the basis of learning is restricted to having only the information of the direct pre- and postsynaptic neuron available. This already rules out most backpropagation algorithms as the come derive the derivative with respect to a global cost function.\\
-
-Of course there many variations and extensions have been proposed, e.g. \ac{SRDP}\cite{kempter_hebbian_1999}, which have been summarized in  \cite{yi_learning_2023}.
 
