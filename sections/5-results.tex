@@ -172,7 +172,7 @@ The external forces were each offset sinusoidal waves with varying frequency and
 For the evaluation of the results for the control problem derived in \cref{sec:control} we first note a few important implementational details in order to get useful results. \\
 Afterwards we compare the performance of the two different derivations from \cref{ssec:control_dynamics,ssec:extension} for specific examples as well as their limits.\todo{For example dirac doesnt work,Actually anything with a discontinuity doesnt work???,long simulation times. All for the one with  error.}
 Lastly we take a closer look at the main reason for this system to work and how we can adopt it to our learning problem in \cref{sec:learning}.
-
+\todo{Mention that the rate stuff is kind of useless unless you want to reduce the number of spikes}
 \subsection{Implementation details}
 Before any simulation can be run it is important that certain detail in the implementation are set in the correct order for the results to make sense.
 
@@ -366,7 +366,9 @@ that the C is not square
 
 \section{Results on the learning}
 
-\subsection{Test evaluation}
+
+For our result evaluations we first give a simple test scenario. With that in place we then evaluate the learning performance for slow and fast learning separately to find the biggest source of error. We then combine both approaches to measure the combined performance. We look into different metrics to determine the progress of learning and highlight key parameters for the success of learning the given system, e.g hyperparameters or learning input sequence. Lastly we describe configurations where the learning breaks down.
+\subsection{Test cases}
 
 Explain test methodolofy
 What system

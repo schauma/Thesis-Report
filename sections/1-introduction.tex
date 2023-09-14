@@ -73,35 +73,14 @@ If successful, we would obtain a general purpose controller that would allow us 
 Furthermore we have a simple and robust controller that does not require expensive computation necessary for e.g. LQG control.
 
 \section{Methodology}
-&& Hier weitermachen!
-Method:\\
-We use a SNN to to control any arbitrary DS\\
-Balanced networks show a some key motives seen in the brain like poisson distribution and smth else ->ref\\
-The SNN is to be trained with a STDP rule\\
-Maybe even train time over performance or smth whatever\\
-
-Introduce, theoretically, the methodologies and methods that can be used in a project and, then, select and introduce the methodologies and methods that are used in the degree project. Must be described on the level that is enough to understand the contents of the thesis.
-
-Use references!
-
-Preferably, the philosophical assumptions, research methods, and research approaches are presented here. Write quantitative / qualitative, deductive / inductive / abductive. Start with theory about methods, choose the methods that are used in the thesis and apply.
-
-
-Detailed description of these methodologies and methods should be presented in Chapter 3. In chapter 3, the focus could be research strategies, data collection, data analysis, and quality assurance.
-
 To achieve our set goal we first investigate what kind of Spiking network architecture to use. There are many different ways to design a \ac{SNN} each with its pros and cons.
-We seek an architecture that lies in between the most accurate biologic spiking model and yet does not abstract to many features of nature.\\
-After that we implemented a LQG controller a baseline reference.
+We seek an architecture that lies in between the most accurate biologic spiking model and yet does not abstract too many features of nature.\\
 Part of the goal is that the user does not have to touch the neural network working underneath the control problem.
-Firstly, we set out to achieve this goal by implementing a \ac{SNN} that allows to simulate, not control, any given linear system with given external inputs. With this network in place it was set out to a second \ac{SNN} that acts as the controller and combining those two. The controller would generate a control signal that would be used as external input to return the system behaviour to the controller. In the end, this approach depended on hand-tuning hyper-parameters to set the controller to give usable results which was in opposition to our goals.\\
+Firstly, we set out to achieve our goal by implementing a \ac{SNN} that allows to simulate, not control, any given linear system with given external inputs. With this network in place it was set out to a second \ac{SNN} that acts as the controller and combining those two. The controller would generate a control signal that would be used as external input to return the system behaviour to the controller.\\
+Afterwards, we combine the two networks into one in order to enable a spiking learning rule at the cost of having to disregard the input matrix.\\
 
-To find these magic numbers we tried to implement a learning regime based on a similar approach. However this was unfruitful.
-\todi{
-Instead the original learning SNN approach is used to control the system directly.
-}
-
+In the end, this approach depended on hand-tuning hyper-parameters to set the controller to give usable results which was in opposition to our goals.\\
 
 \section{Outline}
-In text, describe what is presented in Chapters 2 and forward. Exclude the first chapter and references as well as appendix.
 \todi{make the outline in the end!}
 First, we discuss why a biologic neural network is chosen compared to the more widely used \acp{ANN} in this task and what the goal is. In the

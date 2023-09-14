@@ -131,16 +131,19 @@ Using the fact that the Heaviside function in \cref{eq:rate_inhomo} and subseque
 \begin{equation}
 	\bmu{\Gamma}_i^T\left(\bmu{x}-\hat{\bmu{x}}\right) - \mu r_i>\frac{\|\bmu{\Gamma}\|^2 + \nu + \mu}{2}
 \end{equation}
-We notate the \ac{LHS} as the voltage and the constant \ac{RHS} as the voltage threshold $T_i$
+We notate the \ac{LHS} as the voltage
 
-
+\begin{equation}\label{eq:voltage}
+V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d r_i(t)
+\quad i  = 1\dots N.
+\end{equation}
+and the constant \ac{RHS} as the voltage threshold $T_i$
 \begin{equation}\label{eq:condition}
 V_i>T_i=\frac{\left\|\boldsymbol{\bmu{\Gamma}}_i\right\|^2 + \nu+\mu}{2}.
 \end{equation}
-\rewrite{Remember that i read somewhere that the noise is necessary. Maybe mention that here too. And find the reference}
 
-
-
+The dynamic variable $\bmu{x}$ is tracked by firing spikes in when the defined "voltage" of a neuron surpasses its threshold.\\
+For negligible quadratic cost $\mu$ the voltage can be understood as measure of the error projected on $\bmu{\Gamma}_i$.
 \subsection{Neuron Voltage}
 As mentioned above, a neuron spikes if it meets the condition \cref{eq:condition}. But so far it is unclear how neuron voltage evolves over time.
 Denote $\bmu{L}$ the the left pseudo-inverse of $\bmu{\Gamma}$ \begin{equation}
@@ -170,7 +173,7 @@ Now the derivative terms in \cref{eq:voltage_dt} are replaced with  with their r
 The last argument is to consider the network behaviour for larger networks. We increase the number of neurons $N\longrightarrow\infty$ and require that the network output as well as the firing rates remains constant.\\
 When looking at the decoding at \cref{eq:decoding} we therefore need to scale $\bmu{\Gamma}$ by $\frac{1}{N}$. To make sure that the threshold in \cref{eq:condition} will not get dominated by cost terms $\mu$ \& $\nu$, they should also scale with $\frac{1}{N^2}$. As the threshold decreases with $\frac{1}{N^2}$ so does the Voltage itself.\\
 With this in mind, all terms that scale with $\frac{1}{N^2}$ are neglected. As a substitute for the neglected voltage term, a generic leak term is added making these \acp{LIF} neurons. The dynamics are therefore
-\begin{equation}
+\begin{equation}\label{eq:simple_sim}
 \begin{aligned}
 	\bmu{\dot{V}} &= -\lambda_V \bmu{V} + \bmu{W^sr} + \bmu{W^fo} + \bmu{\Gamma}^T \bmu{c}\\
 	\bmu{W^s} &= \bmu{\Gamma}^T\bmu{(A+\lambda}_d\bmu{I)\Gamma}\\
@@ -255,12 +258,7 @@ The first was termed "ping-pong" effect and is described in the supplementary ma
 The second regularization comes into play when there are kernels with different magnitude. Kernels with small kernel magnitude reach their threshold sooner and therefore fire more frequently. In the extreme case, only small number of neurons fire rapidly while the majority remains idle. By penalizing the rate in the 2-norm it forces the network to spread the firing among the whole network.\\\rewrite{find the right place to explain that!}
 
 
-The dynamic variable $\bmu{x}$ is tracked by firing spikes in when the defined "pseudo voltage" of a neuron surpasses its threshold. The voltage for each neuron is defined by
-\begin{equation}\label{eq:voltage}
-V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d r_i(t)
-\quad i  = 1\dots N.
-\end{equation}
-For negligible quadratic cost $\mu$ the voltage can be understood as measure of the error projected on $\bmu{\Gamma}_i$. The explicit derivation of the above equation is found in \cite{boerlin_predictive_2013} and will be adapted \rewrite{Where? Here, in the appendix of at all?}.
+
 \section{Control of Dynamic systems using \acp{SNN}}\label{sec:control}
 \subsection{Balanced networks as a controller}
 We now make the step to use the balanced network approach from above as a controller mechanism.\\
@@ -343,10 +341,65 @@ Important to note is that due to the investigation of the network's limit behavi
 
 
 \section{Learning of network parameters}\label{sec:learning}
-All the methods described above work on the optimally ideal weights for the dynamics. However in nature often new skills or dynamics are learned and not optimally tuned for the problem at hand. In the following chapter the optimally of derived is explained and local learning rules for the weights are introduced.\\
+All the methods described above work on the optimally ideal weights for the dynamics. However in nature often new skills or dynamics are learned and not optimally tuned for the problem at hand. In the following chapter the optimally of derived is explained and local learning rules for the weights are introduced. Specifically, the learning rules presented in \cite{bourdoukan_learning_2012,brendel_learning_2020,bourdoukan_enforcing_2015}\\.
 
 
 \subsection{Learning of fast connection weights $\bmu{W}^f$}
+Before deriving the learning rule, we are first going to establish the idea that the minimization of the loss is equal to minimizing the fluctuations of the membrane potential.\\
+This assumption is based on the fact that the Voltage is the projected error of the tracked signal to the reference. Therefore a good tracking should cancel out
+\begin{equation}
+	\bmu{V} = \bmu{\Gamma}\big(\bmu{x} - \bmu{\hat{x}}\big) \approx \bmu{0}
+\end{equation}
+neglecting the regularization terms.\\
+Therefore, the average membrane voltage
+\begin{equation}
+	L = \int_0^T\|\frac{1}{2}\bmu{V}(t)\|^2dt
+\end{equation}
+over time serves as a good and simple measure of tracking performance.\\
+Since the Voltage is bound by the threshold, the computation of the average can be reduced to averaging of the spikes.\\
+\paragraph{Learning with L1 costs}
+As such, the minimal variation is given if the voltage threshold and its respective reset are centred around zero. Voltage resets, given by $\bmu{W}^f_i$ for spiking neuron $i$, need to be strengthened if its reset undershoots the negative threshold value $T_i$ and vice versa. A spiking reset that hyperpolarized the neuron over the negative threshold will be weakened.\\
+Mathematically, this averaging over spikes condition is formulated as the loss a¸t time $t$
+
+c
+using the fact we can express the Voltage post-spike $\bmu{V}^{\text {post}}$ as
+\begin{equation}
+	\bmu{V}^{\text {post}} = \bmu{V}^{\text {pre}} + \bmu{W}^f \bmu{e}_i
+\end{equation}
+for neuron $i$ firing a spike.\\
+Taking the derivative of the loss function in \cref{eq:vol_bases_loss} with respect to $\bmu{\Omega}$ yields
+\begin{equation}
+\frac{\partial L_t}{\partial \bmu{W}^f} \propto\left(2 \bmu{V}^{\text {pre}}\left(t\right)+\bmu{W}^f \bmu{e}_{i}\right) \bmu{e}_{i}^{T}
+\end{equation}
+Rewriting the equation above and adding a tuning parameter gives the learning rule
+\begin{equation}
+	\Delta \bmu{W}^f_{ij} =-\frac{\partial L_t}{\partial \bmu{W}^f_{ij}} \propto - \left( \bmu{V}_i^{\text {pre}}\left(t\right)+\beta \bmu{W}^f_{ij}\right).
+\end{equation}
+It is important to note that this learning rule only becomes active during the firing of a spike. This means that if no spike is fired no learning takes place. To introduce spiking and learning, smoothed  Gaussian white noise if often used for training and inducing firing of all neurons.\\
+The role of $\beta$ is to regulate the amount of spiking by artificially increasing the magnitude of the recurrent weights. Therefore, with increased magnitude neurons are overly hyperpolarized after a spike making it harder to spike again soon, similar how the linear costs above reduce spiking activity.\\
+For $\beta = \frac{1}{2}$ no regulation is present since in the optimal case  $\bmu{W}^f$ will be twice the threshold Voltage.\\\todo{Keep this in?}
+However values $\beta\approx\frac{1}{2}$ lead to unstable ping pong patterns described previously.\\
+It is important to note that this learning rule is entirely local and can be categorized as a Hebbian learning rule, as the presynaptic voltage is multiplied by the postsynaptic reset, given by the column in $\bmu{W}^f$.\\
+\paragraph{Learning with $L2$ costs}
+The previous derivation did only incorporate $L1$ costs using the $\beta$ parameter, but does not implement any $L2$ regularization as in the derivation in \cref{sec:simulation}. With L2 costs, the optimal matrix is given by the addition of the quadratic cost term to the diagonal as in \cref{eq:simple_sim}. Since the cost term is added to the matrix $\bmu{W}^f$ and the voltage definition in \cref{eq:voltage} the voltage no longer explicitly tracks the projected error. To reuse the argument about minimizing Voltage fluctuations as a performance measure we therefore add the terms again to cancel out the terms from the previous definition. Specifically, we want to work the true projection error $\bmu{V}_{\text{ex}}$ and therefore compute the loss in \cref{eq:vol_bases_loss} using
+\begin{equation}
+\begin{aligned}
+	\bmu{V}_{\text{ex}} &= \bmu{V} + \mu\bmu{r}\\
+	\bmu{W}^f_{\text{ex}} & = \bmu{W}^f + \mu\bmu{I}.
+\end{aligned}
+\end{equation}
+We then formulate the same argument on the loss
+\begin{equation}\label{eq:vol_bases_loss}
+\begin{aligned}
+L_t & =\left\|\frac{1}{2}\big(\bmu{V}^{\text {pre}}_{\text{ex}}\left(t\right)+\bmu{V}^{\text {post}}_\text{ex}\left(t\right)\big)\right\|^2 \\
+& =\left\|\bmu{V}^{\text {pre}}\left(t\right)+ \mu\bmu{r}\left(t\right) + \frac{1}{2}\left(\bmu{W}^f + \mu \bmu{I}\right)\bmu{e}_{i}\right\|^2
+\end{aligned}
+\end{equation}
+and take the derivative with respect to $\bmu{W}^f$, resulting in the learning rule of the form
+\begin{equation}
+\Delta \bmu{W}^f_{ij} =-\frac{\partial L_t}{\partial \bmu{W}^f_{ij}} \propto - \beta\left( \bmu{V}_i^{\text {pre}}\left(t\right) + \mu \bmu{r}_i(t)\right) -\bmu{W}^f_{ij} -\delta_{ij}
+\end{equation}
+when a spike is fired.
 
 
 \subsection{Learning of slow connection weights $\bmu{W}^s$}
@@ -372,33 +425,3 @@ with respect to the matrix parameters $M_{ij}$ and changing their value accordin
 \begin{equation}
 	\dot{M}_{ij} = -\frac{\partial L}{\partial M_{ij}} = \left(\frac{\partial \hat{\bmu{x}}}{\partial M_{ij}}\right)^T\bmu{e}.
 \end{equation}
-%wo
-
-
-\section{Engineering-related and scientific content:}
-Applying engineering related and scientific skills; modelling, analysing, developing, and evaluating engineering-related and scientific content; correct choice of methods based on problem formulation; consciousness of aspects relating to society and ethics (if applicable).
-
-As mentioned earlier, give a theoretical description of methodologies and methods and how these are applied in the degree project.
-
-
-was ist meine research question?
-
-zusammensetzung von den beiden systeme: dynamisches system und neuronales netz. mehr oder weniger die herleitung kopieren aus dem paper. Dann mit learning von den gewichten.
-
-
-
-
-
-Here I describe what how it needs to be done.
-So this is the place for the derivation
-The concept and the process whatever that means
-Later there comes the how I implemented it.
-Here is what we needs to be implemented.
-
-
-
-Here very detailed explanation of the Balanced network for this problem\\
-Very detailed way for the regular NN for this problem
-Basics of the controller design used in this comparison aka LQG controller\\
-Method of learning the weights for the SNN
-Method of comparison\\
