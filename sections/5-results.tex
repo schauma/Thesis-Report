@@ -367,13 +367,52 @@ that the C is not square
 \section{Results on the learning}
 
 
-For our result evaluations we first give a simple test scenario. With that in place we then evaluate the learning performance for slow and fast learning separately to find the biggest source of error. We then combine both approaches to measure the combined performance. We look into different metrics to determine the progress of learning and highlight key parameters for the success of learning the given system, e.g hyperparameters or learning input sequence. Lastly we describe configurations where the learning breaks down.
+For our result evaluations we first give a simple test scenario. With that in place we then evaluate the learning performance for slow and fast learning separately to find the biggest source of error. We then combine both approaches to measure the combined performance. We look into different metrics to determine the progress of learning and highlight key parameters for the success of learning the given system, e.g hyperparameters or learning input sequence. Lastly we describe configurations where the learning breaks down.\\
+
+
 \subsection{Test cases}
+\subsubsection{Toy example}
+As the first problem we consider a simple 2D toy example given by a damped oscillator of the form
+\begin{equation}
+	\bmu{\dot{x}} = \begin{bmatrix}
+	0&1\\ -1 &-5
+	\end{bmatrix}\bmu{x} + \bmu{c}(t).
+\end{equation}
+Since we are only concerned with the learning and neglect the control at this point we give a predefined input $\bmu{c}(t)$ set as a single square impulse. With this trajectory we can observe the systems response to a sudden jump as well as the evolution of the system in the absence of external input. This allows us to see the system's performance in both scenarios of the control problem later on.
+\subsubsection{Stiff ODE System}
+
+\subsubsection{Bigger system}
+
+
+
+
 
 Explain test methodolofy
 What system
 what input
 
+Maybe a easy system
+Stiff ode
+DAE system maybe?
+\subsection{Only learning of $\bmu{W}^f$}
+
+\subsection{Only learning of $\bmu{W}^s$}
+
+\subsection{Combined Learning}
+
+\subsection{Parameter analyses}
+\subsubsection{K}
+\subsubsection{beta}
+\subsubsection{Learning rate}
+\subsubsection{Input learning sequences}
+magnitude and smoothness or sine wave
+\subsubsection{Network size and connectivity}
+\subsubsection{Random init of matrices??}
+
+
+
 
 
 \section{Results of the learned control objective}
+Adjust connectivity to have a fake 2 states in the neurons.
+Ich meine dass mann in einem 2d beispiel 50 neuronen nur fuer state x1 und 50 neuronen nur fuer x2 und das dann lernen und dann kann man argumentieren dass nur gewisse neuronen angeregt werden koennen (durch die selective von F) und damit sozusagen eine B matrix eingefuert wurde.

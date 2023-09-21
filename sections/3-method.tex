@@ -425,3 +425,5 @@ with respect to the matrix parameters $M_{ij}$ and changing their value accordin
 \begin{equation}
 	\dot{M}_{ij} = -\frac{\partial L}{\partial M_{ij}} = \left(\frac{\partial \hat{\bmu{x}}}{\partial M_{ij}}\right)^T\bmu{e}.
 \end{equation}
+
+It is important to note that this derivation completely ignores any sort of control matrix $\bmu{B}$ given by a control problem. While this can be a disqualifying property for many systems it is also important to ask how such a matrix could be implemented. Since the complete state of the system is encoded partly in each neuron it is impossible to selectively control certain states. Therefore from now on it is assumed that the control works on each neuron or that the control matrix $\bmu{B} = \bmu{I}$ is the identity matrix.
