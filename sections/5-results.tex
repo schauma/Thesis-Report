@@ -375,7 +375,7 @@ For our result evaluations we first give a simple test scenario. With that in pl
 As the first problem we consider a simple 2D toy example given by a damped oscillator of the form
 \begin{equation}
 	\bmu{\dot{x}} = \begin{bmatrix}
-	0&1\\ -1 &-5
+	0&1\\ -1 &-10
 	\end{bmatrix}\bmu{x} + \bmu{c}(t).
 \end{equation}
 Since we are only concerned with the learning and neglect the control at this point we give a predefined input $\bmu{c}(t)$ set as a single square impulse. With this trajectory we can observe the systems response to a sudden jump as well as the evolution of the system in the absence of external input. This allows us to see the system's performance in both scenarios of the control problem later on.
@@ -384,6 +384,35 @@ Since we are only concerned with the learning and neglect the control at this po
 \subsubsection{Bigger system}
 
 
+\subsubsection{Testing}
+To measure the learning performance, we consider different metrics in order to get a complete picture.\\
+Due to the analytical solution, we are in the fortunate position to compare the learning values to the optimal values. Yet different measures of performance can be evaluated. The most important and meaningful measure to consider is the network error after learning in a simulation.\\
+As a reference, we plot the optimal solution of our toy example here.
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/reference_sol.pdf}
+	\caption{Simulation of our toy example with the given external input c. The network simulation perfectly overlaps with the analytical solution. Maximum error in this example is $<0.04$.}
+	\label{fig:reference_sol}
+\end{figure}
+As can be seen from \cref{fig:reference_sol} the network perfectly follows simulates the system's behaviour.\\
+However also other measurements can be obtained to assess the networks learning. Alternatively, one can consider the convergence of the matrix parameters to their optimal values. Therefore, we measure the maximum relative deviation from the optimal value as
+\begin{equation}\label{eq:largest_rel_dev}
+	\Delta^\text{rel} \bmu{W}_{ij} =\left|1 - \frac{\bmu{W}^{\text{learned}}_{ij}}{\bmu{W}^\text{ex}_{ij}}\right|
+\end{equation}
+for each parameter. From there we can measure the maximum relative deviation or compute the sum of of deviations to access the parameter convergence.\\
+Alternatively, since we are working on matrices, we can look at the convergence of eigenvalues.\\
+Knowing the optimal values to
+\begin{equation}
+\begin{aligned}
+	\bmu{W}^f &= -\left(\bmu{\Gamma}^T\bmu{\Gamma} + \mu \bmu{I}\right)\\
+	\bmu{W}^s &= \bmu{\Gamma}^T\left(\bmu{A} + \lambda_d\bmu{I}\right)\bmu{\Gamma}\\
+\end{aligned}
+\end{equation}
+the eigenvalues can be computed.\\
+For $\bmu{W}^f$ we only need to look at the eigenvalues of $\bmu{\Gamma}^T\bmu{\Gamma}$ and shift them by $\mu$. $\bmu{\Gamma}^T\bmu{\Gamma}$ itself only has $J$ non-zero eigenvalues $\text{rank}(\bmu{\Gamma}^T\bmu{\Gamma}) = J$ since $\text{rank}\left(
+\bmu{\Gamma}\right) = J$.\\
+For $\bmu{W}^s$, only J eigenvalues are nonzero since again the $\text{rank}(\bmu{\Gamma}) = J$.\\
+Thus, we access the learning progress by measuring the distance of the learned eigenvalues compared to the true eigenvalues.\\
 
 
 
@@ -395,6 +424,26 @@ Maybe a easy system
 Stiff ode
 DAE system maybe?
 \subsection{Only learning of $\bmu{W}^f$}
+In order to evaluate the learning performance individually, we first consider each learning algorithm separately. Later, we use both to access the overall performance.\\
+This also allows us to see the effects of changing learning parameters individually. To isolate the learning of the fast weights, we set the learning rate for the slow weights to zero and initialize $\bmu{W}^s$ to the optimal values from the analytic solution given in \cref{sec:simulation}. This provides optimal conditions for the learning algorithm.\\
+We start first by looking at the convergence over learning before looking at errors in order to see whether any of the aforementioned measurements indeed give a meaningful insight into the networks performance.\\
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/wf_analyses.pdf}
+	\caption{Learning of $\bmu{W}^f$ matrix and the end of the epoch. Top panel shows the movement of the two non-zero eigenvalues of $\bmu{W}^f$. The middle panel shows the largest relative deviation of $\bmu{W}^f$ calculated from \cref{eq:largest_rel_dev}. The bottom panel shows the maximal error during simulation between the learned and the optimal matrix.}
+	\label{fig:wf_analyses}
+\end{figure}
+
+The learning performance of $\bmu{W}^f$ is seen in \cref{fig:wf_analyses}. As can be seen, the two non-zero eigenvalues of the matrix converge close to the
+optimal values which are reached after $\approx 130 epochs$ and keep hovering around.
+We also see that the largest relative deviation is following the same trend in the beginning, but instead of settling down at $\approx 130$ it starts jumping around. The plot only prints the absolute relative deviation, it is interesting to check the signs during learning. While the error decreases from $-1$, the starting value if $\bmu{W}^f$ is initialized to zero, the jumping around after epoch $\approx 130$ only jumps in the positive direction.\\
+Before the jumps the learning reaches begins, the learning algorithm manages to get the largest deviation less then $9.5\%$ away from the optimal value. Using this set of learned parameters the maximum absolute error during that simulation was $0.1187$ which corresponds to a relative error of $<4\%$.\\
+The overall best performance was reached in epoch 724 but because of the gitter it is fair to say that this was by found randomly. Interestingly did this not also give the best error results but an relative error of more than $10\%$. The best overall performance was in epoch 1630 with an relative error of $>3\%$. The largest relative deviation of the matrix  in that epoch was $\approx 12\%$ from the optimal value.\\
+This means that neither the eigenvalues nor the largest relative deviation give reliable ways to measure our performance without looking at the simulation error.
+\todo{Look at the given epochs and see maybe with statistical measure they looks good.}
+\todo{Explain how to get away with the jumping error}
+
 
 \subsection{Only learning of $\bmu{W}^s$}
 
@@ -402,7 +451,7 @@ DAE system maybe?
 
 \subsection{Parameter analyses}
 \subsubsection{K}
-\subsubsection{beta}
+\subsubsection{$\bmu{\beta}$}
 \subsubsection{Learning rate}
 \subsubsection{Input learning sequences}
 magnitude and smoothness or sine wave

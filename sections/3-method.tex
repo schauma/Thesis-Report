@@ -134,7 +134,7 @@ Using the fact that the Heaviside function in \cref{eq:rate_inhomo} and subseque
 We notate the \ac{LHS} as the voltage
 
 \begin{equation}\label{eq:voltage}
-V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \lambda_d r_i(t)
+V_i(t)=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu r_i(t)
 \quad i  = 1\dots N.
 \end{equation}
 and the constant \ac{RHS} as the voltage threshold $T_i$
@@ -166,8 +166,8 @@ Now the derivative terms in \cref{eq:voltage_dt} are replaced with  with their r
 \begin{equation}\label{eq:voltage_limit}
 \begin{aligned}
 	\bmu{\dot{V}} &= \bmu{\Gamma}^T\bmu{ALV}\\
-	 &+ \left(\bmu{\Gamma}^T\bmu{A\Gamma} + \mu\bmu{\Gamma}^T \bmu{AL}+\lambda_d\bmu{\Gamma}^T\bmu{\Gamma + \mu\lambda_d}\right)\bmu{r}\\
-	 &+\left(\bmu{\Gamma}^T\bmu{\Gamma} + \mu\right)\bmu{o} + \bmu{\Gamma}^T\bmu{c}.
+	 &+ \left(\bmu{\Gamma}^T\bmu{A\Gamma} + \mu\bmu{\Gamma}^T \bmu{AL}+\lambda_d\bmu{\Gamma}^T\bmu{\Gamma} + \mu\lambda_d\right)\bmu{r}\\
+	 &+\left(\bmu{\Gamma}^T\bmu{\Gamma} + \mu\bmu{I}\right)\bmu{o} + \bmu{\Gamma}^T\bmu{c}.
 \end{aligned}
 \end{equation}
 The last argument is to consider the network behaviour for larger networks. We increase the number of neurons $N\longrightarrow\infty$ and require that the network output as well as the firing rates remains constant.\\
@@ -341,7 +341,7 @@ Important to note is that due to the investigation of the network's limit behavi
 
 
 \section{Learning of network parameters}\label{sec:learning}
-All the methods described above work on the optimally ideal weights for the dynamics. However in nature often new skills or dynamics are learned and not optimally tuned for the problem at hand. In the following chapter the optimally of derived is explained and local learning rules for the weights are introduced. Specifically, the learning rules presented in \cite{bourdoukan_learning_2012,brendel_learning_2020,bourdoukan_enforcing_2015}\\.
+All the methods described above work on the optimally ideal weights for the dynamics. However in nature often new skills or dynamics are learned and not optimally tuned for the problem at hand. In the following chapter the optimally of derived is explained and local learning rules for the weights are introduced. Specifically, the learning rules presented in \cite{bourdoukan_learning_2012,brendel_learning_2020,bourdoukan_enforcing_2015}.
 
 
 \subsection{Learning of fast connection weights $\bmu{W}^f$}
@@ -359,7 +359,7 @@ over time serves as a good and simple measure of tracking performance.\\
 Since the Voltage is bound by the threshold, the computation of the average can be reduced to averaging of the spikes.\\
 \paragraph{Learning with L1 costs}
 As such, the minimal variation is given if the voltage threshold and its respective reset are centred around zero. Voltage resets, given by $\bmu{W}^f_i$ for spiking neuron $i$, need to be strengthened if its reset undershoots the negative threshold value $T_i$ and vice versa. A spiking reset that hyperpolarized the neuron over the negative threshold will be weakened.\\
-Mathematically, this averaging over spikes condition is formulated as the loss a¸t time $t$
+Mathematically, this averaging over spikes condition is formulated as the loss at time $t$
 
 c
 using the fact we can express the Voltage post-spike $\bmu{V}^{\text {post}}$ as
@@ -400,7 +400,7 @@ and take the derivative with respect to $\bmu{W}^f$, resulting in the learning r
 \Delta \bmu{W}^f_{ij} =-\frac{\partial L_t}{\partial \bmu{W}^f_{ij}} \propto - \beta\left( \bmu{V}_i^{\text {pre}}\left(t\right) + \mu \bmu{r}_i(t)\right) -\bmu{W}^f_{ij} -\delta_{ij}
 \end{equation}
 when a spike is fired.
-
+\todo{Throw this out. We skip the co¸mparison between learning methods.}
 
 \subsection{Learning of slow connection weights $\bmu{W}^s$}
 The recurrent weights $\bmu{W}^s$ are called slow because they are in conjunction with the filtered spike train $\bmu{r}(t)$ in \cref{eq:voltage_limit} in contrast to $\bmu{W}^f$ which are reset the neuron voltage after a spike.\\
