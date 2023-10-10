@@ -373,7 +373,7 @@ For our result evaluations we first give a simple test scenario. With that in pl
 \subsection{Test cases}
 \subsubsection{Toy example}
 As the first problem we consider a simple 2D toy example given by a damped oscillator of the form
-\begin{equation}
+\begin{equation}\label{eq:toy_example}
 	\bmu{\dot{x}} = \begin{bmatrix}
 	0&1\\ -1 &-10
 	\end{bmatrix}\bmu{x} + \bmu{c}(t).
@@ -439,19 +439,76 @@ The learning performance of $\bmu{W}^f$ is seen in \cref{fig:wf_analyses}. As ca
 optimal values which are reached after $\approx 130 epochs$ and keep hovering around.
 We also see that the largest relative deviation is following the same trend in the beginning, but instead of settling down at $\approx 130$ it starts jumping around. The plot only prints the absolute relative deviation, it is interesting to check the signs during learning. While the error decreases from $-1$, the starting value if $\bmu{W}^f$ is initialized to zero, the jumping around after epoch $\approx 130$ only jumps in the positive direction.\\
 Before the jumps the learning reaches begins, the learning algorithm manages to get the largest deviation less then $9.5\%$ away from the optimal value. Using this set of learned parameters the maximum absolute error during that simulation was $0.1187$ which corresponds to a relative error of $<4\%$.\\
-The overall best performance was reached in epoch 724 but because of the gitter it is fair to say that this was by found randomly. Interestingly did this not also give the best error results but an relative error of more than $10\%$. The best overall performance was in epoch 1630 with an relative error of $>3\%$. The largest relative deviation of the matrix  in that epoch was $\approx 12\%$ from the optimal value.\\
-This means that neither the eigenvalues nor the largest relative deviation give reliable ways to measure our performance without looking at the simulation error.
-\todo{Look at the given epochs and see maybe with statistical measure they looks good.}
-\todo{Explain how to get away with the jumping error}
+The overall best performance according to our measures was reached in epoch 724 but because of the rapid fluctuations it can be assumed that the parameter set was found randomly. Interestingly did this not also give the best error results but an relative error of more than $10\%$. The best overall performance was in epoch 1630 with an relative error of $<3\%$. The largest relative deviation of the matrix  in that epoch was $\approx 12\%$ from the optimal value.\\
+\begin{figure}
+	\centering
+	\begin{subfigure}[t]{0.48\textwidth}
+		\includegraphics[width=\textwidth]{../../plots/Learning/wf_1630.pdf}
+		\caption{$\bmu{W}^f$ matrix after 724 epochs of learning. Displayed are the parameter differences $\bmu{W}^f - \bmu{W}^f_{\text{exact}}$ }  % Add a caption for Subfigure 1
+		\label{fig:subfig1}  % Add a label for referencing Subfigure 1
+	\end{subfigure}
+	\hspace{0.02\textwidth}  % Horizontal space between subfigures
+	\begin{subfigure}[t]{0.48\textwidth}
+		\includegraphics[width=\textwidth]{../../plots/Learning/wf_724.pdf}
+		\subcaption{$\bmu{W}^f$ matrix after 1640 epochs of learning.}  % Add a caption for Subfigure 2
+		\label{fig:subfig2}  % Add a label for referencing Subfigure 2
+	\end{subfigure}
+\caption{Matrix' learning progress for the best error performance (\subref{fig:subfig1}) and best relative deviation (\subref{fig:subfig2}). Learned was with different smoothed Gaussian noise for each epoch for $10^5$ timesteps.}
+\label{fig:epoch_viz}
+\end{figure}
+Visualizing the matrices' differences from the optimal weights  of both of these epochs in \cref{fig:epoch_viz} it is apparent to see that the columns $i = [1,\dots,15] \cup [42,\dots,50]$  are learned slightly more accurately. These correspond to the reset of voltages of neurons $i$. The reason this is important is that for our test example these neurons are by far the most active. Thus by learning these neurons accurately while other weights are further apart from the optimal value gives better results for our example but worse results when looking at the largest deviation.\\
+A possible reason for this behaviour is that the weights are to much dependent on the input of the learning input sequence that is used for learning in the current epoch. This will be investigated in a later section.\\
+But this also means that neither the eigenvalues nor the largest relative deviation give reliable ways to measure our performance without looking at the simulation error. Also other measures like the sum of all deviations do not give a good account on the learning progress. Moreover, all these measure rely on the information given by the optimal weights, which in general is not available  information. From this plot it becomes clear hard to predict the network performance without actually testing it. While the eigenvalues or the largest relative deviation might indicate a good set of parameters the error can still make the whole simulation unusable as the error climbs as high as the original simulation in \cref{fig:reference_sol}. Therefore it is either necessary to find a better measure or avoid the oscillating effect by adjusting the learning parameters. Latter will be tested in the next section.\\
+Lastly it is interesting to note that for all tests in which the the results were not completely unusable the the biggest error was after the stimulus $\bmu{c}$ was absent. Furthermore, the error crept up over time and the maximum error was often found towards the end of the simulation. This hints that the network's accuracy is deteriorating mostly when it is evolving on its own.\\
+
+\todo{Therefore a learning limiting factor that if the change is less than a specific value stop learning. Put in the end!}
+\todo{Mention sim parameters somewhere!}
+\subsubsection{Parameter analyses}
+\paragraph{$\beta$}
+The prime parameter for the learning of $\bmu{W}^f$ is the parameter $\beta$. With the same learning and simulation setup as above we test different values of $\beta$. Empirically, we know that values outside the range of $(0.50,0.54)$ do not perform well enough to compare or do not converge outright. For the learning the identical input sequences were used.\\
+To illustrate the influence of $\beta$ we run the simulation with a value close to $0.50$, close to the upper limit and an the best empirically found value.\\
+In \cref{fig:beta_study} it becomes visible that with larger $\beta$ the rapid oscillations are reduced. However with $\beta = 0.54$ in the orange line the error is prohibitively high. The eigenvalues are not shown as they all follow a very similar convergence path as seen in \cref{fig:wf_analyses}.\\
+The best performance was found empirically at $\beta = 0.522$ with comparatively good error measures while having few rapid jumps.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/matrix_data_analyses_beta.pdf}
+	\caption{Learning of toy example \cref{eq:toy_example} with different $\beta$. Top panel shows the relative deviation and bottom panel the absolute error.}
+	\label{fig:beta_study}
+\end{figure}
+
+It is interesting to see that for differen $\beta$ sudden changes in the error seem to happen after the same training epochs, indicating that the input sequence for this epoch influenced the learning enormously.
+Unfortunately, none of our previously discussed measures is able to detect these anomalies, leaving us again with no other option that explicit testing of the network in simulation.\\
+To mitigate this either the input sequences need to be modified of the learning rate adjusted. Latter will be the topic of the next section.\\
 
 
+\paragraph{Learning rate}
+Adjusting the learning rate for $\bmu{W}^f$ is an easy way to damp the oscillations seen in the previous plots, though coming with an increased computational cost. For comparison, we ran the learning algorithm with different learning rates to compare cost to performance in \cref{fig:lr_fast_study}. As expected reduces the learning rate the oscillations. While the oscillations still occur with the lower learning rate, its magnitude is greatly reduced. With the smallest tested learning rate $\alpha = 0.0001$ the noticeable oscillations occur after $\approx 2500$ epochs. The downside to that is just to reach useable results with an relative error of less than $10\%$ learning must continue for more than $1000$ epochs. In addition this is for a small system while we can expect even longer learning times for bigger systems.\\
+On the other hand, the largest learning exhibits the largest error as well as enormous error variability. The learning rate for \cref{fig:beta_study} was double of the one used in \cref{fig:lr_fast_study}. However it is apparent that already in the first epoch the error reduces significantly.\\
+To combine the benefits of both approaches in \cref{fig:adaptive_lr} we see gradually lowered the the learning rate after each epoch. We start with the previously used learning rate $\alpha_0 = 0.005$ and gradually lower it to $\alpha_M = 0.0001$ over the course of $1000$ epochs.\\
+For the reduction a value $p\in \left[0,1\right]$ was chosen beforehand and the learning rate for the next epoch $m$ calculated as
+\begin{equation}
+	\alpha_{m} = (\left(1-p\right)^m + 0.02)\cdot\alpha_0,
+\end{equation}
+essentially allowing for and exponential decay of the learning rate with a backstop to avoid too small learning rates.\\
+In \cref{fig:adaptive_lr} learning results for different $p$ are displayed.\todo{Continue}
+
+\todo{Say that the eignevalues are more useful now and say that the learning rate from before was double the biggest that is shown here.}
+\todo{Double rate adjustment. In epoch and overall epochs}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/Wf_lr_study.pdf}
+	\caption{Learning of toy example \cref{eq:toy_example} with different $\beta$. Top panel shows the relative deviation and bottom panel the absolute error.}
+	\label{fig:lr_fast_study}
+\end{figure}
+\todo{Eigenvalues are again interesting because with smaller eigenvalues we can use  that when the eigenvalues are not changing anymore the approx is ok-good.}
 \subsection{Only learning of $\bmu{W}^s$}
-
+\todo{Skip this since in the origninal paper it is already stated that the slow learning rule only works properly with the fast learning in tandem}
+\subsubsection{Parameter analyses}
+\paragraph{K}
+\paragraph{Learning rate}
 \subsection{Combined Learning}
 
-\subsection{Parameter analyses}
-\subsubsection{K}
-\subsubsection{$\bmu{\beta}$}
 \subsubsection{Learning rate}
 \subsubsection{Input learning sequences}
 magnitude and smoothness or sine wave
