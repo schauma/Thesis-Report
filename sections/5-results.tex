@@ -476,7 +476,7 @@ The best performance was found empirically at $\beta = 0.522$ with comparatively
 	\label{fig:beta_study}
 \end{figure}
 
-It is interesting to see that for differen $\beta$ sudden changes in the error seem to happen after the same training epochs, indicating that the input sequence for this epoch influenced the learning enormously.
+It is interesting to see that for different $\beta$ sudden changes in the error seem to happen after the same training epochs, indicating that the input sequence for this epoch influenced the learning enormously. This can be seen the easiest between epoch $7-180$ where spikes can be observed for each $\beta$. This indicates that the parameter changes learned in that epoch are to dominant for the whole network and the learning rate must be adjusted.\\
 Unfortunately, none of our previously discussed measures is able to detect these anomalies, leaving us again with no other option that explicit testing of the network in simulation.\\
 To mitigate this either the input sequences need to be modified of the learning rate adjusted. Latter will be the topic of the next section.\\
 
@@ -484,6 +484,12 @@ To mitigate this either the input sequences need to be modified of the learning 
 \paragraph{Learning rate}
 Adjusting the learning rate for $\bmu{W}^f$ is an easy way to damp the oscillations seen in the previous plots, though coming with an increased computational cost. For comparison, we ran the learning algorithm with different learning rates to compare cost to performance in \cref{fig:lr_fast_study}. As expected reduces the learning rate the oscillations. While the oscillations still occur with the lower learning rate, its magnitude is greatly reduced. With the smallest tested learning rate $\alpha = 0.0001$ the noticeable oscillations occur after $\approx 2500$ epochs. The downside to that is just to reach useable results with an relative error of less than $10\%$ learning must continue for more than $1000$ epochs. In addition this is for a small system while we can expect even longer learning times for bigger systems.\\
 On the other hand, the largest learning exhibits the largest error as well as enormous error variability. The learning rate for \cref{fig:beta_study} was double of the one used in \cref{fig:lr_fast_study}. However it is apparent that already in the first epoch the error reduces significantly.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/Wf_lr_study.pdf}
+	\caption{Learning of toy example \cref{eq:toy_example} with different learning rates $\alpha$. Top panel shows the relative deviation and bottom panel the absolute error.}
+	\label{fig:lr_fast_study}
+\end{figure}
 To combine the benefits of both approaches in \cref{fig:adaptive_lr} we see gradually lowered the the learning rate after each epoch. We start with the previously used learning rate $\alpha_0 = 0.005$ and gradually lower it to $\alpha_M = 0.0001$ over the course of $1000$ epochs.\\
 For the reduction a value $p\in \left[0,1\right]$ was chosen beforehand and the learning rate for the next epoch $m$ calculated as
 \begin{equation}
@@ -497,9 +503,9 @@ In \cref{fig:adaptive_lr} learning results for different $p$ are displayed.\todo
 
 \begin{figure}
 	\centering
-	\includegraphics[width=\textwidth]{../../plots/Learning/Wf_lr_study.pdf}
-	\caption{Learning of toy example \cref{eq:toy_example} with different $\beta$. Top panel shows the relative deviation and bottom panel the absolute error.}
-	\label{fig:lr_fast_study}
+	\includegraphics[width=\textwidth]{../../plots/Learning/Wf_dr_study.pdf}
+	\caption{Learning of toy example \cref{eq:toy_example} with different learning rate drops $p$ starting from $\alpha = 0.005$. Top panel shows the learning rate for each epoch. Middle panel the relative deviation and bottom panel the absolute error.}
+	\label{fig:dr_fast_study}
 \end{figure}
 \todo{Eigenvalues are again interesting because with smaller eigenvalues we can use  that when the eigenvalues are not changing anymore the approx is ok-good.}
 \subsection{Only learning of $\bmu{W}^s$}
