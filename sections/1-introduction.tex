@@ -5,18 +5,16 @@ Link things together with references. This is a reference to a section: %\ref{se
 }
 
 
-The human brain is a brilliant computing unit comprised of around 86 billion\cite{azevedo_equal_2009} neurons. Each of these neurons can have thousands of connections to other neurons. Between these connections, information travels trough the network as electrical impulses that interact with the neurons own electrical potential. With this network, the human brain is capable of performing vastly different and complex tasks. Machines and robots beat raw human computing power by several orders of magnitude, yet some tasks are next to impossible to solve by machines and classical algorithms alone. Moreover many machine implementations lack the speed, precision or flexibility of the human counterpart.\\
+The human brain is a brilliant computing unit comprised of around 86 billion\cite{azevedo_equal_2009} neurons. Each of these neurons can have thousands of connections to other neurons. Between these connections, information travels trough the network as electrical impulses that interact with the neurons own electrical potential. With this network, the human brain is capable of performing vastly different and complex tasks. Machines and robots beat raw human computing power by several orders of magnitude, yet some tasks are next to impossible to solve by machines and classical algorithms alone. Moreover, many machine implementations lack the speed, precision or flexibility of the human counterpart.\\
 Researchers tried to combat this by mimicking the brain's internal network structure to solve problems deemed unsuitable for classic algorithms.\\
 \acp{ANN} have shown a great success in previously hard to solve problems.\\
 However the classical \acp{ANN} still struggle in context of control.
 But where the highly abstract \acp{ANN} reach there limits a more biologically plausible network can overcome this obstacle.
-Furthermore with newer more biologically inspired networks we are able to solve a broader range of problems. One prospect of these are \acp{SNN} which go so far as to simulate the discrete spiking behaviour of natural neural networks. So with this in mind we set out to design such a network in order to control a linear system.
+\acp{SNN} include the computation and simulation of spiking rates or extend to individual spikes to mimic natural neural networks. So with this in mind we set out to design such a network in order to control a linear system. Furthermore with newer more biologically inspired networks we are able to solve a broader range of problems. \\
 
+% \section{Background}\label{sec:background}
 
-\section{Background}
-\label{sec:background}
-
-The most common neural network architecture for \acp{ANN} are by far the feed-forward networks.
+The most common neural network architecture for \acp{ANN} are the feed-forward networks.
 In these networks, information travels only in one direction and is not propagated by spikes but gradients of activation usually set in $[0,1]$ or $[-1,1]$.
 These \acp{ANN} have made impressive progress in the fields of image recognition, autonomic driving, medical diagnosis\cite{patel_applications_2007} or  \ac{NLP} (using Transformers\cite{vaswani_attention_2017}).\\
 This abstract representation bears advantages e.g in modelling and implementation but also gives away some key features of the human brain. Due to the information travelling only towards the output, feed-forward networks cannot build a memory or easily process temporal data. Recurrent models exist which allow for memory \cite{hutchison_biologically_2004} and sequential data input but loose some of the advantages compared to the Feed-Forward due to its increased complexity.\\
@@ -34,53 +32,43 @@ While state of the art feed-forward networks are still outperforming \acp{SNN}\f
 
 
 Conventional Feed-Forward neural networks do are not designed to work with temporal data. They are static input output machines. This makes sense in the context of many tasks but at the same time limits the power of these networks. There are workarounds to fit temporal data, for example by sampling the previous values back into the network used for example in time series forecasting \cite{tang_feedforward_1993}\cite{yang_cascade_2022}\cite{uncini_audio_2003} or to quantize the whole input if the complete time horizon is available. For example with recorded audio data.\\
-Instead, recurrent neural networks are often proposed for these kinds of tasks. However recurrent neural networks experience problems when training with back-propagation\cite{bengio_learning_1994}. For \acp{RNN} and deep Feed-forward Neural Networks the gradients used in the back-propagation algorithm can explode or vanish. Different methods have been proposed to combat this problem, e.g. batch normalization\cite{ioffe_batch_2015}, using alternative activation functions(ReLU)\cite{nair_rectified_2010} or gradient clipping\cite{pascanu_difficulty_2013} to name a few. For recurrent models in particular different architectures have been suggested, most prominently among them the LSTM cell \cite{hochreiter_long_1997} with enormous success \cite{mayer_system_2006, sak_long_2014, li_constructing_2015}.\\
+Instead, recurrent neural networks are often proposed for these kinds of tasks. However recurrent neural networks experience problems when training with back-propagation\cite{bengio_learning_1994}. For \acp{RNN} and deep Feed-forward Neural Networks the gradients used in the back-propagation algorithm can explode or vanish. Different methods have been proposed to combat this problem, e.g. batch normalization\cite{ioffe_batch_2015}, using alternative activation functions(ReLU)\cite{nair_rectified_2010} or gradient clipping\cite{pascanu_difficulty_2013} to name a few. For recurrent models in particular different architectures have been suggested, most prominently among them the LSTM cell \cite{hochreiter_long_1997} with proven success \cite{mayer_system_2006, sak_long_2014, li_constructing_2015}.\\
 Yet, these recurrent designs are not a plausible representation of biological networks.
+\acp{RNN} still operate on a continuous range of values instead of discrete spikes. Using the continuity, they are trained with the biologically implausible global Learning rules such as using the Back-Propagation algorithm.
 For the control of biological movements (often) \ac{LQR} is a proposed model for biological control \cite{li_iterative_2004}
 \todo{Is the following paragraph really true? Find papers supporting the thesis! Why is LQR or LQG not great?}
 Secondly when it comes to simulation of biologic dynamic systems usually \ac{LQG} control is used. LQG has been used widely for modelling biological movements and control. However, this approach is prone to noise and is an offline method and needs appropriate tuning of parameters to work. Furthermore, the computation requires expensive offline computations of matrix inverses which are costly and unrealistic in a biological context.
 \acp{SNN} on the other hand work online and are thus more reliable in the light of changing environment.\\
 
-Furthermore, \acp{SNN} come with the added benefit of consuming less power. Usually deep \acp{ANN} are run on \acp{GPU}, especially for training, in which the energy consumption can exceed 300W for modern chips\footnote{e.g. a NVidia RTX 3090}. The brain however is estimated to only consume about
-20W \cite{clarke_circulation_1999} for immense computing capacity. Accompanying the \ac{SNN} with neuromorphic hardware can yield a similar boost in efficiency with processors energy consumption in the pJ per \ac{SOP}\cite{indiveri_importance_2019} offering a huge potential power savings.
-
-
-
-
-\section{Purpose}
-The purpose of the degree project/thesis is the purpose of the written material, i.e., the thesis. The thesis presents the work / discusses / illustrates and so on.
-
-It is not “The project is about” even though this can be included in the purpose. If so, state the purpose of the project after purpose of the thesis).
-
-Probably delete as a own paragraph but mention smth like that.
+Furthermore, \acp{SNN} come with the added benefit of consuming less power. Usually deep \acp{ANN} are run on \acp{GPU}, especially for training, in which the energy consumption can exceed 300W for modern chips\footnote{e.g. a NVidia RTX 4090}. The brain however is estimated to only consume about
+20W \cite{clarke_circulation_1999} for its immense computing capacity. Accompanying the \ac{SNN} with neuromorphic hardware can yield a similar boost in efficiency with processors energy consumption in the pJ per \ac{SOP}\cite{indiveri_importance_2019} offering a huge potential power savings.
 
 
 
 \section{Goal}
-The goal means the goal of the degree project. Present following: the goal(s), deliverables and results of the project.\\
+\todo{The goal means the goal of the degree project. Present following: the goal(s), deliverables and results of the project.\\}
 
-The goal of this project is to create a \ac{SNN} that can control any given linear \ac{DS}. Furthermore should the \ac{NN} be robust against failing neurons or connections.\\
-We expect better results to conventional \acp{NN} because of the \ac{SNN}'s natural way to use temporal data. For the \ac{SNN} itself we desire to find the optimal balance between the biologic plausibility and performance. This means we seek key features of biologic networks such as irregular firing patterns, robustness to noise and locality. In addition to that we seek performance when we control the system.\\
-
-To mimic the brain's learning, we want to use local training rules that are biologically plausible. The network should be converge to the optimal parameters.\\
+The goal of this project is to create a \ac{SNN} that can control any given \ac{LTI} system. Furthermore should the \ac{NN} be robust against failing neurons or connections.\\
+As an additional constraint, the goal should be reached by using biologically tractable methods.\\
+To mimic the brain's learning, we want to use local training rules that are biologically plausible. Additionally, the network should converge to the optimal parameters.\\\todo{This sounds like I already know that I have found an approach that does that. Is that bad?}
 Ideally, optimality should be reached, even though it is often not clear if this is possible. Already in highly researched \acp{ANN} this is usually a unattainably strong condition, as conventional \acp{NN} using \ac{GD} only guarantee a local optimum. \\
 Furthermore in nature the brain does not offer separate between training and trial periods. The brain self-modulates its learning online without. This means that the network is expected to improve on itself as it working the task at hand.
-Lastly, adjusting neural networks to a specific task is usually done by hand and requires time consuming hand tuning of parameters to achieve optimal results. Goal here is to automate as much of the process as possible i.e. the user does not need to adjust hyper-parameters himself. The network should be able to set itself up to find the best set of hyper-parameters given the task at hand, independent of the given control command or size of the system.
-We do not seek a perfect spike similar representation of spiking dynamics found in nature but construct a more plausible attempt that could be used in neuromorphic hardware.
-Lastly we are interested in the quality of the results if we restrict our methods to the natural limits of the brain.\\
-
+Lastly, adjusting neural networks to a specific task requires time to tune hyper-parameters by hand to achieve optimal results. Goal here is to automate as much of the process as possible such that the network does not need to get adjusted manually. The network should find acceptable solutions given the task at hand, independent of the given control command or size of the system without problem specific adjustments of hyper-parameters.\\
+We do not seek a perfect realistic representation of spiking dynamics found in nature but construct a more plausible attempt that could potentially be used in neuromorphic hardware.\\
+For the \ac{SNN} itself we desire to find the optimal balance between the biologic plausibility and performance. This means we seek key features of biologic networks such as irregular firing patterns, robustness to noise and locality. In addition to that we seek performance when we control the system.\\
 If successful, we would obtain a general purpose controller that would allow us to control any given linear system just by plugging in the given system and the desired reference trajectory.\\
 Furthermore we have a simple and robust controller that does not require expensive computation necessary for e.g. LQG control.
 
 \section{Methodology}
-To achieve our set goal we first investigate what kind of Spiking network architecture to use. There are many different ways to design a \ac{SNN} each with its pros and cons.
+To achieve our set goal we first investigate what kind of Spiking network architecture to use. There are many different ways to design a \ac{SNN} each with its advantages and shortcomings.
 We seek an architecture that lies in between the most accurate biologic spiking model and yet does not abstract too many features of nature.\\
 Part of the goal is that the user does not have to touch the neural network working underneath the control problem.
 Firstly, we set out to achieve our goal by implementing a \ac{SNN} that allows to simulate, not control, any given linear system with given external inputs. With this network in place it was set out to a second \ac{SNN} that acts as the controller and combining those two. The controller would generate a control signal that would be used as external input to return the system behaviour to the controller.\\
-Afterwards, we combine the two networks into one in order to enable a spiking learning rule at the cost of having to disregard the input matrix.\\
+Afterwards, we equip the network dedicated to simulation with the ability to learn the given system at hand.\\
+Lastly, we combine the two networks into one in order to enable a spiking learning rule at the cost of having to disregard the input matrix.\\
 
 In the end, this approach depended on hand-tuning hyper-parameters to set the controller to give usable results which was in opposition to our goals.\\
-
+\todo{Do the last 2 paragraphs belong here or in the abstract?}
 \section{Outline}
 \todi{make the outline in the end!}
 First, we discuss why a biologic neural network is chosen compared to the more widely used \acp{ANN} in this task and what the goal is. In the

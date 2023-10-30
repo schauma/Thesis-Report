@@ -1,35 +1,22 @@
 \chapter{<Engineering-related content, Methodologies and Methods>}
 % \thispagestyle{fancy}
 
-\todo{Research question: Develop a biologically sensible SNN to control any linear dynamical system.}
-\todi{Research question: Develop a biologically sensible SNN to control any linear dynamical system.}
+\todo[inline]{Research question: Develop a biologically sensible SNN to control any linear dynamical system.}
+
 
 
 \section{Choice of Network architecture}
 
 The field of \acp{SNN} is under ongoing research. Therefore many different network models and learning approaches have been proposed e.g. \acp{LSM}\cite{dewolf_spiking_2016}. In order to stay biologically more realistic we ignore purely rate based spiking networks as there is evidence that the precise spike timing is relevant in nature\cite{brette_philosophy_2015}\cite{putney_precise_2019}.
-On the other side of the specturm it makes little sense to use \ac{HH}'s model. Even though it is very biologically plausible its increased complexity and little abstraction makes it more suited for solely accurate biological neural simulation and less for the engineering task at hand. Additionally there are no training/learning rules available to solve such a high level problem.\\
+On the other side of the spectrum it makes little sense to use \ac{HH}'s model. Even though it is very biologically plausible its increased complexity and little abstraction makes it more suited for solely accurate biological neural simulation and less for the engineering task at hand. Additionally there are no training/learning rules available to solve such a high level problem.\\
 
 
 
-
-
-Explain choice of SNN architecture\\
+\todo[inline]{Explain choice of SNN architecture\\
 HH doesnt make sense because to complex.\\
 Recurrent models are possible but also not biologic enough because we want to use the spiking property\\
 LSM was considered but in a LSM you only learn the decoder. For the problem at hand is is more natural to have the dynamics in a neural network. Plus with this approach we learn the decoder as well so there it makes it for a more independent approach.\\
-
-
-
-Design a LQG controller to start with as reference
-First found how to simulate a dynamical system with given input c from Boerlin\\
-Then finding the controller structure to find exteral input c to control the system in a desired way\\
-Then notice you need to have magic numbers to get it to work properly.\\
-Then trying to bring the learning mechanics to that approach.\\
-Deemed difficult\\
-finding way to control a dynamical system with the learning SNN framework\\
-Also not so far to do nonlinear systems\\
-
+}
 
 Describe the engineering-related contents (preferably with models) and the research methodology and methods that are used in the degree project.
 
@@ -51,7 +38,9 @@ The estimation is done by leaky integration of spike trains $\symbfup{o}(t)$ in
 \begin{equation}\label{eq:x_hat}
 \bmu{\dot{\hat{x}}} = -\lambda_d \bmu{\hat{x}} + \symbfup{\Gamma} \bmu{o}(t).
 \end{equation}
-$\bmu{\Gamma}$ is a given Matrix of size $\mathbb{R}^{J\times N}$, $N$ being the number of neurons. This matrix is given as initial and can be optimized by training later on\cite{brendel_learning_2020}.\\
+$\bmu{\Gamma}$ is a given matrix of size $\mathbb{R}^{J\times N}$, $N$ being the number of neurons. This matrix is given as initial and can be optimized by training later on\cite{brendel_learning_2020}.\\
+From \cref{eq:x_hat} it becomes clear that each spike carries an important information for the state vector as each spike in $\bmu{o}(t)$ changes the approximation $\bmu{\hat{x}}$ by some weights of $\bmu{\Gamma}$.
+\todo[inline]{Add more geometric interpretation?More specific?}
 In addition to the estimate $\bmu{\hat{x}}$ we define a spiking rate variable $\bmu{r}$ following the dynamics of
 \begin{equation}\label{eq:rate}
 \bmu{\dot{r}} = -\lambda_d\bmu{r} + \bmu{o}(t).
@@ -60,8 +49,6 @@ The rate variable is connected to the state vector in the decoding with
 \begin{equation}\label{eq:decoding}
 	\bmu{\hat{x}} = \bmu{\Gamma r}.
 \end{equation}
-
-\todi{explain how this is better than just rate encoding}
 The spiking dynamics arise from the minimization of a cost function. A spike is fired if it minimizes the cost function that tracks the error between the true and estimated value over time
 \begin{equation}\label{eq:cost_func_basic}
 E(t)=\int_0^t \|\symbfup{x}(u)-\hat{\symbfup{x}}(u)\|_2^2 \ du.
@@ -181,15 +168,6 @@ With this in mind, all terms that scale with $\frac{1}{N^2}$ are neglected. As a
 \end{aligned}
 \end{equation}
 
-
-
-
-
-
-\todi{find a coherent name for the matrix}
-
-
-
 \subsection{Regularization}\label{sssection:regularization}
 
 Two regularization terms are added to influence spiking behaviour.\\
@@ -223,7 +201,7 @@ ideally setting the Voltage to $-T_i$. This can be seen when looking at the thre
 \begin{equation}
 T_i =\frac{ \bmu{\|\Gamma}_i\|^2}{2}= \frac{-\text{diag}(\bmu{W^f})}{2}.
 \end{equation}
-The repolarization of the spiking neuron acts as a depolarization or pushing the voltage towards its threshold for neurons with opposing sign. The problem now is that for neurons with the same kernel magnitude the depolarization is larger enough to push this neuron over the threshold. The subsequent spike re-polarizes the neuron but in turn excites the first neuron over its threshold. This pattern repeats and destroys network performance.\\\addref{maybe a picture}
+The repolarization of the spiking neuron acts as a depolarization or pushing the voltage towards its threshold for neurons with opposing sign. The problem now is that for neurons with the same kernel magnitude the depolarization is larger enough to push this neuron over the threshold. The subsequent spike re-polarizes the neuron but in turn excites the first neuron over its threshold. This pattern repeats and destroys network performance.\\\todo[inline]{maybe a picture?}
 For the given example above, the threshold is given by 0.5 for both. The neurons' voltages of are identical up to the sign, since they are tracking the error for the same variable. At the time one neurons reaches the threshold of 0.5 the second neuron's voltage is close to -0.5 considering noise (in a perfect system minus the value of the spiking neuron). After the spike is fired, the first neuron is reset to -0.5 stemming from
 \begin{equation}\label{eq:reset}
 \begin{aligned}
@@ -248,14 +226,11 @@ For the given example above, the threshold is given by 0.5 for both. The neurons
 $\bmu{W^f}_{00}$ whereas the second neuron gets pushed up to 0.5 , causing a spike. This in turn reverts the changes of \cref{eq:reset} resulting in a loop. This problem is caused by the greedy optimization, looking only at the immediate future to decrease the cost.\\
 To fix this we set the threshold slightly higher. As seen above in \cref{eq:condition}, this can be done by either raising the linear or quadratic cost.\\
 The second issue fixed by adding quadratic cost is when there are
-neurons with similar kernel direction but non normalized. In a perfect noise free scenario the neuron with the smaller threshold will always fire first. The neurons reset after the spike will reset the neurons with similar direction, inhibiting the second neuron from ever firing. The linear cost do not make a difference since it is penalizing the global number of spikes but does not discern where the spikes are fired. With the quadratic cost the norm of spike rates distributed among many neurons is reduced compared to few.
+neurons with similar kernel direction but non normalized. In a perfect noise free scenario the neuron with the smaller threshold will always fire first. The neurons reset after the spike will reset the neurons with similar direction, inhibiting the second neuron from ever firing. The linear cost do not make a difference since it is penalizing the global number of spikes but does not discern where the spikes are fired. With the quadratic cost the norm of spike rates distributed among many neurons is reduced compared to few.\\
 
-\vspace{2cm}
-\hrule
-The first was termed "ping-pong" effect and is described in the supplementary material of \cite{boerlin_predictive_2013}. To understand the issue, we imagine a minimal network consisting of 2 neurons with equal kernel but opposite sign. \rewrite{Write better the ping pong effect! Maybe later}\\
+The first was termed "ping-pong" effect and is described in the supplementary material of \cite{boerlin_predictive_2013}. To understand the issue, we imagine a minimal network consisting of 2 neurons with equal kernel but opposite sign.\\ \todo[inline]{Write better the ping pong effect! Maybe later}
 
-
-The second regularization comes into play when there are kernels with different magnitude. Kernels with small kernel magnitude reach their threshold sooner and therefore fire more frequently. In the extreme case, only small number of neurons fire rapidly while the majority remains idle. By penalizing the rate in the 2-norm it forces the network to spread the firing among the whole network.\\\rewrite{find the right place to explain that!}
+The second regularization comes into play when there are kernels with different magnitude. Kernels with small kernel magnitude reach their threshold sooner and therefore fire more frequently. In the extreme case, only small number of neurons fire rapidly while the majority remains idle. By penalizing the rate in the 2-norm it forces the network to spread the firing among the whole network.\\\todo[inline]{find the right place to explain that!}
 
 
 
@@ -357,12 +332,9 @@ Therefore, the average membrane voltage
 \end{equation}
 over time serves as a good and simple measure of tracking performance.\\
 Since the Voltage is bound by the threshold, the computation of the average can be reduced to averaging of the spikes.\\
-\paragraph{Learning with L1 costs}
+\paragraph{Learning with $\bmu{L_1}$ costs}
 As such, the minimal variation is given if the voltage threshold and its respective reset are centred around zero. Voltage resets, given by $\bmu{W}^f_i$ for spiking neuron $i$, need to be strengthened if its reset undershoots the negative threshold value $T_i$ and vice versa. A spiking reset that hyperpolarized the neuron over the negative threshold will be weakened.\\
-Mathematically, this averaging over spikes condition is formulated as the loss at time $t$
-
-c
-using the fact we can express the Voltage post-spike $\bmu{V}^{\text {post}}$ as
+Mathematically, this averaging over spikes condition is formulated as the loss at time $t$, using the fact we can express the Voltage post-spike $\bmu{V}^{\text {post}}$ as
 \begin{equation}
 	\bmu{V}^{\text {post}} = \bmu{V}^{\text {pre}} + \bmu{W}^f \bmu{e}_i
 \end{equation}
@@ -377,10 +349,10 @@ Rewriting the equation above and adding a tuning parameter gives the learning ru
 \end{equation}
 It is important to note that this learning rule only becomes active during the firing of a spike. This means that if no spike is fired no learning takes place. To introduce spiking and learning, smoothed  Gaussian white noise if often used for training and inducing firing of all neurons.\\
 The role of $\beta$ is to regulate the amount of spiking by artificially increasing the magnitude of the recurrent weights. Therefore, with increased magnitude neurons are overly hyperpolarized after a spike making it harder to spike again soon, similar how the linear costs above reduce spiking activity.\\
-For $\beta = \frac{1}{2}$ no regulation is present since in the optimal case  $\bmu{W}^f$ will be twice the threshold Voltage.\\\todo{Keep this in?}
-However values $\beta\approx\frac{1}{2}$ lead to unstable ping pong patterns described previously.\\
+For $\beta = \frac{1}{2}$ no regulation is present since in the optimal case  $\bmu{W}^f$ will be twice the threshold Voltage.\\\todo[inline]{Keep this in?}
+However values $\beta<\frac{1}{2}$ lead to unstable ping pong patterns described previously.\\
 It is important to note that this learning rule is entirely local and can be categorized as a Hebbian learning rule, as the presynaptic voltage is multiplied by the postsynaptic reset, given by the column in $\bmu{W}^f$.\\
-\paragraph{Learning with $L2$ costs}
+\paragraph{Learning with $\bmu{L_2}$ costs}
 The previous derivation did only incorporate $L1$ costs using the $\beta$ parameter, but does not implement any $L2$ regularization as in the derivation in \cref{sec:simulation}. With L2 costs, the optimal matrix is given by the addition of the quadratic cost term to the diagonal as in \cref{eq:simple_sim}. Since the cost term is added to the matrix $\bmu{W}^f$ and the voltage definition in \cref{eq:voltage} the voltage no longer explicitly tracks the projected error. To reuse the argument about minimizing Voltage fluctuations as a performance measure we therefore add the terms again to cancel out the terms from the previous definition. Specifically, we want to work the true projection error $\bmu{V}_{\text{ex}}$ and therefore compute the loss in \cref{eq:vol_bases_loss} using
 \begin{equation}
 \begin{aligned}
@@ -397,10 +369,10 @@ L_t & =\left\|\frac{1}{2}\big(\bmu{V}^{\text {pre}}_{\text{ex}}\left(t\right)+\b
 \end{equation}
 and take the derivative with respect to $\bmu{W}^f$, resulting in the learning rule of the form
 \begin{equation}
-\Delta \bmu{W}^f_{ij} =-\frac{\partial L_t}{\partial \bmu{W}^f_{ij}} \propto - \beta\left( \bmu{V}_i^{\text {pre}}\left(t\right) + \mu \bmu{r}_i(t)\right) -\bmu{W}^f_{ij} -\delta_{ij}
+\Delta \bmu{W}^f_{ij} =-\frac{\partial L_t}{\partial \bmu{W}^f_{ij}} \propto - \beta\left( \bmu{V}_i^{\text {pre}}\left(t\right) + \mu \bmu{r}_i(t)\right) -\bmu{W}^f_{ij} -\mu\delta_{ij}
 \end{equation}
 when a spike is fired.
-\todo{Throw this out. We skip the co¸mparison between learning methods.}
+\todo[inline]{Throw this out. We skip the comparison between learning methods probably}
 
 \subsection{Learning of slow connection weights $\bmu{W}^s$}
 The recurrent weights $\bmu{W}^s$ are called slow because they are in conjunction with the filtered spike train $\bmu{r}(t)$ in \cref{eq:voltage_limit} in contrast to $\bmu{W}^f$ which are reset the neuron voltage after a spike.\\
@@ -425,5 +397,5 @@ with respect to the matrix parameters $M_{ij}$ and changing their value accordin
 \begin{equation}
 	\dot{M}_{ij} = -\frac{\partial L}{\partial M_{ij}} = \left(\frac{\partial \hat{\bmu{x}}}{\partial M_{ij}}\right)^T\bmu{e}.
 \end{equation}
-
+\todo[inline]{Explain the derivative, or its approximation.}
 It is important to note that this derivation completely ignores any sort of control matrix $\bmu{B}$ given by a control problem. While this can be a disqualifying property for many systems it is also important to ask how such a matrix could be implemented. Since the complete state of the system is encoded partly in each neuron it is impossible to selectively control certain states. Therefore from now on it is assumed that the control works on each neuron or that the control matrix $\bmu{B} = \bmu{I}$ is the identity matrix.

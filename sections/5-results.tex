@@ -496,35 +496,62 @@ For the reduction a value $p\in \left[0,1\right]$ was chosen beforehand and the 
 	\alpha_{m} = (\left(1-p\right)^m + 0.02)\cdot\alpha_0,
 \end{equation}
 essentially allowing for and exponential decay of the learning rate with a backstop to avoid too small learning rates.\\
-In \cref{fig:adaptive_lr} learning results for different $p$ are displayed.\todo{Continue}
-
-\todo{Say that the eignevalues are more useful now and say that the learning rate from before was double the biggest that is shown here.}
-\todo{Double rate adjustment. In epoch and overall epochs}
-
+In \cref{fig:dr_fast_study} learning results for different $p$ are displayed. As can be seen, all variations perform more reliable than the any approach before as well as reaching comparable performance with fewer epochs. Furthermore, the fast drop rate of $p = 0.09$ appears to give the more consistent results. The improvement of performance is not reflected when looking at the largest deviation, though with the reduced oscillations thanks to the parameter tuning the eigenvalues allow for a more accurate description of the learning status. While there convergence to the true values does not occur, the convergence to a value itself can be seen as the completion of learning. This can be seen in \cref{fig:dr_fast_study} where learning could be halted when the eigenvalues have converged. However, the convergence depends on the initial learning rate as well as the parameter $p$ and therefore requires hand-tuning to avoid unnecessary long training times or premature stopping. This can be seen again in \cref{fig:dr_fast_study}, in which for $p = 0.09$, the network is performing adequate much before the eigenvalues or the largest deviations would suggest good results can be obtained. Only after $\approx 4000$ epochs the largest deviation appears to level whereas the second non zero eigenvalue still does not appear to have converged yet. The reason the largest deviations do not show appropriate results can be explained when looking at the parameters itself.\\
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/Learning/Wf_dr_study.pdf}
 	\caption{Learning of toy example \cref{eq:toy_example} with different learning rate drops $p$ starting from $\alpha = 0.005$. Top panel shows the learning rate for each epoch. Middle panel the relative deviation and bottom panel the absolute error.}
 	\label{fig:dr_fast_study}
 \end{figure}
+For the above example with $p = 0.09$, the weights of $\bmu{W}^f$ are shown at different times of the learning phase in \cref{fig:Wf_slices} rows 1 \& 2. The desired outcome after learning is that every parameter is close to zero. With \cref{fig:Wf_slices} it becomes apparent that certain columns of $\bmu{W}^f$ become trained early. The in late stages of training emerging diagonal lines are caused by the optimal value of these matrix parameters being close to zero and therefore making the relative deviation more visible for errors while the whole matrix is converging to the optimum.\\
+The reason behind the surprisingly low error in the early learning stages lies in the choice of our input sequence $\bmu{c}$. The choice of $\bmu{c}$ in \cref{fig:reference_sol} only causes the neurons with quickly learned weights to spike and therefore giving a lower error then expected. The spiking neurons and therefore the error do not yield a complete representation of the training state.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/Wf_slices.pdf}
+	\caption{Relative deviation for matrix weights at different times of learning. Note the different colour scale. The top 2 rows display the learning of $\bmu{W}^f$ with $p = 0.09$. Bottom row for $p=0.005$. For training the same input sequences have been used.}
+	\label{fig:Wf_slices}
+\end{figure}
+If we instead use a more complex external input sequence $\bmu{c}(t)$ that ideally forces all neurons to spike we obtain a different picture seen in \cref{fig:complex_seq}. Note that this evaluation is on the same data used for \cref{fig:dr_fast_study}. However with \cref{fig:complex_seq} the error follows both the eigenvalues as well as the largest relative deviation. It also becomes apparent that the lack of convergence seen in \cref{fig:Wf_slices} contribute two orders of magnitude of the error compared to the previous case. Moreover judging by the error plots the choice of $p = 0.005$ vastly outperforms the previous pick of $p= 0.09$. With the lower drop rate $p$ imbalances that dominate the complete learning like in \cref{fig:Wf_slices} can be corrected faster as the learning rate has not dropped significantly yet, seen by the row 3 of \cref{fig:Wf_slices}.\\
+Lastly, the choice of learning input sequences can be questioned to avoid the imbalances in early stage learning. So far for all previous examples input sequences were smoothed Gaussian white noise. The role of the input sequence will be considered when both matrices are trained.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/Wf_complex_c.pdf}
+	\caption{Evaluation of training progress using a oscillating input $\bmu{c}(t) = [c_1(t),c_1'(t)]^T$ with $c_1(t) = (1-e^{-4t})\sin(3\pi t)$ with different drop rates $p$. Top panel shows the non-zero eigenvalues. The middle panel the largest relative deviation and the bottom panel the maximum error during simulation in log-log scale.}
+	\label{fig:complex_seq}
+\end{figure}
+
+
+
+\todo{Ein beispiel mit groesserem system und eins mit schlechten bedingungen.}
+
+All in all, good approximations of $\bmu{W}^f$ can be learning with the given learning rule, yet the hyper-parameters $p,\alpha$ as well as learning period are sensitive to the problem at hand and therefore require hand tuning. Moreover, the shown learning results were obtained with ideal learning conditions.\\
+Learning networks with more neurons or random initialization of $\bmu{W}^f$ complicates the learning phase however good learning results can still be achieved, be it with an increase of learning time.\\
+When accessing the state of training it is crucial to choose appropriate test sequences to reflect different sources of error. This means to force all neurons to spike as well as cutting external input such that the network evolves by itself. Former examines of matrix weights have been learned for all neurons while the latter highlights small errors over time that do not become apparent when external input is dominating. The small errors incurred from suboptimal resets accumulate over time if no external input is present and $\bmu{\Gamma} $, $\bmu{W}^s$ are chosen optimally. Therefore a combination of both presented sequences should be used.\\
+Lastly, our measures to access the network's learning progress rely on the knowledge of the optimal matrices or the repeated expensive computation of eigenvalues. Without online measures frequent testing is a necessity to avoid extensive learning periods.\\
+
+
 \todo{Eigenvalues are again interesting because with smaller eigenvalues we can use  that when the eigenvalues are not changing anymore the approx is ok-good.}
 \subsection{Only learning of $\bmu{W}^s$}
 \todo{Skip this since in the origninal paper it is already stated that the slow learning rule only works properly with the fast learning in tandem}
+\subsection{Combined Learning}
+For this chapter we consider the combined learning performance of slow weights $\bmu{W}^f$ and slow weights $\bmu{W}^s$. We skip the investigation of $\bmu{W}^s$ alone as the authors of the slow emphasize to learn both matrices simultaneously. Indeed, slow weights struggle to converge without learning of $\bmu{W}^f$.\\
+For the investigation of the training of $\bmu{W}^s$ we apply the previously mentioned improvements of $\bmu{W}^f$ too. We start by looking again at our simple system before investigating parameter and input dependencies.\\
+To begin, we look at the results for \cref{eq:toy_example}. We adjust our external input sequence $\bmu{c}(t)$ to excite each neuron to spike so we have a better picture of whole learning progress of all neurons.\\
+In \cref{fig:Ws_intro} the ideal results are displayed again with the given external $c$ input.
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/Wf_complex_c.pdf}
+	\caption{}
+	\label{fig:Ws_intro}
+\end{figure}
 \subsubsection{Parameter analyses}
 \paragraph{K}
 \paragraph{Learning rate}
-\subsection{Combined Learning}
-
-\subsubsection{Learning rate}
 \subsubsection{Input learning sequences}
 magnitude and smoothness or sine wave
 \subsubsection{Network size and connectivity}
 \subsubsection{Random init of matrices??}
 
-
-
-
-
 \section{Results of the learned control objective}
-Adjust connectivity to have a fake 2 states in the neurons.
-Ich meine dass mann in einem 2d beispiel 50 neuronen nur fuer state x1 und 50 neuronen nur fuer x2 und das dann lernen und dann kann man argumentieren dass nur gewisse neuronen angeregt werden koennen (durch die selective von F) und damit sozusagen eine B matrix eingefuert wurde.
+Adjust connectivity to have "fake" 2 states in the neurons?
+%Ich meine dass mann in einem 2d beispiel 50 neuronen nur fuer state x1 und 50 neuronen nur fuer x2 und das dann lernen und dann kann man argumentieren dass nur gewisse neuronen angeregt werden koennen (durch die selective von F) und damit sozusagen eine B matrix eingefuert wurde.
