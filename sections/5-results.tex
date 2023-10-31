@@ -531,19 +531,31 @@ Lastly, our measures to access the network's learning progress rely on the knowl
 
 
 \todo{Eigenvalues are again interesting because with smaller eigenvalues we can use  that when the eigenvalues are not changing anymore the approx is ok-good.}
+
+\todo[inline]{The second learning rule works to the same structure but not the scale. Even authors say it requires hand tuning to find good values for $\beta$}
 \subsection{Only learning of $\bmu{W}^s$}
 \todo{Skip this since in the origninal paper it is already stated that the slow learning rule only works properly with the fast learning in tandem}
 \subsection{Combined Learning}
 For this chapter we consider the combined learning performance of slow weights $\bmu{W}^f$ and slow weights $\bmu{W}^s$. We skip the investigation of $\bmu{W}^s$ alone as the authors of the slow emphasize to learn both matrices simultaneously. Indeed, slow weights struggle to converge without learning of $\bmu{W}^f$.\\
 For the investigation of the training of $\bmu{W}^s$ we apply the previously mentioned improvements of $\bmu{W}^f$ too. We start by looking again at our simple system before investigating parameter and input dependencies.\\
-To begin, we look at the results for \cref{eq:toy_example}. We adjust our external input sequence $\bmu{c}(t)$ to excite each neuron to spike so we have a better picture of whole learning progress of all neurons.\\
-In \cref{fig:Ws_intro} the ideal results are displayed again with the given external $c$ input.
+To begin, we look again at results for \cref{eq:toy_example} for reference. We adjust our external input sequence $\bmu{c}(t)$ to excite each neuron to spike so we have a better picture of whole learning progress of all neurons. Yet we keep a segment in which no input is given such than we can see the network's own evolution over time.\\
+In \cref{fig:Ws_intro} the ideal results are displayed again with the given external $\bmu{c}(t)$ input.\\
 \begin{figure}
 	\centering
-	\includegraphics[width=\textwidth]{../../plots/Learning/Wf_complex_c.pdf}
-	\caption{}
+	\includegraphics[width=\textwidth]{../../plots/Learning/Ws_simple.pdf}
+	\caption{Exemplary results for our network with ideal weights. In the top panel the external input $\bmu{c}(t) = [\bmu{0},c]^T$. Bottom panel shows the calculated system response using numerical methods and the networks response. The network superimposes the numerical results exactly.}
 	\label{fig:Ws_intro}
 \end{figure}
+
+To investigate the learning we will again look at the the measures defined in the previous section. Moreover, we will measure which matrix is more detrimental to the overall performance and therefore should be learned more accurately. Lastly we will conduct a parameter analyses so identify ideal settings. Lastly we will investigate how the training sequences influence the learning behaviour. So far, all learned was done with smoothed Gaussian noise. But so far very little attention went into our choice of learning input.\\
+Starting we first compare the trajectories of the ideal against the learned weights to see where potential discrepancies arise. I \cref{fig:Ws_ideal_learned_compare} we can observe the the networks response for learned and ideal weights after
+\begin{figure}
+		\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/Ws_compare.pdf}
+	\caption{Network responses for the ideal and learned matrix weights. Bottom panel shows the error over time between $x_1$ and $x_2$. Matrices were trained for 4000 epochs.}
+	\label{fig:Ws_ideal_learned_compare}
+\end{figure}
+
 \subsubsection{Parameter analyses}
 \paragraph{K}
 \paragraph{Learning rate}
