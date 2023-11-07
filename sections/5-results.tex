@@ -436,7 +436,7 @@ We start first by looking at the convergence over learning before looking at err
 \end{figure}
 
 The learning performance of $\bmu{W}^f$ is seen in \cref{fig:wf_analyses}. As can be seen, the two non-zero eigenvalues of the matrix converge close to the
-optimal values which are reached after $\approx 130 epochs$ and keep hovering around.
+optimal values which are reached after $\approx 130$ epochs and keep hovering around.
 We also see that the largest relative deviation is following the same trend in the beginning, but instead of settling down at $\approx 130$ it starts jumping around. The plot only prints the absolute relative deviation, it is interesting to check the signs during learning. While the error decreases from $-1$, the starting value if $\bmu{W}^f$ is initialized to zero, the jumping around after epoch $\approx 130$ only jumps in the positive direction.\\
 Before the jumps the learning reaches begins, the learning algorithm manages to get the largest deviation less then $9.5\%$ away from the optimal value. Using this set of learned parameters the maximum absolute error during that simulation was $0.1187$ which corresponds to a relative error of $<4\%$.\\
 The overall best performance according to our measures was reached in epoch 724 but because of the rapid fluctuations it can be assumed that the parameter set was found randomly. Interestingly did this not also give the best error results but an relative error of more than $10\%$. The best overall performance was in epoch 1630 with an relative error of $<3\%$. The largest relative deviation of the matrix  in that epoch was $\approx 12\%$ from the optimal value.\\
@@ -482,25 +482,25 @@ To mitigate this either the input sequences need to be modified of the learning 
 
 
 \paragraph{Learning rate}
-Adjusting the learning rate for $\bmu{W}^f$ is an easy way to damp the oscillations seen in the previous plots, though coming with an increased computational cost. For comparison, we ran the learning algorithm with different learning rates to compare cost to performance in \cref{fig:lr_fast_study}. As expected reduces the learning rate the oscillations. While the oscillations still occur with the lower learning rate, its magnitude is greatly reduced. With the smallest tested learning rate $\alpha = 0.0001$ the noticeable oscillations occur after $\approx 2500$ epochs. The downside to that is just to reach useable results with an relative error of less than $10\%$ learning must continue for more than $1000$ epochs. In addition this is for a small system while we can expect even longer learning times for bigger systems.\\
+Adjusting the learning rate for $\bmu{W}^f$ is an easy way to damp the oscillations seen in the previous plots, though coming with an increased computational cost. For comparison, we ran the learning algorithm with different learning rates to compare cost to performance in \cref{fig:lr_fast_study}. As expected reduces the learning rate the oscillations. While the oscillations still occur with the lower learning rate, its magnitude is greatly reduced. With the smallest tested learning rate $\alpha_f = 0.0001$ the noticeable oscillations occur after $\approx 2500$ epochs. The downside to that is just to reach useable results with an relative error of less than $10\%$ learning must continue for more than $1000$ epochs. In addition this is for a small system while we can expect even longer learning times for bigger systems.\\
 On the other hand, the largest learning exhibits the largest error as well as enormous error variability. The learning rate for \cref{fig:beta_study} was double of the one used in \cref{fig:lr_fast_study}. However it is apparent that already in the first epoch the error reduces significantly.\\
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/Learning/Wf_lr_study.pdf}
-	\caption{Learning of toy example \cref{eq:toy_example} with different learning rates $\alpha$. Top panel shows the relative deviation and bottom panel the absolute error.}
+	\caption{Learning of toy example \cref{eq:toy_example} with different learning rates $\alpha^f$. Top panel shows the relative deviation and bottom panel the absolute error.}
 	\label{fig:lr_fast_study}
 \end{figure}
-To combine the benefits of both approaches in \cref{fig:adaptive_lr} we see gradually lowered the the learning rate after each epoch. We start with the previously used learning rate $\alpha_0 = 0.005$ and gradually lower it to $\alpha_M = 0.0001$ over the course of $1000$ epochs.\\
+To combine the benefits of both approaches in \cref{fig:adaptive_lr} we see gradually lowered the the learning rate after each epoch. We start with the previously used learning rate $\alpha_0^f = 0.005$ and gradually lower it to $\alpha_M^f = 0.0001$ over the course of $1000$ epochs.\\
 For the reduction a value $p\in \left[0,1\right]$ was chosen beforehand and the learning rate for the next epoch $m$ calculated as
-\begin{equation}
-	\alpha_{m} = (\left(1-p\right)^m + 0.02)\cdot\alpha_0,
+\begin{equation}\label{eq:drop}
+	\alpha_{m}^f = (\left(1-p\right)^m + 0.02)\cdot\alpha_0^f,
 \end{equation}
 essentially allowing for and exponential decay of the learning rate with a backstop to avoid too small learning rates.\\
 In \cref{fig:dr_fast_study} learning results for different $p$ are displayed. As can be seen, all variations perform more reliable than the any approach before as well as reaching comparable performance with fewer epochs. Furthermore, the fast drop rate of $p = 0.09$ appears to give the more consistent results. The improvement of performance is not reflected when looking at the largest deviation, though with the reduced oscillations thanks to the parameter tuning the eigenvalues allow for a more accurate description of the learning status. While there convergence to the true values does not occur, the convergence to a value itself can be seen as the completion of learning. This can be seen in \cref{fig:dr_fast_study} where learning could be halted when the eigenvalues have converged. However, the convergence depends on the initial learning rate as well as the parameter $p$ and therefore requires hand-tuning to avoid unnecessary long training times or premature stopping. This can be seen again in \cref{fig:dr_fast_study}, in which for $p = 0.09$, the network is performing adequate much before the eigenvalues or the largest deviations would suggest good results can be obtained. Only after $\approx 4000$ epochs the largest deviation appears to level whereas the second non zero eigenvalue still does not appear to have converged yet. The reason the largest deviations do not show appropriate results can be explained when looking at the parameters itself.\\
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/Learning/Wf_dr_study.pdf}
-	\caption{Learning of toy example \cref{eq:toy_example} with different learning rate drops $p$ starting from $\alpha = 0.005$. Top panel shows the learning rate for each epoch. Middle panel the relative deviation and bottom panel the absolute error.}
+	\caption{Learning of toy example \cref{eq:toy_example} with different learning rate drops $p$ starting from $\alpha^f_0 = 0.005$. Top panel shows the learning rate for each epoch. Middle panel the relative deviation and bottom panel the absolute error.}
 	\label{fig:dr_fast_study}
 \end{figure}
 For the above example with $p = 0.09$, the weights of $\bmu{W}^f$ are shown at different times of the learning phase in \cref{fig:Wf_slices} rows 1 \& 2. The desired outcome after learning is that every parameter is close to zero. With \cref{fig:Wf_slices} it becomes apparent that certain columns of $\bmu{W}^f$ become trained early. The in late stages of training emerging diagonal lines are caused by the optimal value of these matrix parameters being close to zero and therefore making the relative deviation more visible for errors while the whole matrix is converging to the optimum.\\
@@ -524,11 +524,12 @@ Lastly, the choice of learning input sequences can be questioned to avoid the im
 
 \todo{Ein beispiel mit groesserem system und eins mit schlechten bedingungen.}
 
-All in all, good approximations of $\bmu{W}^f$ can be learning with the given learning rule, yet the hyper-parameters $p,\alpha$ as well as learning period are sensitive to the problem at hand and therefore require hand tuning. Moreover, the shown learning results were obtained with ideal learning conditions.\\
+All in all, good approximations of $\bmu{W}^f$ can be learning with the given learning rule, yet the hyper-parameters $p,\alpha^f$ as well as learning period are sensitive to the problem at hand and therefore require hand tuning. Moreover, the shown learning results were obtained with ideal learning conditions.\\
 Learning networks with more neurons or random initialization of $\bmu{W}^f$ complicates the learning phase however good learning results can still be achieved, be it with an increase of learning time.\\
 When accessing the state of training it is crucial to choose appropriate test sequences to reflect different sources of error. This means to force all neurons to spike as well as cutting external input such that the network evolves by itself. Former examines of matrix weights have been learned for all neurons while the latter highlights small errors over time that do not become apparent when external input is dominating. The small errors incurred from suboptimal resets accumulate over time if no external input is present and $\bmu{\Gamma} $, $\bmu{W}^s$ are chosen optimally. Therefore a combination of both presented sequences should be used.\\
 Lastly, our measures to access the network's learning progress rely on the knowledge of the optimal matrices or the repeated expensive computation of eigenvalues. Without online measures frequent testing is a necessity to avoid extensive learning periods.\\
-
+So far, we have not touched on the spiking behaviour.
+\todo[inline]{Biologically implausible. Wf learned is bad and very unrealistic biologically. Learning with rule adaptation works but only structurally aka scale. (as said in the supplement paper.) Therefore hand tuning required which is trash. Forcing with beta not really working as it is the L1 cost.}
 
 \todo{Eigenvalues are again interesting because with smaller eigenvalues we can use  that when the eigenvalues are not changing anymore the approx is ok-good.}
 
@@ -548,17 +549,52 @@ In \cref{fig:Ws_intro} the ideal results are displayed again with the given exte
 \end{figure}
 
 To investigate the learning we will again look at the the measures defined in the previous section. Moreover, we will measure which matrix is more detrimental to the overall performance and therefore should be learned more accurately. Lastly we will conduct a parameter analyses so identify ideal settings. Lastly we will investigate how the training sequences influence the learning behaviour. So far, all learned was done with smoothed Gaussian noise. But so far very little attention went into our choice of learning input.\\
-Starting we first compare the trajectories of the ideal against the learned weights to see where potential discrepancies arise. I \cref{fig:Ws_ideal_learned_compare} we can observe the the networks response for learned and ideal weights after
+Starting we first compare the trajectories of the ideal against the learned weights to see where potential discrepancies arise. In \cref{fig:Ws_ideal_learned_compare} we can observe the networks response for learned and ideal weights after training are identical. Moreover the error is significantly better than the training of just $\bmu{W}^f$.
 \begin{figure}
-		\centering
-	\includegraphics[width=\textwidth]{../../plots/Learning/Ws_compare.pdf}
-	\caption{Network responses for the ideal and learned matrix weights. Bottom panel shows the error over time between $x_1$ and $x_2$. Matrices were trained for 4000 epochs.}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/error_compare.pdf}
+	\caption{Computed error between ideal and learned weights. Bottom panel shows the error over time between $x_1$ and $x_2$. Matrices were trained for 4000 epochs.}
 	\label{fig:Ws_ideal_learned_compare}
 \end{figure}
+While the error is generally acceptable, it becomes clear that the error sources change when the external input $\bmu{c}(t)$ is absent and the network evolves by its own. While in the beginning, the network is driven by the external input, neurons fire frequently. Therefore, resets after spike are given by $\bmu{W}^f$ play a heightened role. Slight errors can cause a delay or pre-firing of a spike compared to the ideal weights. This can be seen in \cref{fig:Ws_ideal_learned_compare} just before $0.1$s, where the error jumps up after the learned network fired spikes the ideal network. The error jumps back down after the ideal network catches up. However later this discrepancy becomes too large and the error appears somewhat chaotic.\\
+With the absence of the external input the error becomes fine grained again since the repeated spiking of caused by external input disapsdasdasdapears. Now the weights $\bmu{W}^s$ play an important role. Errors in the slow connections can add up slowly and cause wrong neurons to fire.\\
 
 \subsubsection{Parameter analyses}
-\paragraph{K}
+The following subsections are dedicated to investigate the parameters concerning the learning of $\bmu{W}^s$ and the learning of the network in general. This includes the error weight $K$, the slow learning rate $\alpha^s$, the learning input sequences to train the network.
 \paragraph{Learning rate}
+Looking at \cref{fig:combined_learning_lr} the learning rate it appears much larger learning rates can be used for $\bmu{W}^s$. While all tested learning rates $\alpha^s$ reach the same level of error, the larger $\alpha^s$ the faster this level is reached. Furthermore it becomes clear that the learning of $\bmu{W}^s$ is related to the accuracy of $\bmu{W}^f$. Only after deviations in the parameters of $\bmu{W}^f$ are small the learning of $\bmu{W}^s$ can reach errors less than 0.1 which corresponds to a relative error of
+$\approx 10\%$. It is also clear that the learning rate of $\bmu{W}^s$ does not affect the behaviour of $\bmu{W}^f$ and therefore can be learned with the same or larger learning rates. This is in opposition to \cite{bourdoukan_enforcing_2015} where is is recommended to learn $\bmu{W}^s$ with a smaller learning rate compared to $\bmu{W}^f$.\\
+We choose $\alpha = 0.01$ for future evaluations as it marginally improves performance in the error and shows less variability in the rel. deviations. This comes at the cost of training for 100 more epochs before reaching slightly better performance.\\
+To combat the unsteady behaviour in the first panel we again try again to reduce the learning rate over time.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/combined_learning_lr.pdf}
+	\caption{Top panel showing the largest rel. deviation after each epoch for different learning rates $\alpha^s$. Middle panel shows the maximum error during simulation with the learned $\bmu{W}^f$ and $\bmu{W}^s$ in log scale. Bottom panel shows largest rel. deviation for $\bmu{W}^f$.}
+	\label{fig:combined_learning_lr}
+\end{figure}
+
+To do this we again set our learning rate according to \cref{eq:drop} and test different $p$. In \cref{fig:combined_learning_dr} we see the effect of different magnitudes of $p$. As expected was the error in the bottom panel of \cref{fig:combined_learning_dr} not reduced by this addition. Moreover, under a linear scale of the largest rel. deviations are not noticeable and will therefore be omitted for future tests. Lastly, we did not look at the eigenvalues of $\bmu{W}^s$ yet. Fortunately, the non-zero eigenvalues do allow for a coarse estimate of the learning progress. In all test including \cref{fig:combined_learning_lr} the eigenvalues converged to the optimal values and usable results could be obtained after both eigenvalues converged.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/combined_learning_drop.pdf}
+	\caption{Top panel showing the two non-zero eigenvalues  of $\bmu{W}^s$ after each epoch for different drop rates $p$ and starting learning rate of $\alpha^s = 0.1$ . Middle panel shows largest rel. deviation for $\bmu{W}^s$. Bottom panel shows the maximum error during simulation with the learned $\bmu{W}^f$ and $\bmu{W}^s$.}
+\label{fig:combined_learning_dr}
+\end{figure}
+
+
+\paragraph{K}
+The parameter $K$ describes the influence of the error during training. With increasing $K$ the importance of the error and therefore the teacher grows.\\
+As can be seen in \cref{fig:combined_learning_K}, the parameter $K$ only slightly impacts the network's learning. Also in contrast to the derivation in which $K$ is assumed to be large, the smaller the K the better the network performs. Furthermore, for this example values $K>100$ did not give acceptable results. For $K>500$ convergence did not in the $4000$ epochs of learning.\\
+In the middle panel of \cref{fig:combined_learning_K} tested values above $50$ ($K = 100, 200,500,1000$ not all shown) present a bend in the error after $\approx 1050$ epochs and the error starts increasing again. With larger $K$ the bend is more pronounced and occurs after fewer epochs.\todo[inline]{Reason?}
+On the other hand values $5>K>0.5$ all performed almost identical to $K=1$ shown in the plot.\\
+In the last panel of \cref{fig:combined_learning_K} we chose $K=10$ to test the main source of error. For this we ran the simulation with $\bmu{W}^f$ learned using the optimal $\bmu{W}^s$ and vice versa. The results are seen in the bottom panel of \cref{fig:combined_learning_K}. Without a good approximation of $\bmu{W}^f$ the error is more than 2 orders of magnitude worse than the opposite configuration. However this normalizes at around $30$ epochs after which the the error in $\bmu{W}^s$ dominates. Only after more than $1000$ epochs $\bmu{W}^s$ is accurate enough such that the small errors in $\bmu{W}^f$ from learning become relevant once more. However after more than $1000$ epochs the error less than $0.04$ or $\approx 3\%$ relative error.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/combined_learning_K.pdf}
+	\caption{Top panel shows the rel. deviation for each $K$. Middle panel shows the maximum error during simulation after each epoch using both $\bmu{W}^f$ and $\bmu{W}^s$ from training using different $K$. Bottom panel shows the error for $K = 10$ while using either the optimal $\bmu{W}^f$ or $\bmu{W}^s$ respectively.}
+	\label{fig:combined_learning_K}
+\end{figure}
+
 \subsubsection{Input learning sequences}
 magnitude and smoothness or sine wave
 \subsubsection{Network size and connectivity}
