@@ -528,12 +528,34 @@ All in all, good approximations of $\bmu{W}^f$ can be learning with the given le
 Learning networks with more neurons or random initialization of $\bmu{W}^f$ complicates the learning phase however good learning results can still be achieved, be it with an increase of learning time.\\
 When accessing the state of training it is crucial to choose appropriate test sequences to reflect different sources of error. This means to force all neurons to spike as well as cutting external input such that the network evolves by itself. Former examines of matrix weights have been learned for all neurons while the latter highlights small errors over time that do not become apparent when external input is dominating. The small errors incurred from suboptimal resets accumulate over time if no external input is present and $\bmu{\Gamma} $, $\bmu{W}^s$ are chosen optimally. Therefore a combination of both presented sequences should be used.\\
 Lastly, our measures to access the network's learning progress rely on the knowledge of the optimal matrices or the repeated expensive computation of eigenvalues. Without online measures frequent testing is a necessity to avoid extensive learning periods.\\
-So far, we have not touched on the spiking behaviour.
-\todo[inline]{Biologically implausible. Wf learned is bad and very unrealistic biologically. Learning with rule adaptation works but only structurally aka scale. (as said in the supplement paper.) Therefore hand tuning required which is trash. Forcing with beta not really working as it is the L1 cost.}
+\subsubsection{Spiking behaviour}
+So far, we have not touched on the spiking behaviour. For the previous examples, the learning rule of \cref{eq:Wf_learning_rule_1}. Said learning rule does not incorporate $L_2$ costs in encourage distributed spiking.
+When looking at raster plot in the middle panel of \cref{fig:Wf_learned_spikes} this disadvantage becomes apparent. Spiking is shared among 4 neurons at most.
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/biologic_plausibility_addition_mu.pdf}
+	\caption{Top panel: Relative Spike Difference between the network with $L_2$ costs added to $\bmu{W}^f$ after learning and no addition. Error is given in multiples of decoder norm $\|\bmu{\Gamma}_i\|_2$. Middle panel: Raster spiking plot of $N=50$ neurons after simulation without the $L_2$ costs added afterwards. Bottom panel: Raster plot with costs added. Both matrices were trained for 1000 epochs with identical settings and received a scaled sin wave as external stimulus $\bmu{c}$. For these simulations, noise terms during training and simulation have been disabled.}
+	\label{fig:Wf_learned_spikes}
+\end{figure}
+This is biologically implausible. When using the adapted learning rule of \cref{eq:Wf_learning_rule_improved} other problems arise.\\
+As noted in the supplementary of \cite{brendel_learning_2020}, this particular learning rule does not learn the optimal weights but the optimal structure. As such it is therefore only a qualitative learning of the $\bmu{W}^f$. The scaling factor is now known a priori. The different scale of $\bmu{W}^f$ is detrimental to the networks convergence. In test no parameter set was found that mitigated this.\\
+It is therefore mandatory to allow the Feed-Forward $\bmu{\Gamma}$ weights to adjust i.e they are learned as well. With Feed-Forwards also scaling over the course of training allows the different scales to balance out.\\
+Learning of $\bmu{\Gamma}$ was adopted from \cite{brendel_learning_2020} which allowed the network to converge.\\
+After convergence was achieved, the hyper-parameter scaling factors for $\bmu{W}^f$ and $\bmu{\Gamma}$ were tuned.\\
+Goal of the tuning was to empirically find a parameter set of scaling factors s.t. the scale of $\bmu{\Gamma}$ remains unchanged throughout learning and transfer this to the learning with fixed $\bmu{\Gamma}$. However this again led to unusably erroneous results or failure in convergence outright.\\
+The error itself in \cite{brendel_learning_2020} is not calculated using the learned decoder $\bmu{\Gamma}$ (noted as $\bmu{F}$) but the mathematically optimal decoder
+\begin{equation}
+\bmu{F}^T = \min_{\bmu{F}^T} \|\hat{\bmu{x}} - \bmu{x}\| = \min_{\bmu{F}^T} \|\hat{\bmu{x}} - \bmu{F}^T\bmu{r}\|
+\end{equation}
+using conventional methods of regression. While the learned decoding weights do converge, they lack behind the presented precision my orders or magnitude.\\
+It is important to note that all the above testing was conducted only on the original example with $A = -\lambda_d\bmu{I} \longrightarrow \bmu{W}^s = \bmu{0}$. With custom $\bmu{A}$ convergence was not achieve with any parameter set or configuration.\\
+This lack of convergence, the sensitive hand-tuning of the scaling parameters for $\bmu{W}^f$ and $\bmu{\Gamma}$ already without the training of $\bmu{W}^s$, the adoption of the improved learning rule \cref{eq:Wf_learning_rule_improved} was rejected.\\
+Instead, to reestablish a more plausible spiking behaviour we
+artificially introduce the diagonal term from the analytic solution for $\bmu{W}^f$. Since the first learning rule learns is approaching the $\bmu{W}^f = \bmu{\Gamma}^T\bmu{\Gamma}$ the addition is the most convenient way to reach our target ideal matrix $\bmu{W}^f = \bmu{\Gamma}^T\bmu{\Gamma} + \mu\mathbf{I}$.While this addition is biologically implausible itself\todo[inline]{Is it really? Could it be maybe somehow plausible?} we get more plausible spiking behaviour with little to no performance impact in return. The change in spiking behaviour can be seen in \cref{fig:Wf_learned_spikes} bottom panel.\\
+ In comparison to the ideal network, both simulations performed well with an absolute error less than 0.1 compared the optimum. The dynamics between both networks also differ only marginally. In the top panel the differences in networks dynamics are displayed by the relative difference of spikes. For each spike of neuron $i$, the output signal shifts by $\bmu{\Gamma}_i$ as it is added to the spike train. From the top panel of \cref{fig:Wf_learned_spikes} it can be seen that the differences between both simulations were never more then 3 spikes different from each other.\todo[inline]{Is this saying smth? Maybe the absolute error is better?}
 
 \todo{Eigenvalues are again interesting because with smaller eigenvalues we can use  that when the eigenvalues are not changing anymore the approx is ok-good.}
 
-\todo[inline]{The second learning rule works to the same structure but not the scale. Even authors say it requires hand tuning to find good values for $\beta$}
 \subsection{Only learning of $\bmu{W}^s$}
 \todo{Skip this since in the origninal paper it is already stated that the slow learning rule only works properly with the fast learning in tandem}
 \subsection{Combined Learning}
@@ -573,7 +595,7 @@ To combat the unsteady behaviour in the first panel we again try again to reduce
 	\label{fig:combined_learning_lr}
 \end{figure}
 
-To do this we again set our learning rate according to \cref{eq:drop} and test different $p$. In \cref{fig:combined_learning_dr} we see the effect of different magnitudes of $p$. As expected was the error in the bottom panel of \cref{fig:combined_learning_dr} not reduced by this addition. Moreover, under a linear scale of the largest rel. deviations are not noticeable and will therefore be omitted for future tests. Lastly, we did not look at the eigenvalues of $\bmu{W}^s$ yet. Fortunately, the non-zero eigenvalues do allow for a coarse estimate of the learning progress. In all test including \cref{fig:combined_learning_lr} the eigenvalues converged to the optimal values and usable results could be obtained after both eigenvalues converged.\\
+To do this we again set our learning rate according to \cref{eq:drop} and test different $p$. In \cref{fig:combined_learning_dr} we see the effect of different values for $p$. As expected was the error in the bottom panel of \cref{fig:combined_learning_dr} not reduced by this addition. Moreover, under a linear scale of the largest rel. deviations are not noticeable and will therefore be omitted for future tests. Lastly, we did not look at the eigenvalues of $\bmu{W}^s$ yet. Fortunately, the non-zero eigenvalues do allow for a coarse estimate of the learning progress. In all test including \cref{fig:combined_learning_lr} the eigenvalues converged to the optimal values and usable results could be obtained after both eigenvalues converged.\\
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/Learning/combined_learning_drop.pdf}
@@ -596,7 +618,12 @@ In the last panel of \cref{fig:combined_learning_K} we chose $K=10$ to test the 
 \end{figure}
 
 \subsubsection{Input learning sequences}
-magnitude and smoothness or sine wave
+So far we have not touched on the input sequence. As often seen in the literature, training is performed using smoothed Gaussian noise. However little detail is given on the specifics. Moreover, as seen above, the choice of input sequence could potentially affect the learning results.\\
+Therefore in the next section we will investigate different patterns of input and potential influence on the results.\\
+Firstly we note the general framing of our learning. So far we have used the common smooth Gaussian with an exponential kernel. Already here we have parameters that we can tune.\\
+
+
+
 \subsubsection{Network size and connectivity}
 \subsubsection{Random init of matrices??}
 

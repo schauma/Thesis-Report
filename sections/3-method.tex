@@ -344,7 +344,7 @@ Taking the derivative of the loss function in \cref{eq:vol_bases_loss} with resp
 \frac{\partial L_t}{\partial \bmu{W}^f} \propto\left(2 \bmu{V}^{\text {pre}}\left(t\right)+\bmu{W}^f \bmu{e}_{i}\right) \bmu{e}_{i}^{T}
 \end{equation}
 Rewriting the equation above and adding a tuning parameter gives the learning rule
-\begin{equation}
+\begin{equation}\label{eq:Wf_learning_rule_1}
 	\Delta \bmu{W}^f_{ij} =-\frac{\partial L_t}{\partial \bmu{W}^f_{ij}} \propto - \left( \bmu{V}_i^{\text {pre}}\left(t\right)+\beta \bmu{W}^f_{ij}\right).
 \end{equation}
 It is important to note that this learning rule only becomes active during the firing of a spike. This means that if no spike is fired no learning takes place. To introduce spiking and learning, smoothed  Gaussian white noise if often used for training and inducing firing of all neurons.\\
@@ -354,7 +354,7 @@ However values $\beta<\frac{1}{2}$ lead to unstable ping pong patterns described
 It is important to note that this learning rule is entirely local and can be categorized as a Hebbian learning rule, as the presynaptic voltage is multiplied by the postsynaptic reset, given by the column in $\bmu{W}^f$.\\
 \paragraph{Learning with $\bmu{L_2}$ costs}
 The previous derivation did only incorporate $L1$ costs using the $\beta$ parameter, but does not implement any $L2$ regularization as in the derivation in \cref{sec:simulation}. With L2 costs, the optimal matrix is given by the addition of the quadratic cost term to the diagonal as in \cref{eq:simple_sim}. Since the cost term is added to the matrix $\bmu{W}^f$ and the voltage definition in \cref{eq:voltage} the voltage no longer explicitly tracks the projected error. To reuse the argument about minimizing Voltage fluctuations as a performance measure we therefore add the terms again to cancel out the terms from the previous definition. Specifically, we want to work the true projection error $\bmu{V}_{\text{ex}}$ and therefore compute the loss in \cref{eq:vol_bases_loss} using
-\begin{equation}
+\begin{equation}\label{eq:Wf_learning_rule_improved}
 \begin{aligned}
 	\bmu{V}_{\text{ex}} &= \bmu{V} + \mu\bmu{r}\\
 	\bmu{W}^f_{\text{ex}} & = \bmu{W}^f + \mu\bmu{I}.
