@@ -367,11 +367,12 @@ that the C is not square
 \section{Results on the learning}
 
 
-For our result evaluations we first give a simple test scenario. With that in place we then evaluate the learning performance for slow and fast learning separately to find the biggest source of error. We then combine both approaches to measure the combined performance. We look into different metrics to determine the progress of learning and highlight key parameters for the success of learning the given system, e.g hyperparameters or learning input sequence. Lastly we describe configurations where the learning breaks down.\\
-
+To give a complete examination of results, the rigorous testing required to demonstrate them is not possible. Therefore we restrict our testing to select model problems and only demonstrate a selection of interesting results. Meanwhile testing has been conducted with more and different settings than presented here which will be mentioned occasionally for the purpose of completeness.\\
+For our result evaluations we give a simple test scenario, with which we then evaluate the learning performance for slow and fast learning and combined learning separately. Slow learning alone is skipped as \cite{bourdoukan_enforcing_2015} expect to use it in conjunction to the fast learning. Furthermore, while testing it has been observed that the reliability and performance lack behind when only training is trained.\\
+For the combined training we set out to find the determining  source of error in overall performance. To access we look into different metrics to determine the progress of learning and highlight key parameters for the success of learning the given system, e.g hyper-parameters or learning input sequences. Lastly we describe configurations where the learning breaks down.\\
 
 \subsection{Test cases}
-\subsubsection{Toy example}
+\subsubsection{Model problem}
 As the first problem we consider a simple 2D toy example given by a damped oscillator of the form
 \begin{equation}\label{eq:toy_example}
 	\bmu{\dot{x}} = \begin{bmatrix}
@@ -379,9 +380,6 @@ As the first problem we consider a simple 2D toy example given by a damped oscil
 	\end{bmatrix}\bmu{x} + \bmu{c}(t).
 \end{equation}
 Since we are only concerned with the learning and neglect the control at this point we give a predefined input $\bmu{c}(t)$ set as a single square impulse. With this trajectory we can observe the systems response to a sudden jump as well as the evolution of the system in the absence of external input. This allows us to see the system's performance in both scenarios of the control problem later on.
-\subsubsection{Stiff ODE System}
-
-\subsubsection{Bigger system}
 
 
 \subsubsection{Testing}
@@ -400,7 +398,7 @@ However also other measurements can be obtained to assess the networks learning.
 	\Delta^\text{rel} \bmu{W}_{ij} =\left|1 - \frac{\bmu{W}^{\text{learned}}_{ij}}{\bmu{W}^\text{ex}_{ij}}\right|
 \end{equation}
 for each parameter. From there we can measure the maximum relative deviation or compute the sum of of deviations to access the parameter convergence.\\
-Alternatively, since we are working on matrices, we can look at the convergence of eigenvalues.\\
+Alternatively, since we are working on matrices, we look at the convergence of eigenvalues.\\
 Knowing the optimal values to
 \begin{equation}
 \begin{aligned}
@@ -414,16 +412,7 @@ For $\bmu{W}^f$ we only need to look at the eigenvalues of $\bmu{\Gamma}^T\bmu{\
 For $\bmu{W}^s$, only J eigenvalues are nonzero since again the $\text{rank}(\bmu{\Gamma}) = J$.\\
 Thus, we access the learning progress by measuring the distance of the learned eigenvalues compared to the true eigenvalues.\\
 
-
-
-Explain test methodolofy
-What system
-what input
-
-Maybe a easy system
-Stiff ode
-DAE system maybe?
-\subsection{Only learning of $\bmu{W}^f$}
+\subsection{Only learning of $\bmu{W}^f$}\label{ssec:Wf_res}
 In order to evaluate the learning performance individually, we first consider each learning algorithm separately. Later, we use both to access the overall performance.\\
 This also allows us to see the effects of changing learning parameters individually. To isolate the learning of the fast weights, we set the learning rate for the slow weights to zero and initialize $\bmu{W}^s$ to the optimal values from the analytic solution given in \cref{sec:simulation}. This provides optimal conditions for the learning algorithm.\\
 We start first by looking at the convergence over learning before looking at errors in order to see whether any of the aforementioned measurements indeed give a meaningful insight into the networks performance.\\
@@ -618,15 +607,101 @@ In the last panel of \cref{fig:combined_learning_K} we chose $K=10$ to test the 
 \end{figure}
 
 \subsubsection{Input learning sequences}
-So far we have not touched on the input sequence. As often seen in the literature, training is performed using smoothed Gaussian noise. However little detail is given on the specifics. Moreover, as seen above, the choice of input sequence could potentially affect the learning results.\\
-Therefore in the next section we will investigate different patterns of input and potential influence on the results.\\
-Firstly we note the general framing of our learning. So far we have used the common smooth Gaussian with an exponential kernel. Already here we have parameters that we can tune.\\
+So far we have not touched on the training input. As often seen in the literature\todo[inline]{put some references here}, training is performed using smoothed Gaussian noise. However little detail is given on the specifics. Moreover, as speculated above, the choice of input sequence could potentially affect the learning results.
+Therefore, in the next section we will investigate different patterns of input and potential influence on the results.\\
+In the right training sequence we may find ways to make our network even more accurate.\\
+Firstly we note the general framing of our learning. So far we have used the common smooth Gaussian with an exponential kernel. Already the number of tunable parameters is large when considering different kernels to get smoother or more variable input sequences. However there are also completely different functions that can be tested. For now we compare the currently used Gaussian noise again pure sine waves and individually stimulating each neuron for training.\\
 
+\paragraph{Gaussian noise and smoothing}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/combined_learning_smoothness.pdf}
+	\caption{Illustration of smoothing with $\sigma$ changing in the kernel. F.l.t.r $\sigma = \begin{Bmatrix}
+		6 & 60 & 600\end{Bmatrix}$. Plots show only the first 10\% of a learning epoch for visibility.}
+	\label{fig:generate_input_seq}
+\end{figure}
+\todo[inline]{integrate the above figure in the text!}
+The current setup of learning is based on a sequence $\bmu{v}$ of Gaussian noise that is generated for each epoch. One sequence is 100000 timesteps long and each gets convoluted by a exponential kernel to obtain $\bmu{c}$. The standard deviation for $w$ was chosen tight to allow for rapid movement of $\bmu{c}$ allowing for great variety which drives the error and subsequently the learning of $\bmu{W}^s$.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/combined_learning_smoothness.pdf}
+	\caption{Learning results for different smoothing grades of $\bmu{c}$. Smoothing is governed by the std. dev. $\sigma$ of the exponential kernel. Top and bottom panel shows the largest rel. dev. of $\bmu{W}^f$ and $\bmu{W}^s$ respectively. Middle panel shows the absolute error. Trained was for 1000 epochs.}
+	\label{fig:combined_learning_smoothness}
+\end{figure}
+This can be seen in \cref{fig:combined_learning_smoothness}. For $\sigma = 6$, a tiny smoothing window, the networks shows the best results with an maximum absolute error of $0.03$ which is within one spike difference from the ideal with the given setup. The second best option is for $\sigma = 60$ with double the error of $\sigma = 6$. Also in the convergence of both $\bmu{W}^f$ and $\bmu{W}^s$ the least amount of smoothing appears to yield the best results. Though this is heavily depending on the signal that the network is being tested with.
+Moreover difference in error is reduced when tested with different signals $\bmu{c}$ to input. With oscillating input similar to what was used in training the network or larger amplitude $c$, the trials with more smoothing reduce the difference in the error almost completely.\\
+\todo{Figure for illustrating the different smoothing.}
+\paragraph{Alternative Learning inputs forms}
+The importance of sudden movement and therefore the necessity for tiny smoothing becomes apparent when comparatively smooth input sequences are tested. To illustrate this the network is trained with the previous white noise with $\sigma = 60$ and compared to similar magnitude sine and square waves.\\
+To introduce some variability in the sine wave. For each epoch the phase for each input is varied.\\
+The square wave is explicitly structured to enforce firing of 2 specific neurons at a time. As illustrated before, each neuron $i$ projects the error along $\bmu{\Gamma}_i$ direction and fires when the threshold is reached. To target neuron $i$ directly we project the square wave on each dimension $c_j$ of the input by multiplying it with $\bmu{\Gamma}_{ij}$. Using this approach neuron $i$ fires the earliest and will be trained. During the off cycle of the square wave the same happens with the neuron geometrically opposing $i$.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/spike_learning_input.pdf}
+	\caption{Cumulative spikes for each neuron over training. Top: Gaussian noise, Middle: Sine wave, Bottom: Square wave. Only a segment of the entire training process is shown. Note the different colour scales.}
+	\label{fig:spike_learning_input}
+\end{figure}
+To verify this we can look at the spiking behaviour during training. In \cref{fig:spike_learning_input} we can see the cumulative spiking of each neuron during training for the Gaussian noise, sine and square wave. The square wave clearly shows our desired pattern in which for each epoch a new pair of neurons is trained, illustrated by the diagonal edges. From this it can also be seen that the test used 50 neurons. At the mark of 50 epochs a rotation is completed indicated by the first diagonal line ending there. Furthermore after 25 epochs each pair of neurons has been trained once, indicated by the 2 diagonal line starting from the top left corner entering the section of geometrically opposing neurons.\\
+Surprisingly the spiking behaviour with the sine wave and the Gaussian noise exhibit a aggregation of spikes only on certain neurons. From the colour grading it becomes apparent that certain neurons spike more often during training than others. While this is caused by the lack of regularization and subsequent distribution to spikes in our learning scheme due to aforementioned problems. Solely from judging \cref{fig:spike_learning_input} it would be natural to guess that the learning using square waves would perform the best thanks to the even distribution of spikes and therefore even learning. However this would be wrong as can be seen in \cref{fig:sin_square_bad}. While the trajectory for $x_2$ follows the main numerically calculated solution in blue, $x_1$ does not follow the expected trajectory at all. This misbehaviour is caused by the input sequences overshooting the scale of the parameters of $\bmu{W}^s$. Similarly this occurred as well when using heavily smoothed noise. The sine and square wave created, similar to the heavily smoothed, stretches of repetitive stimulus appears to cause the corresponding weights for spiking neurons to be oversaturated. Lowering the input amplitude did improve performance at the cost of longer training times. With the reduced input the convergence of $\bmu{W}^f$ is slowed down by the reduced number of spikes necessary. Furthermore $\bmu{W}^s$ learning rule is directly depending on the error and the rate, therefore depending on the state vector $\bmu{x}$ that is once more dependent on the input $\bmu{c}$.
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/sin_square_bad.pdf}
+	\caption{Network responses for each training sequence type with a oscillating input $\bmu{c}$.}
+	\label{fig:sin_square_bad}
+\end{figure}
 
+\paragraph{Spike firing}
 
-\subsubsection{Network size and connectivity}
-\subsubsection{Random init of matrices??}
+das ungleiche feuern abhanging von A
+die input sequenzen
+das manche neuronen die anderen das feuern stehlen
+warum die anderen sequenzen scheisse sind (fuer Ws)
+Anpassen der Lernsequenz so dass alle neuronen gleich oft feuern
+Finde die anzahl an spikes die man braucht um ausreichend gelernt zu haben
 
+In training, each neuron is fired ideally the same number of times to facilitate evenly distributed training progress. However, when looking at the spike numbers during training this is not the case. In fact, the learned system $\bmu{A}$ is crucial for the spike distribution. This can be seen in \cref{fig:spike_dist}, where the cumulative sum of spikes are added for each epoch on 2 different systems $\bmu{A}$. The crucial difference is that our model problem's eigenvalues are further apart. Generally it was observed that the distance between eigenvalues relative to their absolute values was the determining factor.\\
+The reason of lies in $\bmu{W}^s$. If $\bmu{A}$ exhibits a large difference in its eigenvalues this is reflected in $\bmu{W}^s$. During training, neuron voltages increase more for neurons projecting in the dimension of the large eigenvalue, causing it to spike. This can be seen again in \cref{fig:spike_dist}, where the neurons with the highest spike count
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Learning/combined_learning_smoothness.pdf}
+	\caption{Spike distribution for our model problem and $A = -10\bmu{I}$. Cumulative sum of all spikes for each epoch.}
+	\label{fig:spike_dist}
+\end{figure}
+\todo{using less smooth input helps distribute spikes better. Therefore more distributed learning etc.. better }
+
+\todo{Reason? Eigenvalues? or Separation between eigenvalues? Off diagonals in the eigenvalues?}
+
+\subsubsection{Random init of matrices}
+As we have done in the section \cref{ssec:Wf_res}, results so far have only considered optimal conditions for learning. In light of more challenging conditions, especially the initialization of $\bmu{W}^$ and $\bmu{W}^s$ to zero is a significant aide towards the learning and network performance.\\
+Firstly, the choice of $\bmu{\Gamma}$ did not influence the results significantly during testing and will therefore be ignored in this comparison. To test the influence of initial weights in both matrices we initialize the matrices with random numbers scaled to the appropriate range of $\bmu{W}^f$ and $\bmu{W}^f$ respectively.\\
+For the first test both matrices were initialized to random number of the same scale as their optimal values. Results showed that from 1000 epochs of training 920 networks did not converge at all while in the remaining 80 epochs results were unusable. It was observed that while training the matrix eigenvalues diverged further from their optimal counterparts. This was also observed when measuring the largest rel. deviation.\\
+When initializing with random values 50\% of the scale convergence was obtained during all of training. However the relative error was more than 100\% therefore rendering results useless.\\
+If only either $\bmu{W}^f$ or $\bmu{W}^s$ is initialized randomly it becomes apparent that the $\bmu{W}^s$ is the reason for the aforementioned problems. When initializing $\bmu{W}^s$ to zero, acceptable results were obtained with $\bmu{W}^f$ initialized to the previously impossible 100\% noise scale. However this was only achieved with at least doubling the training time.\\
+On the contrary, the initialization of $\bmu{W}^s$ just 5\% noise scale prohibited any convergence during training. The hypothesis, that potentially flipped signs in $\bmu{W}^s$ being the reason for the lack of convergence was rejected as there was no change when each $\bmu{W}^s_{ij}$ was given the same sign of the respective analytical value.\\
+Thus, $\bmu{W}^s$ has massive influence on $\bmu{W}^f$. This can also be seen when attempting to run a simulation with learned $\bmu{W}^s$ and analytical $\bmu{W}^f$ as the network fails to converge. Yet when simulating the opposite configuration results can be obtained, although of subpar quality to the completely learned configuration.\\
+This shows that $\bmu{W}^s$ influences $\bmu{W}^f$ to adapt to the (wrong) structure of itself. Hence it is advisable to only allow noise to impact $\bmu{W}^f$. While this notion deviates from biologic plausibility since noise is inherent to any system and connectivities between neurons are not nullified at when learning commences, this is an manageable restriction for the sake of usable results.
+
+\subsection{Limitations}
+Limitations in the learning of $\bmu{W}^s$ arise when the eigenvalues of $\bmu{A}$ have positive real parts. For purely imaginary eigenvalues, results depend on the magnitude of the imaginary part. For increasing imaginary parts the matrices converge to the correct structure be it not the correct magnitude. This can be combatted by tuning of hyperparameters though it depends on the $\bmu{A}$, making it infeasible for wide range use. Without tuning, the error remains high and results unusable.\\
+
+\todo[inline]{Elaborate. What are other limitations?}
+
+& Teste das mit den spikes noch ein wenig. Dann nur noch die controller results und limits.
+Conclusion ist dass es nicht geeignet ist fuer ieine anwendung aber es schon ein system regeln kann.
+&Dann in final words sagen was wir gemacht haben und iwie auf das intro gehen
+& Fixes und rewrites im Text!
+
+Long simulation times\\
+High order systems ?? Testen..
+Variability in learning performances
 \section{Results of the learned control objective}
 Adjust connectivity to have "fake" 2 states in the neurons?
 %Ich meine dass mann in einem 2d beispiel 50 neuronen nur fuer state x1 und 50 neuronen nur fuer x2 und das dann lernen und dann kann man argumentieren dass nur gewisse neuronen angeregt werden koennen (durch die selective von F) und damit sozusagen eine B matrix eingefuert wurde.
+
+Einmal performance mit 0 init
+Verschiedene Referenz trajectories
+Limits
+Das Ding mit dem B
+
+Limits
