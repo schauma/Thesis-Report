@@ -1,4 +1,4 @@
-\chapter{<Engineering-related content, Methodologies and Methods>}
+\chapter{Methodology}
 % \thispagestyle{fancy}
 
 \todo[inline]{Research question: Develop a biologically sensible SNN to control any linear dynamical system.}
@@ -7,24 +7,18 @@
 
 \section{Choice of Network architecture}
 
-The field of \acp{SNN} is under ongoing research. Therefore many different network models and learning approaches have been proposed e.g. \acp{LSM}\cite{dewolf_spiking_2016}. In order to stay biologically more realistic we ignore purely rate based spiking networks as there is evidence that the precise spike timing is relevant in nature\cite{brette_philosophy_2015}\cite{putney_precise_2019}.
-On the other side of the spectrum it makes little sense to use \ac{HH}'s model. Even though it is very biologically plausible its increased complexity and little abstraction makes it more suited for solely accurate biological neural simulation and less for the engineering task at hand. Additionally there are no training/learning rules available to solve such a high level problem.\\
+The field of \acp{SNN} is under ongoing research. Therefore many different network models and learning approaches have been proposed e.g. \acp{LSM}, REACH\cite{dewolf_spiking_2016}. To follow the idea that every spike contains information, purely rate based spiking networks are ignored as there is evidence that the precise spike timing is relevant in nature\cite{brette_philosophy_2015,putney_precise_2019}.\\
 
+On the other side the use of \ac{HH}'s model is prohibitively complex. Additionally there are no training/learning rules available to solve such a high level problem.\\
+The choice of Efficient coding networks allows us to retain all most of our biologic plausibility requirements while allowing the use of high level learning rules suited to our problem. Since the aim is to learn system dynamics, the \ac{SNN} should mirror this by learning the dynamics instead of a decoder in \acp{LSM}. Moreover the choice of Balanced networks enables us to potentially learn the decoder in addition to the dynamics as well.\\
 
-
-\todo[inline]{Explain choice of SNN architecture\\
-HH doesnt make sense because to complex.\\
-Recurrent models are possible but also not biologic enough because we want to use the spiking property\\
-LSM was considered but in a LSM you only learn the decoder. For the problem at hand is is more natural to have the dynamics in a neural network. Plus with this approach we learn the decoder as well so there it makes it for a more independent approach.\\
-}
-
-Describe the engineering-related contents (preferably with models) and the research methodology and methods that are used in the degree project.
-
-Most likely it generally describes the method used in each step to make sure that you can answer the research question.
-
-
+\section{Approach}
+The construction of our \ac{SNN} can be separated into several blocks. Firstly, a \ac{SNN} is created for the simulation of a dynamic system with given external inputs.\\
+As a second stage, we derive a second \ac{SNN} that acts as the controller, delivering the relevant control signals to the first network.\\
+With the controller in place, we work on learning the dynamics of the first \ac{SNN} from the ground up. It was not possible to learn the dynamics of the controlling \ac{SNN}. However it is possible to avoid using a dedicated \ac{SNN} to act as a controller. By copying the key controlling behaviour of the control network we are able to control the trained network directly.\\
+While this approach comes with the drawback of fixing the control matrix $\bmu{B}$ to the identity matrix, it allows the whole approach to work without information extra that was not trained before. Moreover the control scheme itself requires some on $\bmu{B}$ itself, making it a acceptable trade-off.\todo[inline]{Does this last paragraph fit here better than a few pages ago?}
 \section{Simulation of Dynamic systems using \acp{SNN}}\label{sec:simulation}
-In the following sections the simulation of dynamic systems using \acp{SNN} is derived and explained. This serves as the a basic building block for the attempted method on how to solve our target set out in section\todi{add reference to the goal section}. We begin with the formal derivation of the network dynamics.
+In the following sections the simulation of dynamic systems using \acp{SNN} is derived and explained. This serves as the a basic building block for the attempted method on how to solve our target set out in \cref{sec:goal}. We begin with the formal derivation of the network dynamics.
 
 \subsection{Balanced network simulation}\label{ssec:balanced_network_sim}
 
@@ -40,7 +34,6 @@ The estimation is done by leaky integration of spike trains $\symbfup{o}(t)$ in
 \end{equation}
 $\bmu{\Gamma}$ is a given matrix of size $\mathbb{R}^{J\times N}$, $N$ being the number of neurons. This matrix is given as initial and can be optimized by training later on\cite{brendel_learning_2020}.\\
 From \cref{eq:x_hat} it becomes clear that each spike carries an important information for the state vector as each spike in $\bmu{o}(t)$ changes the approximation $\bmu{\hat{x}}$ by some weights of $\bmu{\Gamma}$.
-\todo[inline]{Add more geometric interpretation?More specific?}
 In addition to the estimate $\bmu{\hat{x}}$ we define a spiking rate variable $\bmu{r}$ following the dynamics of
 \begin{equation}\label{eq:rate}
 \bmu{\dot{r}} = -\lambda_d\bmu{r} + \bmu{o}(t).
@@ -80,7 +73,7 @@ c_i(t) &=  e^{\lambda_d t^k} \bm{H}(t-t^k)\\
 r_i &=e^{-\lambda_d t} + e^{-\lambda_d (t-t^k)} \bm{H}(t-t^k).
 \end{aligned}
 \end{equation}
-The last equation is the identical the solution of \cref{eq:no_spike_decay} with the addition of a decaying exponential added at time $t_i^k$. $\bm{H}(t)$ denotes the Heaviside step function . Analogously the estimate is updated at time $t^k$ to
+The last equation is the identical the solution of \cref{eq:no_spike_decay} with the addition of a decaying exponential added at time $t_i^k$. $\bm{H}(t)$ denotes the Heaviside step function. Analogously the estimate is updated at time $t^k$ to
 \begin{equation}\label{eq:update_x_spike}
 	\bmu{x} =  \bmu{x} + \bmu{\Gamma}_ie^{-\lambda_d (t-t^k)} \bm{H}(t-t^k).
 \end{equation}
@@ -170,7 +163,8 @@ With this in mind, all terms that scale with $\frac{1}{N^2}$ are neglected. As a
 
 \subsection{Regularization}\label{sssection:regularization}
 
-Two regularization terms are added to influence spiking behaviour.\\
+Two regularization terms were added to influence spiking behaviour.
+
 \begin{equation}\label{eq:cost_func}
 E(t)=\int_0^t \left(\|\symbfup{x}(u)-\hat{\symbfup{x}}(u)\|_2^2+\nu\|\symbfup{r}(u)\|_1+\mu\|\symbfup{r}(u)\|_2^2\right)d u
 \end{equation}
@@ -180,7 +174,8 @@ The parameter $\nu$ controls the amount of spiking by penalizing the total numbe
 ||r(t)||_1 = \sum_i|r_i(t)| = \sum_i r_i(t).
 \end{equation}
 The firing rate is directly related to the number of spiking and therefore the cost is reduced by fewer spikes.\\
-The second term solves different issues at the same time. One problem concerns networks that have decoding kernels with the same direction but opposite sign. To show this we imagine a network of only two neurons. A network of two neurons is sufficient to simulate a scalar \ac{ODE} i.e $\bmu{A}\in \mathbb{R}$. We further assume that the kernel has the form
+
+The second term solves different issues at the same time. One problem concerns networks that have decoding kernels with the same direction but opposite sign. To show this we imagine a network of only two neurons. A network of two neurons is sufficient to simulate a scalar \ac{ODE} i.e $\bmu{A}\in \mathbb{R}$. We further assume that the feed-forward weights $\bmu{\Gamma}$ has the form
 \begin{equation}
 \Gamma = \begin{bmatrix}
 -1\\1
@@ -201,7 +196,7 @@ ideally setting the Voltage to $-T_i$. This can be seen when looking at the thre
 \begin{equation}
 T_i =\frac{ \bmu{\|\Gamma}_i\|^2}{2}= \frac{-\text{diag}(\bmu{W^f})}{2}.
 \end{equation}
-The repolarization of the spiking neuron acts as a depolarization or pushing the voltage towards its threshold for neurons with opposing sign. The problem now is that for neurons with the same kernel magnitude the depolarization is larger enough to push this neuron over the threshold. The subsequent spike re-polarizes the neuron but in turn excites the first neuron over its threshold. This pattern repeats and destroys network performance.\\\todo[inline]{maybe a picture?}
+The repolarization of the spiking neuron acts as a depolarization or pushing the voltage towards its threshold for neurons with opposing sign. The problem now is that for neurons with the same kernel magnitude the depolarization is larger enough to push this neuron over the threshold. The subsequent spike re-polarizes the neuron but in turn excites the first neuron over its threshold. This back and forth pattern of "ping-ponging" repeats indefinitely.\\\todo[inline]{maybe a picture?}
 For the given example above, the threshold is given by 0.5 for both. The neurons' voltages of are identical up to the sign, since they are tracking the error for the same variable. At the time one neurons reaches the threshold of 0.5 the second neuron's voltage is close to -0.5 considering noise (in a perfect system minus the value of the spiking neuron). After the spike is fired, the first neuron is reset to -0.5 stemming from
 \begin{equation}\label{eq:reset}
 \begin{aligned}
@@ -224,14 +219,9 @@ For the given example above, the threshold is given by 0.5 for both. The neurons
 \end{aligned}
 \end{equation}
 $\bmu{W^f}_{00}$ whereas the second neuron gets pushed up to 0.5 , causing a spike. This in turn reverts the changes of \cref{eq:reset} resulting in a loop. This problem is caused by the greedy optimization, looking only at the immediate future to decrease the cost.\\
-To fix this we set the threshold slightly higher. As seen above in \cref{eq:condition}, this can be done by either raising the linear or quadratic cost.\\
+To fix this the threshold is slightly increased, disallowing a spike to reach the opposing neuron's threshold. As seen above in \cref{eq:condition}, this can be done by either raising the linear or quadratic cost.\\
 The second issue fixed by adding quadratic cost is when there are
-neurons with similar kernel direction but non normalized. In a perfect noise free scenario the neuron with the smaller threshold will always fire first. The neurons reset after the spike will reset the neurons with similar direction, inhibiting the second neuron from ever firing. The linear cost do not make a difference since it is penalizing the global number of spikes but does not discern where the spikes are fired. With the quadratic cost the norm of spike rates distributed among many neurons is reduced compared to few.\\
-
-The first was termed "ping-pong" effect and is described in the supplementary material of \cite{boerlin_predictive_2013}. To understand the issue, we imagine a minimal network consisting of 2 neurons with equal kernel but opposite sign.\\ \todo[inline]{Write better the ping pong effect! Maybe later}
-
-The second regularization comes into play when there are kernels with different magnitude. Kernels with small kernel magnitude reach their threshold sooner and therefore fire more frequently. In the extreme case, only small number of neurons fire rapidly while the majority remains idle. By penalizing the rate in the 2-norm it forces the network to spread the firing among the whole network.\\\todo[inline]{find the right place to explain that!}
-
+neurons with similar kernel direction but non normalized. In a perfect noise free scenario the neuron with the smaller threshold will always fire first. The neurons reset after the spike will reset the neurons with similar direction, inhibiting the second neuron from ever firing. The linear cost does not make a difference since it is penalizing the global number of spikes but does not discern where the neurons are firing. By penalizing the rate in the 2-norm it forces the network to spread the firing among the whole network.
 
 
 \section{Control of Dynamic systems using \acp{SNN}}\label{sec:control}
@@ -273,7 +263,7 @@ where $\bmu{\Gamma}_k$ and $\bmu{\Omega}_k$ correspond to the $k$-th column of $
 	T_i &= \frac{\bmu{\Omega}_i^T\bmu{B}^T\bmu{B\Omega}_i + \nu  + \mu}{2}
 	\label{eq:control_dyn_end}
 \end{align}
-Note that the notation differs in the original paper and the reference signal is denoted by $\bmu{\hat{x}}$ instead of $\bmu{x}$ here and $\bmu{\Omega}_i$ again refers to the $i$-th column of $\bmu{\Omega}$.
+Note that the notation differs in the original paper and the reference signal is denoted by $\bmu{\hat{x}}$ instead of $\bmu{x}$ here and $\bmu{\Omega}_i$ again refers to the $i$-th column of $\bmu{\Omega}$.\todo[inline]{probably make it like the paper. Regardless it should probably be the state reference value in the definition of c and not the network's state}
 \subsection{The instantaneous decoding weights}
 The necessity of instantaneous decoding is necessary otherwise no spiking can occur. In \cref{eq:control_spike_change} the control signal is integrated with the matrix exponential. The problem is that the integral
 \begin{equation}
@@ -372,7 +362,6 @@ and take the derivative with respect to $\bmu{W}^f$, resulting in the learning r
 \Delta \bmu{W}^f_{ij} =-\frac{\partial L_t}{\partial \bmu{W}^f_{ij}} \propto - \beta\left( \bmu{V}_i^{\text {pre}}\left(t\right) + \mu \bmu{r}_i(t)\right) -\bmu{W}^f_{ij} -\mu\delta_{ij}
 \end{equation}
 when a spike is fired.
-\todo[inline]{Throw this out. We skip the comparison between learning methods probably}
 
 \subsection{Learning of slow connection weights $\bmu{W}^s$}
 The recurrent weights $\bmu{W}^s$ are called slow because they are in conjunction with the filtered spike train $\bmu{r}(t)$ in \cref{eq:voltage_limit} in contrast to $\bmu{W}^f$ which are reset the neuron voltage after a spike.\\
@@ -398,4 +387,4 @@ with respect to the matrix parameters $M_{ij}$ and changing their value accordin
 	\dot{M}_{ij} = -\frac{\partial L}{\partial M_{ij}} = \left(\frac{\partial \hat{\bmu{x}}}{\partial M_{ij}}\right)^T\bmu{e}.
 \end{equation}
 \todo[inline]{Explain the derivative, or its approximation.}
-It is important to note that this derivation completely ignores any sort of control matrix $\bmu{B}$ given by a control problem. While this can be a disqualifying property for many systems it is also important to ask how such a matrix could be implemented. Since the complete state of the system is encoded partly in each neuron it is impossible to selectively control certain states. Therefore from now on it is assumed that the control works on each neuron or that the control matrix $\bmu{B} = \bmu{I}$ is the identity matrix.
+It is important to note that this derivation completely ignores any sort of control matrix $\bmu{B}$ given in a control problem. While this can be a disqualifying property for many systems it is also important to ask how such a matrix could be implemented. Since the complete state of the system is encoded partly in each neuron it is impossible to selectively control certain states. Therefore from now on it is assumed that the control works on each neuron or that the control matrix $\bmu{B} = \bmu{I}$ is the identity matrix.
