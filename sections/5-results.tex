@@ -331,7 +331,7 @@ The problem is that the reference $\bmu{x}$ changes on scales that the network c
 One way to resolve this issue is to artificially set the error to zero if $\|\bmu{A}\|<<\|x\|$. This is possible since in most problems the error term only contributes a negligible amount to the total voltage change. The biggest contribution is from $\bmu{c}$ after which the error is small enough to be ignored directly.\\
 In the error free formulation, the above mentioned issues are no problem. Since there is no direct error in the network, the network state $\hat{\bmu{x}}$ can be substituted instead of the reference without loss of performance.\\
 
-\subsection{Direct error/Feed-Forward}
+\subsection{Direct error/Feed-Forward}\label{ssec:direct_error}
 The most important insight of the approach in \cref{eq:feeback_c,eq:feedback_c2} is that the signal $\bmu{c}(t)$ is the principal source of control in the system. Moreover it is explicitly calculated from the system $\bmu{A}$ as well as the information of the reference signal and its derivative.\\
 If one considers the output feedback once more and where one does not have access to the target state $\bmu{x}$ but only its output $\bmu{y} = \bmu{Cx}$, both derivations break down. While the direct error approach of \cref{ssec:extension} requires the knowledge of the complete state vector, it makes the incorporation of output feedback superfluous. In the error-free derivation, $\bmu{c}$ is directly calculated from the desired state $\bmu{x}$ without considering $\bmu{C}$.\\
 Instead the feed-forward input $ \bmu{c}$ would need to be defined in terms of $\bmu{y}$ and $\bmu{CA\hat{x}}$. This would eliminate the error term outright as it would now be implicitly part of $\bmu{c}$. The derivation would be similar
@@ -549,7 +549,7 @@ artificially introduce the diagonal term from the analytic solution for $\bmu{W}
 
 \subsection{Only learning of $\bmu{W}^s$}
 \todo{Skip this since in the origninal paper it is already stated that the slow learning rule only works properly with the fast learning in tandem}
-\subsection{Combined Learning}
+\subsection{Combined Learning}\label{ssec:combined_learning}
 For this chapter we consider the combined learning performance of slow weights $\bmu{W}^f$ and slow weights $\bmu{W}^s$. We skip the investigation of $\bmu{W}^s$ alone as the authors of the slow emphasize to learn both matrices simultaneously. Indeed, slow weights struggle to converge without learning of $\bmu{W}^f$.\\
 For the investigation of the training of $\bmu{W}^s$ we apply the previously mentioned improvements of $\bmu{W}^f$ too. We start by looking again at our simple system before investigating parameter and input dependencies.\\
 To begin, we look again at results for \cref{eq:toy_example} for reference. We adjust our external input sequence $\bmu{c}(t)$ to excite each neuron to spike so we have a better picture of whole learning progress of all neurons. Yet we keep a segment in which no input is given such than we can see the network's own evolution over time.\\
@@ -674,7 +674,7 @@ The reason of lies in $\bmu{W}^s$. If $\bmu{A}$ exhibits a large difference in i
 
 \todo{Reason? Eigenvalues? or Separation between eigenvalues? Off diagonals in the eigenvalues?}
 
-\subsubsection{Random init of matrices}
+\subsubsection{Random init of matrices}\label{sssec:rand_init}
 As we have done in the section \cref{ssec:Wf_res}, results so far have only considered optimal conditions for learning. In light of more challenging conditions, especially the initialization of $\bmu{W}^f$ and $\bmu{W}^s$ to zero is a significant aide towards the learning and network performance.\\
 To test the influence of initial weights in both matrices we initialize the matrices with random numbers scaled to the appropriate range of $\bmu{W}^f$ and $\bmu{W}^f$ respectively.\\
 For the first test both matrices were initialized to random number of the same scale as their optimal values. Results showed that from 1000 epochs of training 920 networks did not converge at all while in the remaining 80 epochs results were unusable. It was observed that while training the matrix eigenvalues diverged further from their optimal counterparts. This was also observed when measuring the largest rel. deviation.\\
@@ -686,10 +686,10 @@ This shows that $\bmu{W}^s$ influences $\bmu{W}^f$ to adapt to the (wrong) struc
 
 \subsubsection{Limitations}
 Limitations in the learning of $\bmu{W}^s$ arise when the eigenvalues of $\bmu{A}$ have positive real parts. For purely imaginary eigenvalues, results depend on the magnitude of the imaginary part. For increasing imaginary parts the matrices converge to the correct structure be it not the correct magnitude. This can be combatted by tuning of hyperparameters though it depends on the $\bmu{A}$, making it infeasible for wide range use. Without tuning, the error remains high and results unusable.\\
-The second big limitation comes with the choice of $\bmu{\Gamma}$. During testing, the choice of $\bmu{\Gamma}$ had immense impact on the network convergence. With randomly chosen $\bmu{\Gamma}$ on $\mathit{S}^n$ network convergence was not guaranteed anymore. Moreover, if convergence was reached results exhibited relative errors of more than 1000\% making them completely unusable. This was especially the case when working with higher dimensional systems. The necessary accuracy for $\bmu{W}^f$ to yield a functioning network was not learned anymore. Without sufficiently approximated $\bmu{W}^f$, training was worsening the networks performance.\\
-It was therefore necessary to choose $\bmu{\Gamma}$  as equidistant points on $\mathit{S}^n$ to have uniform error projection and re convergence.\\
-Apart from the choice of $\bmu{\Gamma}$, higher order problems pose a problem for the networks learning. Due to small inaccuracies in training, errors add up in higher dimensional systems. Especially $\bmu{W}^s$ becomes the major factor in network error.\\
-However these errors become significant only when no or little external input $\bmu{c}(t)$ is applied. If $\bmu{c}(t)$ is zero for large parts of the simulation time, errors in $\bmu{W}^s$ compound to the point where the network produces unusably erroneous results. If $\bmu{c}(t)$ is non-zero, errors in $\bmu{W}^s$ become manageable and the network output acceptable.\\
+The second big limitation comes with the choice of $\bmu{\Gamma}$. During testing, the choice of $\bmu{\Gamma}$ impacted network accuracy. With randomly chosen $\bmu{\Gamma}$ on $\mathit{S}^n$, the network error was too large to be useful This was especially the case when working with higher dimensional systems ($\bmu{J}\geq4$). The necessary accuracy for $\bmu{W}^f$ to yield a functioning network was not learned anymore. Without sufficiently approximated $\bmu{W}^f$, training was incapable to produce acceptable network performance.\\
+Instead, $\bmu{\Gamma}$ was chosen as equidistant points on $\mathit{S}^n$ to have uniform error projection and retain accurate results.\\
+Apart from the choice of $\bmu{\Gamma}$, higher order problems pose a problem for the networks learning. Due to small inaccuracies in training, errors add up in the integration of higher order problems. Especially $\bmu{W}^s$ becomes the major factor in network error.\\
+However this becomes significant only when no or little external input $\bmu{c}(t)$ is applied. If $\bmu{c}(t)$ is zero for large parts of the simulation time, errors in $\bmu{W}^s$ compound to the point where the network produces unusably erroneous results. If $\bmu{c}(t)$ is non-zero, errors in $\bmu{W}^s$ become less grave compared to $\bmu{c}$ and the network output acceptable.\\
 \todo[inline]{be specific here?}
 It is unclear what causes $\bmu{W}^s$ to fail to reach the same accuracy compared to lower dimensional problems. No parameter set or amount of learning yielded the same level of precision seen in the results above. It is therefore necessary that the problem exhibits continuing external input.\\
 \todo[inline]{Relative error at worst times 25\%}
@@ -708,8 +708,103 @@ Nonetheless we start by looking at looking at a jump response for our model prob
 %	\caption{Spike distribution for our model problem and $A = -10\bmu{I}$. Cumulative sum of all spikes for each epoch.}
 %	\label{fig:full_comb_jump_response}
 %\end{figure}
+\subsection{Working as a open loop controller}
+To analyse the final block of results we take the trained matrices from \cref{ssec:combined_learning} with the control realization of \cref{ssec:direct_error} that $\bmu{c}$ is the major controlling force. With this we set up a classical simulation as in \cref{sec:simulation} with the external input $\bmu{c}$ defined analogously to \cref{eq:feeback_c}. For the computation we apply our reference state vector as well as its derivative making it a open loop controller without any feedback from the network.\\
+Network parameters are set such that every part is working on the same scale.\\
+\subsubsection{First results}
+We again use our model problem and test different target trajectories with it.\\
+To begin we set a sine wave as our target. As can be seen in \cref{fig:all_open_sine_base}, the aforementioned control using $\bmu{c}$ appears to deliver good results using the optimal weights. Both state trajectories almost perfectly overlap the target. However dynamics quickly diverge due to small imperfections in the learned matrices. With the open loop control, these error slowly add up leading to an almost complete loss of the target trajectory.
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/everything/open_sine_base.pdf}
+	\caption{Control results for the ideal and learned matrices $\bmu{W}^f$ and $\bmu{W}^$ on a sine wave target. Top panel shows the $x_1$ state and bottom $x_2$. Matrices were trained for 1000 epochs using the previously studied optimal parameters.}
+	\label{fig:all_open_sine_base}
+\end{figure}
+The error shown in \cref{fig:all_open_sine_base} is almost purely due to inaccuracies in $\bmu{W}^s$. If the control is rerun but instead the optimal $\bmu{W}^s$ are used with the learned $\bmu{W}^f$, much improved results can be obtained.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/everything/all_open_sine_base_ideal_Ws.pdf}
+	\caption{Control results from \cref{fig:all_open_sine_base} but with only either $\bmu{W}^f$ or $\bmu{W}^$ trained. Top panel shows the $x_1$ state and bottom $x_2$. Matrices were trained for 1000 epochs using the previously studied optimal parameters.}
+	\label{fig:all_open_sine_base_ideal_Ws}
+\end{figure}
+In \cref{fig:all_open_sine_base_ideal_Ws} the results show that if the ideal $\bmu{W}^s$ is used, control accuracy is greatly improved. Small error still accumulate over time. These are from the remaining error in $\bmu{W}^f$ that is caused by small errors from training but also because $\bmu{W}^f$ adapts to the potential errors in $\bmu{W}^s$ during training. The opposite configuration yields even worse results, proofing the principal error contribution stems from $\bmu{W}^s$.\\
+The main problem is that due to the open loop design very precise system information is necessary. With training, only a perturbed system $\bmu{A}' = \bmu{A} + \bmu{\varepsilon}$ of the system matrix is learned. Without state feedback, control over $\bmu{A}'$ produces different dynamics which cannot be compensated with state feedback.\\
+This limits the applicability of any learned matrices.
+\subsubsection{Limitations}
 
-Unbedingt die noise testen
-Verschiedene Referenz trajectories
-Einmal performance mit 0 init
-Vlt kann der controller das ja ausregeln wenn Ws und Wf scheisse sind. Wahrscheinlich schwiering wenn es kein feedback gibt. aber vlt decayed der fehler auch
+Due to the open loop design the network is susceptible to noise inside the network. Noise in the target trajectory is a lesser problem than noise inherent in the network. The former can be directly translated into the network since we are implicitly working with $\bmu{B} = \mathit{I}_{J\times J}$. Therefore each state is controlled separately and the noise only influence its respective state. The network noise inside the network is impossible to be accounted for due to the lack of feedback. Therefore inherent noise in the network is completely unchecked. The only method to combat this is by scaling the network with extremely small $\bmu{\Gamma}$. Spikes caused by noise are negligible compared to the large number of spikes to represent a signal. The scaling basically converts it to a classic rate network.\\
+
+\subsubsection{Adding Feedback}
+
+In order to build a more robust controller, we aim to add feedback to the control scheme. This is done similarly to the idea of how the feedback of fast and slow weights $\bmu{W}^f$, $\bmu{W}^s$ were introduced.\\
+So far the external input $\bmu{c}$ is computed via
+\begin{equation}
+	\bmu{c} = \bmu{Ax} -\dot{\bmu{x}}
+\end{equation}
+where $\bmu{x}$ is the target. The result is fed to the network. However to more accurately follow our target with state feedback, an additional error term is added to $\bmu{c}$ for potential deviations of the state vector from the target. \cref{fig:schematic_feedback_control} illustrates this idea.
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{svg-inkscape/schematic_closed_loop_controller.pdf}
+	\caption{Add extra loop to introduce feedback into our control scheme. The outside loop can be integrated into the network similarly to $\bmu{W}^s$.}
+	\label{fig:schematic_feedback_control}
+\end{figure}
+We therefore adapt the computation of $\bmu{c}$ to
+\begin{equation}
+	\bmu{c} = \dot{\bmu{x}} - \bmu{Ax} + \bmu{x} - \hat{\bmu{x}}
+\end{equation}
+To measure its effectiveness, we first run the simulation with the extra added loop. In \cref{fig:all_closed_feedback_extra_loop} we can clearly see the network performance is greatly improved. Both trajectories follow their target almost perfectly.\\
+Moreover with the addition of feedback, the robustness against noise has increased significantly during testing.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/everything/all_closed_sine_base.pdf}
+	\caption{Control results from \cref{fig:all_open_sine_base} but with the added feedback loop seen in \cref{fig:schematic_feedback_control}.}
+	\label{fig:all_closed_feedback_extra_loop}
+\end{figure}
+\subsubsection{Learning the new feedback loop}
+
+As a next step the outer feedback loop can be integrated in the network. With the given feed-forward/decoder, the loop can be added inside the network by the matrix
+\begin{equation}
+\bmu{W}^{s_2} = \bmu{\Gamma}^T\bmu{\Gamma r}.
+\end{equation}
+Instead of introducing another matrix that is multiplied by the with the neuron firing rates, we can adjust the definition of $\bmu{W}^s$ to
+\begin{equation}
+\bmu{W}^s = \bmu{\Gamma}^T\left(\bmu{A} + (\lambda_d-1)\mathbf{I} \right)\bmu{\Gamma}.
+\end{equation}
+This matrix can further be learned by the previous training algorithms by subtracting the identity matrix from $\bmu{A}$ before training.\\
+We check if the learning of $\bmu{A-I}$ gives similar to results  with the extra loop in \cref{fig:all_closed_feedback_extra_loop}. We retrain our model problem using the identical parameter set as before with the identity matrix subtracted.\\
+To measure whether the training was able to reproduce the subtraction we calculate the inner learned matrix using regression.
+\begin{equation}
+	\bmu{M^*} = \min_{\bmu{M}} \| \bmu{\Gamma}^T\left(\bmu{M}+\lambda_d\bmu{I}\right)\bmu{\Gamma} - \bmu{W}^s\|_2^2
+\end{equation}
+It shows that in this test case the training was able to resolve the subtraction with a relative error of less than 8\%.\todo[inline]{Idk if this is really correctly written. What I want to say is that after both trainings the subtraction is clearly visible with the off diagonals being off from zero less than 0.023 and the main diagonals being of from an identity matrix by at most 0.075 which is kind of impressive.}
+As can be seen in \cref{fig:all_closed_loop_learned} this is sufficient to lead to almost perfect results as well.
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/everything/all_closed_loop_learned.pdf}
+	\caption{Control results from \cref{fig:all_closed_feedback_extra_loop} but with the added feedback loop learned and integrated into the network directly.}
+	\label{fig:all_closed_loop_learned}
+\end{figure}
+
+
+\todo[inline]{Rewrite this to sound a bit more professional}
+\todo[inline]{Continue here or write another sentence to the above section.}
+
+\subsubsection{Control with rand init matrices for learing}
+Due to the feedback, it might be possible to use the matrices generated with random initialization from \cref{sssec:rand_init}. However this is not the case. Due to the lack of convergence in $\bmu{W}^f$ the network control cannot compensate. Unfortunately the error in both matrices were too large to yield usable results.\\
+\todo[inline]{This is part of the limitations}
+
+
+\todo{Using optimization we can calculate the A that we trained. Maybe we can use this somewhere}
+
+
+\todo[inline]{Explain how the feedback of the autoencoder gave rise to Ws. Same for Wf. Do it in the explanation of the efficient coding network. So basically the spikes are the input and the filtered spikes is the leaky integration of the input. But first add that the Fast weights made a feedback loop and the afterwards the slow weights as well... }
+
+
+\subsubsection{Limitations}
+Show the noise is in fact improved
+Fast signals
+All the problems of the previous methods
+Big system?
+A plot with different strengths of noise? Show how we improved with feedback
+Jumps? Step?
+Plausibility??

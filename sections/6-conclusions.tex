@@ -10,8 +10,19 @@ Describe valid future work.
 The sections below are optional but could be added here.
 
 
-Conclusion ist dass es nicht geeignet ist fuer ieine anwendung aber es schon ein system regeln kann.\\
-Dann in final words sagen was wir gemacht haben und iwie auf das intro gehen
+In the end, we build a controller in three stages to control a linear system. The controller is based on \acp{SNN} using the Efficient balanced coding scheme with biologic plausibility. In this framework the first stage, the simulation, was capable of simulating any given dynamical system using analytically calculated values.\\
+As a second step, a controller was devised to create the control signal $\bmu{u}$. The controller was using the same \ac{SNN} architecture and was supposed to be used in conjunction with the previous stage. The control signal or even the spikes would have been fed to the simulating network. However this idea was dismissed due to its problems in the implementation and function of the controller. Furthermore, the necessary conditions for the controller to work are prohibitively high that a realisation was deemed to only bring marginal benefits. Furthermore the dynamics of the controlling capabilities were predominantly stemming from the definition of the external inputs $\bmu{c}$ instead of the whole network. For control, $\bmu{c}$ acted as a forcing term to the network bridging the necessary input to push the network into following the desired trajectory. This purely open loop design faced the classic issues of open loop designs e.g in aspects of noise. In a separate similar derivation the emerging explicit error term was insignificant in most test cases as well. These limitations in addition to the lack of a conceivable learning rule resulted that only the definition of $\bmu{c}$ was adopted for control.\\
+Lastly, the analytically derived network dynamics were learned with local learning rules. The fast recurrent dynamics were learned by an unsupervised learning rule while the slow dynamics trained by a supervised student-teacher approach. The learning performance was examined and parameters tuned to allowing for a significant improvement in network accuracy for our model problem. Challenges in the learning process were primarily connected to the random initialization of the matrices intended for training, the scaling of learning rate, form of training input sequences and initialization of $\bmu{\Gamma}$. Higher-dimensional problems, in general, were only applicable in specific cases with manual parameter tuning, yielding mixed results overall.\\
+In the last step, the previously learned matrices were run with the simulation build in stage one with the control scheme copied from the approaches in stage two. Due to the open loop design and the inherent perturbations in the learned matrices, the control was failing. With the addition of an extra feedback loop into the network, the definition of $\bmu{c}$ was slightly altered to incorporate error feedback.
+Although the feedback greatly improved performance, the hope it was unable to work on non-zero initialized trained matrices that previously led to divergence even in mere simulation was not fulfilled.\\
+Fortunately, the introduced feedback loop could be integrated the network itself and moreover learned automatically, given the initialization was zero.\\
+
+\todo{maybe this is the final words section? Think about where to put this}
+All in all, the network is capable of controlling a dynamic system. However the limitations set mostly by the control idea makes the realistic use of this approach impossible. The requirement on the input matrix $\bmu{B} = \bmu{I}$ for the presented approach is fundamentally restrictive and therefore unusable. Meanwhile even when the necessary conditions for control in stage 2 are met, network performance can still be subpar, requiring further investigation.\\
+
+Nonetheless the found accuracy as well as the proven robustness by previous authors given by a discrete spiking neural network in the context of biologically plausible was impressive, fulfilling the set out goal in the beginning.\\
+
+
 \section{Discussion}
 
 Answer the questions of the problem!!!!\\
@@ -21,6 +32,7 @@ Es so machen dass es waehrend dem task noch lernt. Z.b mit EWC oder dem Zenke an
 Maybe different noise models.. Brown noise
 Adjust the input such that the imbalance can be negated and training is faster.\\
 find nonlinearity\\
+Investigate the spiking imbalance
 end point control\\
 make the network acting as controller learn as well.\\
 Test if learning with lower amplitude towards the end can refine the performance even more.\\
@@ -32,7 +44,7 @@ Maybe we can even do the adverserial attack to try to screw with the network.\\
 Implement this on neuromorphic hardware\\
 
 \subsection{Final Words}
-
+\todo[inline]{what to put here?}
 \listoftodos
 
 
