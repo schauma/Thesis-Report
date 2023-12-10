@@ -22,33 +22,45 @@ All in all, the network is capable of controlling a dynamic system. However the 
 
 Nonetheless the found accuracy as well as the proven robustness by previous authors given by a discrete spiking neural network in the context of biologically plausible was impressive, fulfilling the set out goal in the beginning.\\
 
-
+\todo[inline]{Results should be somehow generalizable to LSM and NEF using the paper i dont understand form Emil and Arvind}
 \section{Discussion}
 
 Answer the questions of the problem!!!!\\
 
 \subsection{Future Work}
-Es so machen dass es waehrend dem task noch lernt. Z.b mit EWC oder dem Zenke ansatz fuer snn\\
-Maybe different noise models.. Brown noise
-Adjust the input such that the imbalance can be negated and training is faster.\\
-find nonlinearity\\
-Investigate the spiking imbalance
-end point control\\
-make the network acting as controller learn as well.\\
-Test if learning with lower amplitude towards the end can refine the performance even more.\\
-\todo{Double rate adjustment. In epoch and overall epochs}
 
-Further work:\\
-Maybe learning methods to control nonlinear dynamic systems\\
-Maybe we can even do the adverserial attack to try to screw with the network.\\
-Implement this on neuromorphic hardware\\
+There are a plethora of ways to extend upon the work that has been done here. These can be grouped into extending the capabilities, adding more biologic plausibility or topics that merit further investigation.
+\subsubsection{Extending capabilities}
+\paragraph{Learning of $\bmu{\Gamma}$}
+A straight forward step to expand the learning in our network would be to allow learning of the decoder $\bmu{\Gamma}$ from \cite{brendel_learning_2020}. While this has been briefly attempted here, the rigorous integration and testing is lacking.\\
+In first tests, the combination of feed-forward training and the learning of $\bmu{W}^s$ was unsuccessful and requires further research.
+\paragraph{Learning during Control}
+As it is common in most neural networks, training and testing form 2 different steps in the networks deployment. Also here this is required as training demands a white noise process to enable firing of all neurons. Training with non-zero mean signals, e.g already a desired reference trajectory in a control setting, could enable the network to adopt to changing a changing environment and greatly improve its capabilities. With a combination feed-forward learning and training non-whitened input using the covariance matrix $\bmu{\Sigma} = \text{cov}(\bmu{x},\bmu{x})$ and recentering the input $\bmu{x
+}_c = \bmu{x} - <x>$ by its mean seen in \cref{vertechi_unsupervised_2014} could show interesting results.\\
+Another interesting approach to enable continual learning would be to further integrate the in \cref{sssec:plasticity} mentioned methods of \ac{EWC}. While this has not been researched yet for \acp{SNN}, it could potentially open ways to build networks that can increase in their neuron count or the number of represented states over time. Adding neurons while the network is active and training could give a more adaptable controller, activating "sleeping neurons" if the problem at hand requires more robustness or more precise results.\\
 
+\paragraph{Non-linear systems and Control}
+The restriction to linear function poses limits on the applicability to broader systems. To that, methods have already been revised to extend the simulation to non-linear problems \cite{alemi_learning_2017}. By using sigmoid basis functions dependent on the firing rate instead of linear $\bmu{r}$ itself, non-linearities are introduced. A matrix similar to $\bmu{W}^s$ is then trained by the student-teacher approach presented here using a slightly adopted learning rule.
+\paragraph{End point control}
+end point control
+\todo[inline]{Keep this in?}
+
+\subsubsection{Biologic plausibility}
+On the biologic side
+Dale's law integration
+\todo[inline]{Keep this in as well?}
+\subsubsection{Investigating}
+\paragraph{Different noise types}
+The previously done study on the input sequences for learning could be extended upon with a more rigorous testing and examination of spiking behaviour. Additonally, different noise types could be considered except of white noise. During testing, Inputs with less smoothing yielded better results. This was attributed to fast chaning signal input causing an increase of error, spiking and subsequent adjustment or parameters. This could be tested further using Blue or violet noise.
+\todo[inline]{remove spike imbalance from results and put it here}
+\paragraph{Spiking Imbalance}
+In addition to investigating the noise, spiking behaviour during learning also merits further investigation. During training, the system matrix $\bmu{A}$ had significant influence over the spike distribution over neurons. This caused that at the end of training only a couple of neurons could amount to more than 90\% of total spikes during learning. It was found that eigenvalue grouping appears to be the main factor in the spike distribution.\\
+It is desirable that spikes in training are as distributed as possible due to the least trained neuron causing the highest error. Therefore this imbalance can cause prolonged training times. But as the system matrix $\bmu{A}$ is known, adapting training input to the system could improve spike distribution and therefore shorter training time.\\
 \subsection{Final Words}
 \todo[inline]{what to put here?}
+\todo[inline]{Write an acknoledgement}
+\todo[inline]{did i write that Gamma still worked but gave a bit worse results?}
 \listoftodos
-
-
-
 
 
 

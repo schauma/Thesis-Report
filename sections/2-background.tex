@@ -129,8 +129,7 @@ As outlined in more in detail below neuron models can have different complexitie
 	There can be hybrid implementation where there are different groups of neurons are connected in sequence.\\
 	Using \acp{RNN} offers a broader range of applications but has to deal with (as of this day) inferior or more complex learning paradigms.\\
 
-
-\subsubsection{Plasticity}
+\subsubsection{Plasticity}\label{sssec:plasticity}
 	The choice of plasticity determines how the network adapts its parameters during learning. There are mostly two different routes used in the literature. The dominant of these is the adjustment of synaptic weights similar to \acp{ANN}. It is noteworthy that most learning algorithms are based on this approach.\\
 	The alternative is to work on adjusting thresholds instead\cite{chen_adaptive_2022,amin_automated_2021}. One can adjust the frequency or likeliness of a neuron firing by lowering or increasing its threshold making it harder or easier for a neuron to spike. Increasing the threshold after a spike was fired allows for the modelling of refractory periods seen in biological neurons.\\
 	Threshold adaptation can also be in conjunction to weight adaption policy. In \cite{sun_synapse-threshold_2023} adaptive synapses are trained alongside connection weights.\\
