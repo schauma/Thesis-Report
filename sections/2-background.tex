@@ -28,7 +28,7 @@ and the autoencoder simply memorizes each input. In most cases however $\mathcal
 \end{equation}
 where L can be e.g. MSE and the regularization term $C$ can enforce sparsity or other properties\cite{goodfellow_deep_2016}.\\
 The functions $f$ and $g$ can be selected freely but play a crucial role in the performance. Frequently, they are combined in a neural network that is trained to adjust the network's parameters as well as function parameters. Apart from $f$ and $g$, the internal mechanism can also be freely chosen. For this reason, an autoencoder can also have a \ac{SNN} at its core, with $f$ and $g$ serving as the encoder and decoder of spikes, respectively.\\
-This step is a pivotal aspect of the selected network architecture, functioning essentially as an autoencoder with spiking neurons. At each time step, a signal is encoded into a group of neurons, from which the spiking dynamics are decoded to reconstruct the desired signal.\\
+This step is a pivotal aspect of the selected network architecture, functioning essentially as an autoencoder with spiking neurons. At each time step, a signal is encoded into a group of neurons, from which the spiking dynamics are decoded to reconstruct the desired signal and each neuron projection different segments of the autoencoder's error.\\
 \todo[inline]{Insert graphical illustration. Do it in a later part.When explaining the network itself.}
 
 \section{Neural Networks}
@@ -227,7 +227,7 @@ For each neuron voltage can be understood as a projection of the global system e
 The firing of a neuron resets its voltage as well as correcting the system to reset the perceived projected error.\\
 
 Balanced networks differ from the previous rate encoding in that excitation and inhibition is closely tracked. In rate encoded networks both inhibitory and excitatory spikes are received by a single neuron. An change of the variable is then governed by which type dominates. Here a rate coding is used, however in the matter of control, a combination with instantaneous decoding is \cite{johnson_minimum-error_2016} utilized. The difference to typical rate networks is given by the fact that each spike distinct information.\\
-Each neuron's projects some information about the state and the network. By projecting the system error in different directions, we assign each neuron to track one projection error. The projection is called voltage. If a neurons voltage reaches the threshold, the projected error exceeds the threshold, a spike is fired and counteracting the projected error.\\
+Each neuron's projects some information about the state and the network. By projecting the system error in different directions, we assign each neuron to track one projection error, identified with a neurons voltage. If a neurons voltage reaches the threshold, the projected error exceeds the threshold, a spike is fired and counteracting the projected error.\\
 The projection of the system error therefore has immense influence on an individual neuron's spiking behaviour but also the whole network.\\
 On the other hand in rate networks, a population of neurons is given a value to represent and the population spiking rate encodes this value. An individual spike in this population does not have a direct relevance to the system and a discrete impact on its behaviour.\\
 \todo[inline]{is this sufficiently explained?}

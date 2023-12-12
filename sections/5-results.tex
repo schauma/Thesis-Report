@@ -171,7 +171,7 @@ for t_step = 1:N_step
 end
 \end{lstlisting}
 While this works for a variety of problems it does not give results for any given system and reference trajectory.\\
-Especially problems with an abrupt change underperform since the network is only allowed to correct the error by one spike. However by jumps and rapid changes this is not sufficient to compensate errors and then networks struggles for many iterations to recover, ruining the overall accuracy in the process.\\
+Especially problems with an abrupt change underperform since the network is only allowed to correct the error by one spike. However by jumps and rapid changes this is not sufficient to compensate errors and then networks struggles for many iterations to recover, ruining the overall accuracy in the process.
 \paragraph{Parallel Spikes}
 Now the direct way to fix this to find all neurons that have reached their thresholds. Since networks have many neurons, letting every neuron spike increases the networks ability to correct errors. A potential implementation is seen in \cref{lst:multi_spike}.
 \begin{lstlisting}[language=Matlab, caption=Letting every neuron spike in parallel,label=lst:multi_spike]
@@ -188,7 +188,7 @@ The problem with this implementation is that the error gets tracked by multiple 
 Disregarding noise, the threshold is reached by $N$ neurons synchronously. As long as the total error is larger than the compensation of $N$ neurons in the first place, this works just fine. However this is not permanent and at some point all $N$ neurons firing overly depolarize the opposite side neurons to the extend that they all fire in the next iteration regardless of the real system error.\\
 The root cause is that a single spike influences the whole network. In this extreme case 1 spike resets all other $N-1$ neurons that were spiking as well and therefore would not give any performance boost compared to the previous approach.\\
 The network with this implementation behaves normally while a rapid change is present but will evolve into $N$ neurons spiking in alternating cadence respectively.\\
-To remedy this it is necessary that one dimension of the error is only projected onto two neurons. While this can be achieved by carefully selecting the decoder it is not a generic approach. Moreover this reverses the idea of multiple neurons tracking the error in order to increase the networks performance and would result in zero change.\\
+To remedy this it is necessary that one dimension of the error is only projected onto two neurons. While this can be achieved by carefully selecting the decoder it is not a generic approach. Moreover this reverses the idea of multiple neurons tracking the error for robustness.\\
 Therefore we need to let a single neuron spike multiple times.
 
 \paragraph{Multiple Spikes}\label{p:multiple_spikes}
@@ -227,10 +227,9 @@ Secondly and more importantly in their derivation consider network in the limit 
 \end{aligned}
 \end{equation}
 where $$\bmu{L} = \left(\bmu{B\Omega\Omega}^T\bmu{B}^T\right)^{−1}\bmu{B\Omega}$$ is the pseudo-inverse of $\left(\bmu{B\Omega}\right)^T$. Our focus is now set on the terms in front of the rate. As \cite{huang_optimizing_2017} and the original derivation in \cite{boerlin_predictive_2013} argue the term $\mu\lambda_d^2$ vanishes in the limit and can therefore be neglected, yielding the above result for $\bmu{W}^s$ above in \cref{eq:Ws_wrong}.\\
-However in the testing it was noticed that this derivation only works acceptable for a small range of values for $\lambda_d$, explicitly $\lambda_d \leq 20$. For values above the performance deteriorates rapidly if not a large number of neurons is considered.\\
+However in the testing it was noticed that this derivation only produces acceptable results for a small range of values for $\lambda_d$, explicitly $\lambda_d \leq 20$. For values above the performance deteriorates rapidly if not a large number of neurons is considered.\\
 After testing the relative importance of terms it was noted that the term $\mu\lambda_d^2$ does improve the performance with a smaller number of neurons significantly compared to the other terms and was therefore added in the results following below.\\
-Furthermore the authors give later examples that show their use of the extra term.
-This can be seen in all examples but especially in example figure 2. Conveniently the authors provided a picture of the their $\bmu{W}^s$ matrix which clearly shows a nonzero entry on the main diagonal. The example showcases the case $\bmu{\Gamma} = \bmu{0}$ which, given the definition of $\bmu{W}^s$ in \cref{eq:Ws_wrong}, yields $\bmu{W}^s = \bmu{0}$. Examining the colormap reveals that the values on the diagonal equal to 1 which is the same $\mu\lambda_d^2$ in the given example. The same can be validated for the other examples.\\
+Furthermore the authors' examples clearly indicate their use of the extra term as well in the calculation of $\bmu{W}^s$.
 Running the same example results in a subpar performance shown in \cref{fig:bad_Ws}. To match the behaviour shown in the paper we needed to either involve the omitted term or increase the number of neurons to $N= 500$. Even though in \cref{fig:bad_Ws_compensated} it might look like the behaviour is similar it is important to point out that over time the network's performance deteriorates over time similar to \cref{fig:bad_Ws} and certainly cannot match the behaviour shown in \cite{huang_optimizing_2017}.
 \begin{figure}[h!]
 	\centering
@@ -238,7 +237,6 @@ Running the same example results in a subpar performance shown in \cref{fig:bad_
 	\caption{Control performance of the same the example in figure 2 from \cite{huang_optimizing_2017} without the extra $\lambda_d\mu^2\bmu{I}$ term. Simulation with $N=100$ neurons.}
 	\label{fig:bad_Ws}
 \end{figure}
-
 
 \begin{figure}[h!]
 	\centering
@@ -733,7 +731,6 @@ This limits the applicability of any learned matrices.
 \subsubsection{Limitations}
 
 Due to the open loop design the network is susceptible to noise inside the network. Noise in the target trajectory is a lesser problem than noise inherent in the network. The former can be directly translated into the network since we are implicitly working with $\bmu{B} = \mathit{I}_{J\times J}$. Therefore each state is controlled separately and the noise only influence its respective state. The network noise inside the network is impossible to be accounted for due to the lack of feedback. Therefore inherent noise in the network is completely unchecked. The only method to combat this is by scaling the network with extremely small $\bmu{\Gamma}$. Spikes caused by noise are negligible compared to the large number of spikes to represent a signal. The scaling basically converts it to a classic rate network.\\
-
 \subsection{Adding Feedback}
 
 In order to build a more robust controller, we aim to add feedback to the control scheme. This is done similarly to the idea of how the feedback of fast and slow weights $\bmu{W}^f$, $\bmu{W}^s$ were introduced.\\
@@ -801,6 +798,10 @@ Due to the feedback, it might be possible to use the matrices generated with ran
 
 
 \subsection{Limitations}
+
+It is important to note that our choice as well as the derivation of learning rules in \cref{sec:learning} completely ignores any sort of control matrix $\bmu{B}$ given in a control problem. While this is be a disqualifying property for many systems, the necessary conditions of the control scheme are prohibitively restrictive already. Therefore the additional condition that $\bmu{B}$ has full row rank is not massively hurting the applicability. Thus from now on it is assumed that the control can directly influence each state or more precisely that for the control matrix $\bmu{B} = \bmu{I}$ is assumed.
+
+
 Show the noise is in fact improved
 Fast signals
 All the problems of the previous methods

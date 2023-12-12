@@ -21,7 +21,7 @@ While this approach comes with the drawback of fixing the control matrix $\bmu{B
 In the following sections the simulation of dynamic systems using \acp{SNN} is derived and explained. This serves as the a basic building block for the attempted method on how to solve our target set out in \cref{sec:goal}. We begin with the formal derivation of the network dynamics.
 
 \subsection{Balanced network simulation}\label{ssec:balanced_network_sim}
-
+\todo[inline]{Insert graphical illustration. Do it in a later part.When explaining the network itself.}
 This section follows the derivation found in \cite{boerlin_predictive_2013} and \cite{huang_dynamics_2019}.
 The goal is to describe a dynamical system of the form
 \begin{equation}\label{eq:x}
@@ -371,7 +371,7 @@ For learning $\bmu{W}^s$ an adaptive learning approach from \cite{bourdoukan_enf
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale = 0.15]{screenshots/error_feedback_Ws.png}
-	\caption{Schematic of error feedback in the learning of $\bmu{M}$ resp. $\bmu{W}^s$. Taken from \cite{bourdoukan_enforcing_2015}}
+	\caption{Schematic of error feedback in the learning of $\bmu{M}$ resp. $\bmu{W}^s$. Taken from \cite{bourdoukan_enforcing_2015}.}
 	\label{fig:error_feedback_Ws}
 \end{figure}
 For this we consider a "learner" dynamic system of the form
@@ -411,8 +411,6 @@ To convert this learning rule for the system $\bmu{A}$ into a learning rule for 
 \begin{equation}
 	\dot{\bmu{W}}^s \propto \bmu{\Gamma}\dot{\bmu{M}}\bmu{\Gamma}.
 \end{equation}
-Another interpretation of the formulation is in a form of feedback alignment. As the error is feed back into the network via $\bmu{\Gamma}$ (\ref{fig:error_feedback_Ws}), the matrix $\bmu{M}$(and in extension $\bmu{W}^s$) self-aligns to the error along $\bmu{\Gamma}^T$.
+Another interpretation of the formulation is in a form of feedback alignment. As the error is feed back into the network via $\bmu{\Gamma}$ (\cref{fig:error_feedback_Ws}), the matrix $\bmu{M}$(and in extension $\bmu{W}^s$) self-aligns to the error along $\bmu{\Gamma}^T$.
 This has been demonstrated in \cite{lillicrap_random_2016} and shown comparable performance to \ac{BP}.
 \todo[inline]{Is this explanation of feedback alignment even worth keeping in?}
-\todo[inline]{put this below somewhere else.Probably limitations}
-It is important to note that this derivation completely ignores any sort of control matrix $\bmu{B}$ given in a control problem. While this can be a disqualifying property for many systems it is also important to ask how such a matrix could be implemented. Since the complete state of the system is encoded partly in each neuron it is impossible to selectively control certain states. Therefore from now on it is assumed that the control works on each neuron or that the control matrix $\bmu{B} = \bmu{I}$ is the identity matrix.
