@@ -3,8 +3,7 @@
 Due to the networks discrete nature of spikes, the error cannot surpass a certain minimal threshold. This threshold is fixed by the fact that a spike of neuron $i$ produces a constant change in the signal given by the decoding $\bmu{\Gamma}_i$. It is therefore impossible to reach accuracy levels commonly seen with classic control schemes and numerical methods. While it is theoretically possible to achieve arbitrarily small errors by scaling $\bmu{\Gamma}_i$, the error is bound by the spiking threshold  $\frac{\|\bmu{\Gamma}_i\| + \mu}{2}$ and the uniformity of $\bmu{\Gamma}$.\\
 \todo[inline]{add something here maybe? Maybe about relative error or what kind of accuracy we are striving for and how we measure that.}
 
-
-\section{Results on the Simulation from \cref{sec:res_simulation}}
+\section{Results on the Simulation from \cref{sec:simulation}}\label{sec:res_simulation}
 \subsection{Toy Example}
 \begin{figure}[h!]
 	\centering
@@ -146,11 +145,11 @@ The external forces were each offset sinusoidal waves with varying frequency and
 	\label{fig:sim_res_4}
 \end{figure}
 
-\section{Results on the control}
+\section{Results on the control}\label{sec:res_control}
 For the evaluation of the results for the control problem derived in \cref{sec:control} we first note a few important implementational details in order to get useful results. \\
-Afterwards we compare the performance of the two different derivations from \cref{ssec:control_dynamics,ssec:extension} for specific examples as well as their limits.\todo{For example dirac doesnt work,Actually anything with a discontinuity doesnt work???,long simulation times. All for the one with  error.}
+Afterwards we compare the performance of the two different derivations from \cref{ssec:control_dynamics,ssec:extension} for specific examples as well as their limits.\\
 Lastly we take a closer look at the main reason for this system to work and how we can adopt it to our learning problem in \cref{sec:learning}.
-\todo{Mention that the rate stuff is kind of useless unless you want to reduce the number of spikes}
+With our choice of network architecture, robustness against neuron failure and noise has already been tested and verified. To avoid repetition, specific testing into these results is waived.
 \subsection{Implementation details}
 Before any simulation can be run it is important that certain detail in the implementation are set in the correct order for the results to make sense.
 
@@ -269,11 +268,11 @@ Additionally, for the $N=50$ neurons we choose their decoding weights randomly a
 
 \subsubsection{Ideal $\bmu{B}$ and $\bmu{C}$}
 Both methods performed identically well in most test cases with $\bmu{C}$ and $\bmu{B}$ chosen to be the identity matrix. Error levels are limited by the scaling of $\bmu{\Gamma}$ with single spike deviations from the target. \\
-To influence the control behaviour, different parameters can be tuned. Increasing costs $\mu$ and $\nu$ will lead to a increased settling time. Increasing the number of neurons or the number of allowed spikes per neuron will improve the error, especially the immediate increase seen in the top panel of \cref{fig:step_compare}. Lastly, the scale of the rate encoding $\bmu{\Gamma}$ can be tuned to lower the rise time. However this can lead to overshoot, seen in the bottom panel of \cref{fig:step_compare}.\\
+To influence the control behaviour, different parameters can be tuned. Increasing costs $\mu$ and $\nu$ will lead to a increased settling time. Increasing the number of neurons or the number of allowed spikes per neuron will improve the error, especially the immediate increase seen in the top panel of \cref{fig:step_compare}. Lastly, the scale of the rate encoding $\bmu{\Gamma}$ can be tuned to lower the rise time. However this can lead to overshoot, seen in the bottom panel of \cref{fig:step_compare}. In general the rate encoding $\bmu{\Gamma}$ introduced with this approach is mainly used to reduce the amount of spiking in the network. As can be seen in \cref{fig:step_compare} the absence of $\bmu{\Gamma}$ only noticeable in the slower settling time. With purely instantaneous encoding the control signal has to be constructed for each time-step from zero only with spikes. This extensive firing causes quadratic costs $\mu\|\bmu{r}\|^2_2$ to rise and slow down spiking of repeatedly firing neurons. Thanks to a large number of neurons for this problem and low quadratic costs $\mu = 1\cdot10^{-6}$ this is not a problem in the shown example. On the other side the addition of $\bmu{\Gamma}$ brings additional momentum that in case of sudden changes need to be counteracted, seen by the overshoot in \cref{fig:step_compare}.\\
 \begin{figure}
 	\centering
-	\includegraphics[width=\textwidth]{../../plots/Control/compare_step_both methods.pdf}
-	\caption{Step response for simple 2D system and. Both runs are identical except of $\bmu{\Gamma} = 0$(top) and $\bmu{\Gamma} = 100\bmu{\Omega}$. Both approaches performed identically.}
+	\includegraphics[width=\textwidth]{../../plots/Control/compare_step_both_methods.pdf}
+	\caption{Step response for simple 2D system and. Both runs are identical except of $\bmu{\Gamma} = 0$(top) and $\bmu{\Gamma} = 100\cdot\bmu{\Omega}$. Both approaches performed identically.}
 	\label{fig:step_compare}
 \end{figure}
 
@@ -297,7 +296,8 @@ Now as both $\bmu{\hat{x}}$ and $\bmu{x}$ follow the same dynamics, it appears n
 While they both follow the same dynamics, their values may be different. Yet even with tiny differences, $\bmu{c}$ can ruin the control completely.\\
 
 This can be avoided by strictly using $\bmu{c} = \dot{\hat{\bmu{x}}} -\bmu{A}\hat{\bmu{x}}$, though this would render the network into a open-loop controller with all its associated problems.\\
-Moreover, noise in the reference and its derivative can negatively impact performance\todo[inline]{Verify this. Give an example or a proof.}\\
+Moreover, noise in the reference and its derivative can negatively impact performance.\\
+\todo[inline]{Verify this. Give an example or a proof.}
 After careful investigation, the problem from the aforementioned supposed equivalence for $\bmu{c}$.\\
 To illustrate the problem we consider a 1D example.
 \subsubsection{$\hat{\bmu{x}} \neq \bmu{x}$}
@@ -364,7 +364,7 @@ size?? how to find a large controllable system?
 inexact derivatives?
 
 
-\section{Results on the learning}
+\section{Results on the learning}\label{sec:res_combined_learning}
 
 To give a complete examination of results, the rigorous testing required to demonstrate them is not possible. Therefore we restrict our testing to select model problems and only demonstrate a selection of interesting results. Meanwhile testing has been conducted with more and different settings than presented here which will be mentioned occasionally for the purpose of completeness.\\
 For our result evaluations we give a simple test scenario, with which we then evaluate the learning performance for slow and fast learning and combined learning separately. Slow learning alone is skipped as \cite{bourdoukan_enforcing_2015} expect to use it in conjunction to the fast learning. Furthermore, while testing it has been observed that the reliability and performance lack behind when only training is trained.\\
@@ -698,7 +698,7 @@ It is unclear what causes $\bmu{W}^s$ to fail to reach the same accuracy compare
 \todo[inline]{Elaborate. What are other limitations?}
 long sim times
 
-\section{Results of the learned control objective}
+\section{Results of the learned control objective}\label{sec:res_total}
 Now we review the results when we use the learned matrices $\bmu{W}^f$ and $\bmu{W}^s$ together with the control idea of $\bmu{c} = \dot{\hat{\bmu{x}}} - \bmu{A}\hat{\bmu{x}}$.\\
 Since it was not possible to incorporate the control matrix $\bmu{B}$ in the controller network but instead assumed to be the identity matrix, control results are only of limited interest.\\
 Nonetheless we start by looking at looking at a jump response for our model problem we learned earlier.
@@ -717,14 +717,14 @@ To begin we set a sine wave as our target. As can be seen in \cref{fig:all_open_
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/everything/open_sine_base.pdf}
-	\caption{Control results for the ideal and learned matrices $\bmu{W}^f$ and $\bmu{W}^$ on a sine wave target. Top panel shows the $x_1$ state and bottom $x_2$. Matrices were trained for 1000 epochs using the previously studied optimal parameters.}
+	\caption{Control results for the ideal and learned matrices $\bmu{W}^f$ and $\bmu{W}^s$ on a sine wave target. Top panel shows the $x_1$ state and bottom $x_2$. Matrices were trained for 1000 epochs using the previously studied optimal parameters.}
 	\label{fig:all_open_sine_base}
 \end{figure}
 The error shown in \cref{fig:all_open_sine_base} is almost purely due to inaccuracies in $\bmu{W}^s$. If the control is rerun but instead the optimal $\bmu{W}^s$ are used with the learned $\bmu{W}^f$, much improved results can be obtained.\\
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/everything/all_open_sine_base_ideal_Ws.pdf}
-	\caption{Control results from \cref{fig:all_open_sine_base} but with only either $\bmu{W}^f$ or $\bmu{W}^$ trained. Top panel shows the $x_1$ state and bottom $x_2$. Matrices were trained for 1000 epochs using the previously studied optimal parameters.}
+	\caption{Control results from \cref{fig:all_open_sine_base} but with only either $\bmu{W}^f$ or $\bmu{W}^s$ trained. Top panel shows the $x_1$ state and bottom $x_2$. Matrices were trained for 1000 epochs using the previously studied optimal parameters.}
 	\label{fig:all_open_sine_base_ideal_Ws}
 \end{figure}
 In \cref{fig:all_open_sine_base_ideal_Ws} the results show that if the ideal $\bmu{W}^s$ is used, control accuracy is greatly improved. Small error still accumulate over time. These are from the remaining error in $\bmu{W}^f$ that is caused by small errors from training but also because $\bmu{W}^f$ adapts to the potential errors in $\bmu{W}^s$ during training. The opposite configuration yields even worse results, proofing the principal error contribution stems from $\bmu{W}^s$.\\
@@ -734,7 +734,7 @@ This limits the applicability of any learned matrices.
 
 Due to the open loop design the network is susceptible to noise inside the network. Noise in the target trajectory is a lesser problem than noise inherent in the network. The former can be directly translated into the network since we are implicitly working with $\bmu{B} = \mathit{I}_{J\times J}$. Therefore each state is controlled separately and the noise only influence its respective state. The network noise inside the network is impossible to be accounted for due to the lack of feedback. Therefore inherent noise in the network is completely unchecked. The only method to combat this is by scaling the network with extremely small $\bmu{\Gamma}$. Spikes caused by noise are negligible compared to the large number of spikes to represent a signal. The scaling basically converts it to a classic rate network.\\
 
-\subsubsection{Adding Feedback}
+\subsection{Adding Feedback}
 
 In order to build a more robust controller, we aim to add feedback to the control scheme. This is done similarly to the idea of how the feedback of fast and slow weights $\bmu{W}^f$, $\bmu{W}^s$ were introduced.\\
 So far the external input $\bmu{c}$ is computed via
@@ -800,7 +800,7 @@ Due to the feedback, it might be possible to use the matrices generated with ran
 \todo[inline]{Explain how the feedback of the autoencoder gave rise to Ws. Same for Wf. Do it in the explanation of the efficient coding network. So basically the spikes are the input and the filtered spikes is the leaky integration of the input. But first add that the Fast weights made a feedback loop and the afterwards the slow weights as well... }
 
 
-\subsubsection{Limitations}
+\subsection{Limitations}
 Show the noise is in fact improved
 Fast signals
 All the problems of the previous methods

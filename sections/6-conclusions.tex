@@ -23,10 +23,7 @@ All in all, the network is capable of controlling a dynamic system. However the 
 Nonetheless the found accuracy as well as the proven robustness by previous authors given by a discrete spiking neural network in the context of biologically plausible was impressive, fulfilling the set out goal in the beginning.\\
 
 \todo[inline]{Results should be somehow generalizable to LSM and NEF using the paper i dont understand form Emil and Arvind}
-\section{Discussion}
-
-Answer the questions of the problem!!!!\\
-
+\todo[inline]{Is it a limitation or biologic problem that it is not deep?}
 \subsection{Future Work}
 
 There are a plethora of ways to extend upon the work that has been done here. These can be grouped into extending the capabilities, adding more biologic plausibility or topics that merit further investigation.
@@ -51,7 +48,7 @@ Dale's law integration
 \todo[inline]{Keep this in as well?}
 \subsubsection{Investigating}
 \paragraph{Different noise types}
-The previously done study on the input sequences for learning could be extended upon with a more rigorous testing and examination of spiking behaviour. Additonally, different noise types could be considered except of white noise. During testing, Inputs with less smoothing yielded better results. This was attributed to fast chaning signal input causing an increase of error, spiking and subsequent adjustment or parameters. This could be tested further using Blue or violet noise.
+The previously done study on the input sequences for learning could be extended upon with a more rigorous testing and examination of spiking behaviour. Additionally, different noise types could be considered except of white noise. During testing, Inputs with less smoothing yielded better results. This was attributed to fast chaning signal input causing an increase of error, spiking and subsequent adjustment or parameters. This could be tested further using Blue or violet noise.
 \todo[inline]{remove spike imbalance from results and put it here}
 \paragraph{Spiking Imbalance}
 In addition to investigating the noise, spiking behaviour during learning also merits further investigation. During training, the system matrix $\bmu{A}$ had significant influence over the spike distribution over neurons. This caused that at the end of training only a couple of neurons could amount to more than 90\% of total spikes during learning. It was found that eigenvalue grouping appears to be the main factor in the spike distribution.\\
@@ -60,6 +57,7 @@ It is desirable that spikes in training are as distributed as possible due to th
 \todo[inline]{what to put here?}
 \todo[inline]{Write an acknoledgement}
 \todo[inline]{did i write that Gamma still worked but gave a bit worse results?}
+\todo[inline]{Write that there was also a lot of handtuning involved and it makes it unusable}
 \listoftodos
 
 

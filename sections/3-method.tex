@@ -155,11 +155,13 @@ When looking at the decoding at \cref{eq:decoding} we therefore need to scale $\
 With this in mind, all terms that scale with $\frac{1}{N^2}$ are neglected. As a substitute for the neglected voltage term, a generic leak term is added making these \acp{LIF} neurons. The dynamics are therefore
 \begin{equation}\label{eq:simple_sim}
 \begin{aligned}
-	\bmu{\dot{V}} &= -\lambda_V \bmu{V} + \bmu{W^sr} + \bmu{W^fo} + \bmu{\Gamma}^T \bmu{c}\\
+	\bmu{\dot{V}} &= -\lambda_V \bmu{V} + \bmu{W^sr} + \bmu{W^fo} + \bmu{\Gamma}^T \bmu{c} + \sigma_V\bmu{\eta}(t)\\
 	\bmu{W^s} &= \bmu{\Gamma}^T\bmu{(A+\lambda}_d\bmu{I)\Gamma}\\
 	\bmu{W^f} & = -\left(\bmu{\Gamma}^T\bmu{\Gamma} + \mu\bmu{I}\right)
 \end{aligned}
 \end{equation}
+
+Lastly, to complete the derivation, a noise term was added on the voltage equation to simulate the inherent noise found in the brain.
 
 \subsection{Regularization}\label{sssection:regularization}
 
@@ -365,17 +367,24 @@ when a spike is fired.
 
 \subsection{Learning of slow connection weights $\bmu{W}^s$}
 The recurrent weights $\bmu{W}^s$ are called slow because they are in conjunction with the filtered spike train $\bmu{r}(t)$ in \cref{eq:voltage_limit} in contrast to $\bmu{W}^f$ which are reset the neuron voltage after a spike.\\
-For learning $\bmu{W}^s$ an adaptive learning approach from \cite{bourdoukan_enforcing_nodate} is used.\\
+For learning $\bmu{W}^s$ an adaptive learning approach from \cite{bourdoukan_enforcing_2015} is used.\\
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale = 0.15]{screenshots/error_feedback_Ws.png}
+	\caption{Schematic of error feedback in the learning of $\bmu{M}$ resp. $\bmu{W}^s$. Taken from \cite{bourdoukan_enforcing_2015}}
+	\label{fig:error_feedback_Ws}
+\end{figure}
 For this we consider a "learner" dynamic system of the form
 \begin{equation}
 	\dot{\hat{\bmu{x}}} = \bmu{M}\hat{\bmu{x}} + \bmu{c}(t)
 \end{equation}
-where the matrix $\bmu{M}$ changes to allow $\hat{\bmu{x}}$ to follow the same dynamics of $\bmu{x}$ given by \begin{equation}
+where the matrix $\bmu{M}$ changes to allow $\hat{\bmu{x}}$ to follow the same dynamics of $\bmu{x}$ given by
+\begin{equation}\label{eq:teacher}
 	\bmu{\dot{x}} = \bmu{Ax} + \bmu{c}(t).
 \end{equation}
 Over time, $\bmu{M}$ should converge to $\bmu{A}$. To facilitate this, the error $\bmu{e} = \bmu{x} - \hat{\bmu{x}}$ is feed back into the learner system $\dot{\hat{\bmu{x}}} =\bmu{M}\hat{\bmu{x}} + \bmu{c}(t)  + K\bmu{e}$ to direct $\bmu{M}$.
 The adjustment of $\bmu{M}$ in the modified dynamics
-\begin{equation}
+\begin{equation}\label{eq:student}
 	\dot{\hat{\bmu{x}}} = \left(\bmu{M} + K\bmu{I}\right)\hat{\bmu{x}} + \bmu{c}(t) + K\bmu{x}
 \end{equation}
 is then calculated by using minimizing the loss
@@ -383,8 +392,27 @@ is then calculated by using minimizing the loss
 	L = \frac{1}{2}\bmu{e}^T\bmu{e}
 \end{equation}
 with respect to the matrix parameters $M_{ij}$ and changing their value according to
-\begin{equation}
+\begin{equation}\label{eq:learning_rule_Ws}
 	\dot{M}_{ij} = -\frac{\partial L}{\partial M_{ij}} = \left(\frac{\partial \hat{\bmu{x}}}{\partial M_{ij}}\right)^T\bmu{e}.
 \end{equation}
-\todo[inline]{Explain the derivative, or its approximation.}
+The derivative in $\frac{\partial \hat{\bmu{x}}}{\partial M_{ij}}$ is computed under the assumption that $K$ is much larger than the eigenvalues of $\bmu{M}$ and $\bmu{c} = const$. As a simplification we choose $\bmu{c} = \bmu{0}.$ and formerly integrate \cref{eq:teacher} to obtain $\bmu{x} = e^{\bmu{A}t}\bmu{x_0}$. We plug this in \cref{eq:student}, solve again and obtain
+\begin{equation}\label{eq:hat_x_derivative}
+	\hat{\bmu{x}} = \left(\bmu{A} + K\bmu{I} - \bmu{M}\right)^{-1}K e^{\bmu{A}t}\bmu{x_0} + e^{\left(\bmu{M}- K\bmu{I}\right)t}\hat{\bmu{x}}_{\bmu{0}}  \approx e^{\left(\bmu{M}- K\bmu{I}\right)t}\hat{\bmu{x}}_{\bmu{0}}.
+\end{equation}
+The first term is neglected due to the assumption and the inverse approximation
+\begin{equation}
+	\left(K\bmu{I} + \bmu{A} - \bmu{M}\right)^{-1}  = K^{-1}\bmu{I} - K^{-2}\left(\bmu{A} - \bmu{M}\right)^{-1} + \mathcal{O}(\|\bmu{A - \bmu{M}}\|^2).
+\end{equation}
+From this approximation the desired derivative of \cref{eq:learning_rule_Ws} is given by
+\begin{equation}
+	\frac{\partial L}{\partial \bmu{M}}\propto \hat{\bmu{x}}^T\bmu{e}
+\end{equation}
+To convert this learning rule for the system $\bmu{A}$ into a learning rule for the $\bmu{W}^s$ the change of $\bmu{W}^s$ is identified by a change in the underlying dynamical system $\bmu{\Gamma}^T \bmu{M \Gamma}$. The corresponding learning rule becomes
+\begin{equation}
+	\dot{\bmu{W}}^s \propto \bmu{\Gamma}\dot{\bmu{M}}\bmu{\Gamma}.
+\end{equation}
+Another interpretation of the formulation is in a form of feedback alignment. As the error is feed back into the network via $\bmu{\Gamma}$ (\ref{fig:error_feedback_Ws}), the matrix $\bmu{M}$(and in extension $\bmu{W}^s$) self-aligns to the error along $\bmu{\Gamma}^T$.
+This has been demonstrated in \cite{lillicrap_random_2016} and shown comparable performance to \ac{BP}.
+\todo[inline]{Is this explanation of feedback alignment even worth keeping in?}
+\todo[inline]{put this below somewhere else.Probably limitations}
 It is important to note that this derivation completely ignores any sort of control matrix $\bmu{B}$ given in a control problem. While this can be a disqualifying property for many systems it is also important to ask how such a matrix could be implemented. Since the complete state of the system is encoded partly in each neuron it is impossible to selectively control certain states. Therefore from now on it is assumed that the control works on each neuron or that the control matrix $\bmu{B} = \bmu{I}$ is the identity matrix.
