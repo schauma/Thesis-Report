@@ -147,12 +147,11 @@ The external forces were each offset sinusoidal waves with varying frequency and
 
 \section{Results on the control}\label{sec:res_control}
 For the evaluation of the results for the control problem derived in \cref{sec:control} we first note a few important implementational details in order to get useful results. \\
-Afterwards we compare the performance of the two different derivations from \cref{ssec:control_dynamics,ssec:extension} for specific examples as well as their limits.\\
-Lastly we take a closer look at the main reason for this system to work and how we can adopt it to our learning problem in \cref{sec:learning}.
-With our choice of network architecture, robustness against neuron failure and noise has already been tested and verified. To avoid repetition, specific testing into these results is waived.
+Afterwards we compare the performance of the two different derivations from \cref{ssec:control_dynamics,ssec:extension} and briefly discuss the necessary condition for the control schemes to function.
+Lastly we take a closer look at the main reason for the control to work and how we can adopt it to our learning problem in \cref{sec:learning}.
+With the chosen network architecture, robustness against neuron failure and noise has already been tested and verified. To avoid repetition, specific testing into these topics is waived.
 \subsection{Implementation details}
 Before any simulation can be run it is important that certain detail in the implementation are set in the correct order for the results to make sense.
-
 
 \subsubsection{Multiple spikes per timestep}
 Although this also applies for the simulation step in \cref{sec:res_simulation}, its affects are much more pronounced in the control setting.\\
@@ -234,7 +233,7 @@ Furthermore the authors' examples clearly indicate their use of the extra term a
 
 \subsection{Performance Comparison}
 
-To test both methods, compare both schemes with the same control trajectories.\\
+To compare both derivation, we test both schemes with the same control trajectories.\\
 Both methods require to receive the desired state trajectory as input. To test their usability, different size problems as well as configurations of $\bmu{B}$ and $\bmu{C}$ will be tested.\\
 For testing purposes, we set the test system $\bmu{A}$ to
 \begin{equation}
@@ -242,9 +241,9 @@ For testing purposes, we set the test system $\bmu{A}$ to
 \end{equation}
 Additionally, for the $N=50$ neurons we choose their decoding weights randomly and normalize them to 0.01.
 
-\subsubsection{Ideal $\bmu{B}$ and $\bmu{C}$}
-Both methods performed identically well in most test cases with $\bmu{C}$ and $\bmu{B}$ chosen to be the identity matrix. Error levels are limited by the scaling of $\bmu{\Gamma}$ with single spike deviations from the target. \\
-To influence the control behaviour, different parameters can be tuned. Increasing costs $\mu$ and $\nu$ will lead to a increased settling time. Increasing the number of neurons or the number of allowed spikes per neuron will improve the error, especially the immediate increase seen in the top panel of \cref{fig:step_compare}. Lastly, the scale of the rate encoding $\bmu{\Gamma}$ can be tuned to lower the rise time. However this can lead to overshoot, seen in the bottom panel of \cref{fig:step_compare}. In general the rate encoding $\bmu{\Gamma}$ introduced with this approach is mainly used to reduce the amount of spiking in the network. As can be seen in \cref{fig:step_compare} the absence of $\bmu{\Gamma}$ only noticeable in the slower settling time. With purely instantaneous encoding the control signal has to be constructed for each time-step from zero only with spikes. This extensive firing causes quadratic costs $\mu\|\bmu{r}\|^2_2$ to rise and slow down spiking of repeatedly firing neurons. Thanks to a large number of neurons for this problem and low quadratic costs $\mu = 1\cdot10^{-6}$ this is not a problem in the shown example. On the other side the addition of $\bmu{\Gamma}$ brings additional momentum that in case of sudden changes need to be counteracted, seen by the overshoot in \cref{fig:step_compare}.\\
+\subsubsection{\ac{SISO} systems}
+Both methods performed identically well with \ac{SISO} systems. Error levels are limited by the scaling of $\bmu{\Gamma}$ with single spike deviations from the target.\\
+To influence the control behaviour, different parameters can be tuned. Increasing costs $\mu$ and $\nu$ will lead to a increased settling time. Increasing the number of neurons or the number of allowed spikes per neuron will improve the error, especially the immediate increase seen in the top panel of \cref{fig:step_compare}. Lastly, the scale of the rate encoding $\bmu{\Gamma}$ can be tuned to lower the rise time. However this can lead to overshoot, seen in the bottom panel of \cref{fig:step_compare}. In general the rate encoding $\bmu{\Gamma}$ introduced with this approach is mainly responsible to reduce the amount of spiking in the network. As can be seen in \cref{fig:step_compare} the absence of $\bmu{\Gamma}$ only noticeable in the slower settling time. With purely instantaneous encoding the control signal has to be constructed for each time-step from zero only with spikes. This extensive firing causes quadratic costs $\mu\|\bmu{r}\|^2_2$ to rise and slow down spiking of repeatedly firing neurons. Thanks to a large number of neurons for this problem and low quadratic costs $\mu = 1\cdot10^{-6}$ this is not a problem in the shown example. On the other side the addition of $\bmu{\Gamma}$ brings additional momentum that in case of sudden changes needs to be counteracted, seen by the overshoot in \cref{fig:step_compare}.\\
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/Control/compare_step_both_methods.pdf}
@@ -252,32 +251,32 @@ To influence the control behaviour, different parameters can be tuned. Increasin
 	\label{fig:step_compare}
 \end{figure}
 
+In the presence of noise, the control scheme with the direct error performed better. The explicit error term in the voltage equation benefits the compensation of noise in the network, as expected when feedback is available compared to the open control derivation without the direct error term.
 
-\subsubsection{Suboptimal $\bmu{B}$ and $\bmu{C}$}
-However things change when one of the two is chosen differently.\\
-In order for the control schemes to work the necessary condition $\bmu{B}^T\bmu{C}^T \neq 0$\cite{huang_dynamics_2019} has to hold. However the condition has to be understood as $\rank\left(\bmu{B}^T\bmu{C}^T\right) = \rank{C}$. Otherwise certain state variables cannot be controlled. These "invisible states are neglected by the network. This limitation is shared between both methods. Reason behind that is that the matrix $\bmu{B}^T\bmu{C}^T$ blinds the Voltage on projecting the error properly in \cref{eq:control_dyn_begin} and \cref{eq:direct_error_voltage}.\\
-If only $\bmu{B}$ is chosen without full rank while $\bmu{C}$ is, some state of $\bmu{x}$ is moving freely, influenced only by the other states and the system $\bmu{A}$. If on the other hand a specific $\bmu{C}$ is chosen it is important to check $\bmu{B}$ such that $\bmu{B}^T\bmu{C}^T$ is not more rank deficient than each on their own. If however $\bmu{B}$ is full rank but $\bmu{C}$ is not, output $\bmu{y} = \bmu{Cx}$ will not reveal the full state of $\bmu{x}$. So while $\bmu{y}$ appears to follow its respective trajectory, $\bmu{x}$ will not follow the reference trajectory, even though the network received the full state as reference in the first place.\\
-Yet since we are restricted to use $\bmu{B}= \mathit{I}$ due to our learning rule limitations, it is only a secondary problem.\\
-\todo[inline]{Prob rewrite this a bit that we are fine with this constraint. Also the exception with higher order systems (they seem to work just fine)}
-\todo[inline]{also mention that this was observed with the error free approach making it a more interesting option}
-\todo[inline]{the error version was a bit better performing when adding noise. Natural since the direct error term helps out in that regard}
+\subsubsection{Suboptimal $\bmu{B}$, $\bmu{C}$ and \ac{MIMO}}
+Difficulties arise when more complex problems are considered.\\
+In order for the control schemes to work the necessary condition $\bmu{B}^T\bmu{C}^T \neq 0$\cite{huang_dynamics_2019} has to hold. However the condition has to be understood as $\rank\left(\bmu{B}^T\bmu{C}^T\right) = \rank{\bmu{B}}$. Otherwise certain state variables cannot be controlled. These "invisible states" are neglected by the network. This limitation is shared between both methods. Reason behind that is
+that the matrix $\bmu{B}^T\bmu{C}^T$ blinds the Voltage on projecting the error properly in \cref{eq:control_dyn_begin} and \cref{eq:direct_error_voltage}.\\
+If $\bmu{B}^T\bmu{C}^T$ exhibits rank deficiency, certain neurons do not receive the input $\bmu{c}$. They are therefore only affected indirectly in \cref{eq:control_dyn_2} by the spiking of other neurons and not by the target trajectory. This results that either the output trajectory is not tracked in the first place or if the output is tracked, the internal states are moving freely.\\
+To insure the rank condition this restricts the possibilities of $\bmu{B}$ and $\bmu{C}$.
+If $\bmu{B} \in \mathbb{R}^{n\times J}$ and $\bmu{C} \in \mathbb{R}^{m\times n}$ we need to enforce that $m\geq J$. In order for $\bmu{B}^T\bmu{C}^T$ to have full rank $J$, it is necessary that $\bmu{C}^T$ has at least rank $J$ due to
+\begin{equation}
+	\rank\left(\bmu{B}^T\bmu{C}^T\right) \leq \min\left(\rank\left(\bmu{B}^T\right),\rank\left(\bmu{C}^T\right)\right) = \min\left(J,m\right)
+\end{equation}
 
 \subsubsection{Equivalence of $\bmu{\hat{x}}$ and $\bmu{x}$}
-However the direct error method suffers from another problem. The definition of the $\bmu{c}$ is based on the fact that the reference trajectory $\hat{\bmu{x}}$ follows the same dynamics as the controlled system
+However for the direct error method to work it is crucial that the external input $\bmu{c}$ is accurately calculated from the reference by
 \begin{equation}
 	\dot{\hat{\bmu{x}}} = \bmu{A}\hat{\bmu{x}} + \bmu{c}.
 \end{equation}
 This represents an open loop controller without any feedback from the system itself.
 Now as both $\bmu{\hat{x}}$ and $\bmu{x}$ follow the same dynamics, it appears natural that they can be interchanged to allow for feedback. with the actual state present in the network. However in practice plugging this in \cref{eq:direct_error_voltage} can pose problems to the network, even if $\bmu{C}$ and $\bmu{B}$ are chosen ideally.\\
 While they both follow the same dynamics, their values may be different. Yet even with tiny differences, $\bmu{c}$ can ruin the control completely.\\
-
-This can be avoided by strictly using $\bmu{c} = \dot{\hat{\bmu{x}}} -\bmu{A}\hat{\bmu{x}}$, though this would render the network into a open-loop controller with all its associated problems.\\
-Moreover, noise in the reference and its derivative can negatively impact performance.\\
-\todo[inline]{Verify this. Give an example or a proof.}
 After careful investigation, the problem from the aforementioned supposed equivalence for $\bmu{c}$.\\
+While it is possible to apply this equivalence successfully in the error free derivation, the addition of the error term forces the use of the reference.
 To illustrate the problem we consider a 1D example.
 \subsubsection{$\hat{\bmu{x}} \neq \bmu{x}$}
-The second important implementational detail is that concerns the error term in \cref{eq:direct_error_voltage} in \cite{huang_spiking_2019}. After investigating the problem it was found to be an issue with the error term. To illustrate this it is useful to consider their basic example of a scalar system
+The second important detail in implementation concerns the error term in \cref{eq:direct_error_voltage} in \cite{huang_spiking_2019}. After investigating the problem it was found to be an issue with the error term. To illustrate this it is useful to consider their basic example of a scalar system
 \begin{equation}
 \dot{x} = -10x + u\\
 \end{equation}
@@ -303,43 +302,31 @@ We now consider the error term with $e(t) = x-\hat{x}$
 \end{equation}
 Now, let's examine a scenario where the network is falling short of the reference value, leading us to deduce that $e(t)>0$. Consequently, we can conclude that the error term is conflicting with the intended definition of our voltage by inadvertently increasing the voltage of Neuron 1 in the wrong direction while it is Neuron 2 that should increase its voltage.\\
 Due to the minus sign obtained from $\bmu{A} = -10$, the respective projections of the error by $\bmu{\Omega}$ gets flipped leading to an exponential increase in voltage. If $\bmu{c}$ is calculated from the reference trajectory and its derivative, this error is compensated for. However by the erroneous substitution this is no longer the case and the error increases while $\bmu{c}$ does not compensate.\\
-The problem is that the reference $\bmu{x}$ changes on scales that the network cannot resolve. These small changes are amplified by the multiplication of $\bmu{A}$ in \cref{eq:feeback_c} allow to balance the error term. The network state $\bmu{\hat{x}}$ is not accurate enough to resolve this as it's network activity is zero when the simulation is starting.
+The problem is that the reference $\bmu{x}$ changes on scales that the network cannot resolve. These small changes are amplified by the multiplication of $\bmu{A}$ in \cref{eq:feeback_c} allow to balance the error term. The network state $\bmu{\hat{x}}$ is not accurate enough to resolve this e.g. when the simulation is starting and all neuron activity is zero.
 One way to resolve this issue is to artificially set the error to zero if $\|\bmu{A}\|<<\|x\|$. This is possible since in most problems the error term only contributes a negligible amount to the total voltage change. The biggest contribution is from $\bmu{c}$ after which the error is small enough to be ignored directly.\\
 In the error free formulation, the above mentioned issues are no problem. Since there is no direct error in the network, the network state $\hat{\bmu{x}}$ can be substituted instead of the reference without loss of performance.\\
 
-\subsection{Direct error/Feed-Forward}\label{ssec:direct_error}
-The most important insight of the approach in \cref{eq:feeback_c,eq:feedback_c2} is that the signal $\bmu{c}(t)$ is the principal source of control in the system. Moreover it is explicitly calculated from the system $\bmu{A}$ as well as the information of the reference signal and its derivative.\\
-If one considers the output feedback once more and where one does not have access to the target state $\bmu{x}$ but only its output $\bmu{y} = \bmu{Cx}$, both derivations break down. While the direct error approach of \cref{ssec:extension} requires the knowledge of the complete state vector, it makes the incorporation of output feedback superfluous. In the error-free derivation, $\bmu{c}$ is directly calculated from the desired state $\bmu{x}$ without considering $\bmu{C}$.\\
-Instead the feed-forward input $ \bmu{c}$ would need to be defined in terms of $\bmu{y}$ and $\bmu{CA\hat{x}}$. This would eliminate the error term outright as it would now be implicitly part of $\bmu{c}$. The derivation would be similar
-\begin{equation}
-\begin{aligned}
-\bmu{V} &= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{y} - \bmu{\hat{y}}\right) - \lambda_d\mu \bmu{r}\\
-\bmu{\dot{V}} &= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{\dot{\hat{y}}}\right) - \lambda_d\mu \bmu{\dot{r}}\\
-&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{C}\bmu{\dot{\hat{x}}}\right) - \lambda_d\mu \bmu{\dot{r}}\\
-&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{C}(\bmu{A}\bmu{\hat{x}} + \bmu{B}\bmu{u})\right) - \lambda_d\mu \bmu{\dot{r}}\\
-&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{C}(\bmu{A}\bmu{\hat{x}} + \bmu{B}\bmu{u})\right) - \mu \lambda_d\left(-\lambda_d\bmu{r} + \lambda_d\bmu{o}\right)\\
-&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\left(\bmu{\dot{y}} - \bmu{C}(\bmu{A}\bmu{\hat{x}} + \bmu{B}\left(\frac{1}{\lambda_d}\bmu{\Gamma} \bmu{r} + \bmu{\Omega} \bmu{o}\right)\right) - \lambda_d^2\mu \left(-\bmu{r} + \bmu{o}\right)\\
-&= \bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\underbrace{\left(\bmu{\dot{y}} - \bmu{CA\hat{x}}\right)}_{\bmu{c}} + \left(\frac{1}{\lambda_d}\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\bmu{CB\Gamma} + \mu\lambda_d^2\bmu{I} \right)\bmu{r} \nonumber \\
-&\phantom{{}=\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\underbrace{\left(\bmu{\dot{y}} - \bmu{CA\hat{x}}\right)}_{\bmu{c}}} - \left(\bmu{\Omega}^T\bmu{B}^T\bmu{C}^T\bmu{CB\Omega} - \mu\lambda_d^2\bmu{I} \right)\bmu{o}
-\end{aligned}
-\end{equation}
-with the exception that is now the difference of the reference output and the network output instead of the the state. Otherwise the equation is identical to the original derivation. \todo{Should I keep this in? If so where should I put it?}\\
-\todo[inline]{this is messy...and incoherent}
-
-All this supports the idea that the feed-forward inputs are the governing force in the network's performance. Furthermore by the removal of the trajectory and only the use of its derivative show more the characteristics of an open loop controller.\todo{Is that really so?}\\
-The benefit of this approach is that given that using this approach we do not need to know the state in order to track any trajectories but just the output or more specifically the derivative of the state output $y$.\\
 
 
-\subsection{Limitations}
+\subsubsection{Conclusion}
 
-prob noise in the inputs?
-noise in the network
-B'C' = 0 bereits klar. Ist aber staerker als gedacht. "Directly actuated".
-if there is a limit of how many spikes per time interval the magnitude is bound
-size?? how to find a large controllable system?
-inexact derivatives?
+Due to control network's conditions, its most feasibly used in problems without output $\bmu{C}$. Since it is required to supply the full state trajectory, the obstacles arising from $\bmu{C} \neq \bmu{I}$ with respect to the previously mentioned rank of $\bmu{B}^T\bmu{C}^T$ limit the network's applicability.\\
+Nonetheless if the the conditions are met, control performance is within the margin of a single spike away from the target.
+In ideal conditions, both networks perform indistinguishably well. Only in the presence of considerable noise the error term slightly improves the performance.\\
+\todo[inline]{Write that if we ignore B and with the many restrictions we could just skip this network completely and use only the definition of c. This way we could save complexitiy while retaining the control capabilities. In and of itself it is possible to now learn the network for simulation and run the learned network in combination with this network. However this network itself is unclear on how to learn.}
 
-
+\todo[inline]{Somehow restructure the control part. What do i want to say or conclude? only useful for siso? idk}
+\todo[inline]{Maybe add 1 plot. But what kind of plot????}
+\paragraph{Combining 2 network}\label{par:combining-2-network}
+As is, with suitable $\bmu{B}$ and $\bmu{C}$, it is now possible to combine this network with the with the previous simulating network for control. Given our model problem, $\bmu{B} = [0,1]^T$ and $\bmu{C} = \bmu{I}$ the performance is comparable to control of the dynamic system directly. This can be seen successfully applied in \cref{fig:2_connected_control}. However, these results only apply to the analytically computed matrices $\bmu{W}^s$ and $\bmu{W}^f$.  When learned matrices are used, presented in the next section, control quickly deteriorates even with the error feedback present.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Control/2_nets_compare_anal_train.pdf}
+	\caption{Control of our model problem with the controlling and simulating network in series. Latter produces $\bmu{c} = \bmu{Bu}$, fed to the former. Both networks used 50 neurons and analytically computed parameters. Top: Analytically computed matrices. Bottom: Trained matrices from \cref{sec:res_combined_learning}. In blue the networks' output to the target (red).}
+	\label{fig:2_connected_control}
+\end{figure}
+Since efficient tracking is only possible using the analytically calculated matrices $\bmu{W}^f$ and $\bmu{W}^s$, it disqualifies this approach as we aim to use the learned matrices. Additionally, it was not possible to find training rules that would allow the training of the matrices used in the control network.\\
+However, during testing it was found that the governing force in the control is not given by the error term nor the network in general but rather only the definition of $\bmu{c}$. The network itself is primarily based around producing the necessary spikes and rates to return the corresponding control input $\bmu{u}$.
 \section{Results on the learning}\label{sec:res_combined_learning}
 
 To give a complete examination of results, the rigorous testing required to demonstrate them is not possible. Therefore we restrict our testing to select model problems and only demonstrate a selection of interesting results. Meanwhile testing has been conducted with more and different settings than presented here which will be mentioned occasionally for the purpose of completeness.\\
@@ -486,10 +473,6 @@ Lastly, the choice of learning input sequences can be questioned to avoid the im
 	\label{fig:complex_seq}
 \end{figure}
 
-
-
-\todo{Ein beispiel mit groesserem system und eins mit schlechten bedingungen.}
-
 All in all, good approximations of $\bmu{W}^f$ can be learning with the given learning rule, yet the hyper-parameters $p,\alpha^f$ as well as learning period are sensitive to the problem at hand and therefore require hand tuning. Moreover, the shown learning results were obtained with ideal learning conditions.\\
 Learning networks with more neurons or random initialization of $\bmu{W}^f$ complicates the learning phase however good learning results can still be achieved, be it with an increase of learning time.\\
 When accessing the state of training it is crucial to choose appropriate test sequences to reflect different sources of error. This means to force all neurons to spike as well as cutting external input such that the network evolves by itself. Former examines of matrix weights have been learned for all neurons while the latter highlights small errors over time that do not become apparent when external input is dominating. The small errors incurred from suboptimal resets accumulate over time if no external input is present and $\bmu{\Gamma} $, $\bmu{W}^s$ are chosen optimally. Therefore a combination of both presented sequences should be used.\\
@@ -523,8 +506,6 @@ artificially introduce the diagonal term from the analytic solution for $\bmu{W}
 
 \todo{Eigenvalues are again interesting because with smaller eigenvalues we can use  that when the eigenvalues are not changing anymore the approx is ok-good.}
 
-\subsection{Only learning of $\bmu{W}^s$}
-\todo{Skip this since in the origninal paper it is already stated that the slow learning rule only works properly with the fast learning in tandem}
 \subsection{Combined Learning}\label{ssec:combined_learning}
 For this chapter we consider the combined learning performance of slow weights $\bmu{W}^f$ and slow weights $\bmu{W}^s$. We skip the investigation of $\bmu{W}^s$ alone as the authors of the slow emphasize to learn both matrices simultaneously. Indeed, slow weights struggle to converge without learning of $\bmu{W}^f$.\\
 For the investigation of the training of $\bmu{W}^s$ we apply the previously mentioned improvements of $\bmu{W}^f$ too. We start by looking again at our simple system before investigating parameter and input dependencies.\\
@@ -672,31 +653,23 @@ It is unclear what causes $\bmu{W}^s$ to fail to reach the same accuracy compare
 
 \todo[inline]{maybe explain what divergence means for our contexts}
 \todo[inline]{Elaborate. What are other limitations?}
+\todo[inline]{rewrite the conclusion to the changed results in control-results.}
 long sim times
-
+\todo[inline]{In general, give a bit of anayses to all the plots}
 \section{Results of the learned control objective}\label{sec:res_total}
-Now we review the results when we use the learned matrices $\bmu{W}^f$ and $\bmu{W}^s$ together with the control idea of $\bmu{c} = \dot{\hat{\bmu{x}}} - \bmu{A}\hat{\bmu{x}}$.\\
-Since it was not possible to incorporate the control matrix $\bmu{B}$ in the controller network but instead assumed to be the identity matrix, control results are only of limited interest.\\
-Nonetheless we start by looking at looking at a jump response for our model problem we learned earlier.
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=\textwidth]{../../plots/Learning/full_jump_response.pdf}
-%	\caption{Spike distribution for our model problem and $A = -10\bmu{I}$. Cumulative sum of all spikes for each epoch.}
-%	\label{fig:full_comb_jump_response}
-%\end{figure}
-\subsection{Working as a open loop controller}
-To analyse the final block of results we take the trained matrices from \cref{ssec:combined_learning} with the control realization of \cref{ssec:direct_error} that $\bmu{c}$ is the major controlling force. With this we set up a classical simulation as in \cref{sec:simulation} with the external input $\bmu{c}$ defined analogously to \cref{eq:feeback_c}. For the computation we apply our reference state vector as well as its derivative making it a open loop controller without any feedback from the network.\\
-Network parameters are set such that every part is working on the same scale.\\
-\subsubsection{First results}
-We again use our model problem and test different target trajectories with it.\\
-To begin we set a sine wave as our target. As can be seen in \cref{fig:all_open_sine_base}, the aforementioned control using $\bmu{c}$ appears to deliver good results using the optimal weights. Both state trajectories almost perfectly overlap the target. However dynamics quickly diverge due to small imperfections in the learned matrices. With the open loop control, these error slowly add up leading to an almost complete loss of the target trajectory.
+Now we review the results when we use the learned matrices $\bmu{W}^f$ and $\bmu{W}^s$ together with the control idea of $\bmu{c} = \dot{\hat{\bmu{x}}} - \bmu{A}\hat{\bmu{x}}$ in \cref{eq:feeback_c}.\\
+As seen in the previous section, the combination of the 2 networks only yielded good results when the analytical matrices were used. However our goal was to apply the aforementioned training rules.\\
+As noted before, the significant factor of the control was by the definition of $\bmu{c}$, the necessary input to force the network to change similar to the target. If we restrict ourselves to \ac{SISO} systems, we can utilize this finding to set up a single network that combines the control with the simulation using the learned parameters.\\
+This is done by setting up the a network for simulation as in \cref{sec:simulation} but changing the definition of $\bmu{c}$ to \cref{eq:feeback_c}. Likewise to the control network, $\bmu{c}$ is multiplied by $\bmu{B}^T$ to filter only the directly actuatable states. The rest of the network remains unchanged. With the use of $\bmu{c}$, we apply our reference state vector as well as its derivative making it a open loop controller without any feedback from the network.\\
+\subsubsection{Working as a open loop controller}
+To begin we set a sine wave as our target. As can be seen in \cref{fig:all_open_sine_base}, the aforementioned control using $\bmu{c}$ appears to deliver good results using the optimal weights. Both state trajectories almost perfectly overlap the target. However similarly to \cref{par:combining-2-network} dynamics quickly diverge due to small imperfections in the learned matrices. With the open loop control, these error slowly add up leading to an almost complete loss of the target trajectory.
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/everything/open_sine_base.pdf}
 	\caption{Control results for the ideal and learned matrices $\bmu{W}^f$ and $\bmu{W}^s$ on a sine wave target. Top panel shows the $x_1$ state and bottom $x_2$. Matrices were trained for 1000 epochs using the previously studied optimal parameters.}
 	\label{fig:all_open_sine_base}
 \end{figure}
-The error shown in \cref{fig:all_open_sine_base} is almost purely due to inaccuracies in $\bmu{W}^s$. If the control is rerun but instead the optimal $\bmu{W}^s$ are used with the learned $\bmu{W}^f$, much improved results can be obtained.\\
+The error shown in \cref{fig:all_open_sine_base} is almost purely due to inaccuracies in $\bmu{W}^s$. If the control is rerun but instead the optimal $\bmu{W}^s$ are used with the learned $\bmu{W}^f$, greatly improved results can be obtained.\\
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/everything/all_open_sine_base_ideal_Ws.pdf}
@@ -752,7 +725,7 @@ To measure whether the training was able to reproduce the subtraction we calcula
 	\bmu{M^*} = \min_{\bmu{M}} \| \bmu{\Gamma}^T\left(\bmu{M}+\lambda_d\bmu{I}\right)\bmu{\Gamma} - \bmu{W}^s\|_2^2
 \end{equation}
 It shows that in this test case the training was able to resolve the subtraction with a relative error of less than 8\%.\todo[inline]{Idk if this is really correctly written. What I want to say is that after both trainings the subtraction is clearly visible with the off diagonals being off from zero less than 0.023 and the main diagonals being of from an identity matrix by at most 0.075 which is kind of impressive.}
-As can be seen in \cref{fig:all_closed_loop_learned} this is sufficient to lead to almost perfect results as well.
+As can be seen in \cref{fig:all_closed_loop_learned} this is sufficient to lead to almost perfect results as well. The target is tracked with almost identical performance as in \cref{fig:all_closed_feedback_extra_loop}
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/everything/all_closed_loop_learned.pdf}

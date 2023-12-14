@@ -244,7 +244,7 @@ The system in question has the form
 	\bmu{\dot{x}} = \bmu{Ax} + \bmu{Bu}.
 \end{equation}
 The basic definitions of the \ac{SNN} remain the same with rate $\bmu{r}$ as well as decoding weights $\bmu{\Gamma}$. Additionally, \cite{huang_optimizing_2017} defines instantaneous decoding weights $\bmu{\Omega}$ with the same shape as $\bmu{\Gamma}\in \mathbb{R}^{J\times N}$. It is important to note that $J$ does not represent the number of state variables but the number of inputs. The decoding is the same as in \cref{eq:decoding} with the added $\bmu{\Omega}$ giving.
-\begin{equation}
+\begin{equation}\label{eq:control_signal_comp}
 	\bmu{u}(t) = \bmu{\Gamma r} + \bmu{\Omega o}.
 \end{equation}
 The derivation of the network dynamics in \cite{huang_dynamics_2019} is similar to \cite{boerlin_predictive_2013} and the derivation presented above. Differences arise in the computation of the cost function as the spike changes the system to
