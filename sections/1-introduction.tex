@@ -45,7 +45,7 @@ We seek an architecture that lies in between the most accurate biologic spiking 
 Part of the goal is that the user does not have to touch the neural network working underneath the control problem.
 Firstly, we set out to achieve our goal by implementing a \ac{SNN} that allows to simulate, not control, any given linear system with external inputs. With this network in place another \ac{SNN} that acts as the controller will be build and combined with the first. The controller would generate a control signal that would be used as external input to the first returning the new system state to the controller in the process.\\
 Afterwards, we equip the network dedicated to simulation with the ability to learn the given system at hand.\\
-Lastly, we combine the two networks into one in order to enable a spiking learning rule at the cost of having to disregard the input matrix.\\\todo[inline]{Is the last paragraph in the right place here?}
+Lastly, we combine the two networks into one in order to enable a spiking learning rule at the cost of limiting ourselves to \ac{SISO} systems.\\
 
 \section{Outline}
 \todi{make the outline in the end!}

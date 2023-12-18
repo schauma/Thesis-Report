@@ -10,18 +10,15 @@
 The field of \acp{SNN} is under ongoing research. Therefore many different network models and learning approaches have been proposed e.g. \acp{LSM}, REACH\cite{dewolf_spiking_2016}. To follow the idea that every spike contains information, purely rate based spiking networks are ignored as there is evidence that the precise spike timing is relevant in nature\cite{brette_philosophy_2015,putney_precise_2019}.\\
 
 On the other side the use of \ac{HH}'s model is prohibitively complex. Additionally there are no training/learning rules available to solve such a high level problem.\\
-The choice of Efficient coding networks allows us to retain all most of our biologic plausibility requirements while allowing the use of high level learning rules suited to our problem. Since the aim is to learn system dynamics, the \ac{SNN} should mirror this by learning the dynamics instead of a decoder in \acp{LSM}. Moreover the choice of Balanced networks enables us to potentially learn the decoder in addition to the dynamics as well.\\
-
+The choice of Efficient coding networks allows us to retain all most of our biologic plausibility requirements while allowing the use of high level learning rules suited to our problem. Since the aim is to learn system dynamics, the \ac{SNN} should mirror this by learning the dynamics instead of a decoder in \acp{LSM}. Moreover the choice of Balanced networks enables us to potentially learn the decoder in addition to the dynamics as well. Lastly, with the proved properties towards noise and robustness it is optimally suited for our problem.
 \section{Approach}
 The construction of our \ac{SNN} can be separated into several blocks. Firstly, a \ac{SNN} is created for the simulation of a dynamic system with given external inputs.\\
-As a second stage, we derive a second \ac{SNN} that acts as the controller, delivering the relevant control signals to the first network.\\
-With the controller in place, we work on learning the dynamics of the first \ac{SNN} from the ground up. It was not possible to learn the dynamics of the controlling \ac{SNN}. However it is possible to avoid using a dedicated \ac{SNN} to act as a controller. By copying the key controlling behaviour of the control network we are able to control the trained network directly.\\
-While this approach comes with the drawback of fixing the control matrix $\bmu{B}$ to the identity matrix, it allows the whole approach to work without information extra that was not trained before. Moreover the control scheme itself requires some on $\bmu{B}$ itself, making it a acceptable trade-off.\todo[inline]{Does this last paragraph fit here better than a few pages ago?}
+As a second stage, we derive another \ac{SNN} that acts as the controller, delivering the relevant control signals to the first network.\\
+With the controller in place, we work on learning the dynamics of the first \ac{SNN} from the ground up. Unfortunately, it was not possible to learn the dynamics of the controlling \ac{SNN}. However it is possible to avoid using a dedicated \ac{SNN} to act as a controller. By copying the key controlling behaviour of the control network we are able to control the trained network directly.\\
 \section{Simulation of Dynamic systems using \acp{SNN}}\label{sec:simulation}
 In the following sections the simulation of dynamic systems using \acp{SNN} is derived and explained. This serves as the a basic building block for the attempted method on how to solve our target set out in \cref{sec:goal}. We begin with the formal derivation of the network dynamics.
 
 \subsection{Balanced network simulation}\label{ssec:balanced_network_sim}
-\todo[inline]{Insert graphical illustration. Do it in a later part.When explaining the network itself.}
 This section follows the derivation found in \cite{boerlin_predictive_2013} and \cite{huang_dynamics_2019}.
 The goal is to describe a dynamical system of the form
 \begin{equation}\label{eq:x}
@@ -32,7 +29,11 @@ The estimation is done by leaky integration of spike trains $\symbfup{o}(t)$ in
 \begin{equation}\label{eq:x_hat}
 \bmu{\dot{\hat{x}}} = -\lambda_d \bmu{\hat{x}} + \symbfup{\Gamma} \bmu{o}(t).
 \end{equation}
-$\bmu{\Gamma}$ is a given matrix of size $\mathbb{R}^{J\times N}$, $N$ being the number of neurons. This matrix is given as initial and can be optimized by training later on\cite{brendel_learning_2020}.\\
+$\bmu{\Gamma}$ is a given matrix of size $\mathbb{R}^{J\times N}$, $N$ being the number of neurons and given. $\bmu{o}(t)$ is the spike train of all neurons, specifically
+\begin{equation}
+	o_i(t) = \sum_k \delta(t - t^k_i)
+\end{equation}
+for neuron i with spike times at times $t_i^k$.\\
 From \cref{eq:x_hat} it becomes clear that each spike carries an important information for the state vector as each spike in $\bmu{o}(t)$ changes the approximation $\bmu{\hat{x}}$ by some weights of $\bmu{\Gamma}$.
 In addition to the estimate $\bmu{\hat{x}}$ we define a spiking rate variable $\bmu{r}$ following the dynamics of
 \begin{equation}\label{eq:rate}
@@ -126,7 +127,8 @@ The dynamic variable $\bmu{x}$ is tracked by firing spikes in when the defined "
 For negligible quadratic cost $\mu$ the voltage can be understood as measure of the error projected on $\bmu{\Gamma}_i$.
 \subsection{Neuron Voltage}
 As mentioned above, a neuron spikes if it meets the condition \cref{eq:condition}. But so far it is unclear how neuron voltage evolves over time.
-Denote $\bmu{L}$ the the left pseudo-inverse of $\bmu{\Gamma}$ \begin{equation}
+Denote $\bmu{L}$ the the left pseudo-inverse of $\bmu{\Gamma}$
+\begin{equation}
 \bmu{L} = \left(\bmu{\Gamma}\bmu{\Gamma}^T\right)^{-1}\bmu{\Gamma}
 \end{equation}
 such that $\bmu{L}\bmu{\Gamma}^T = \bmu{I}$.\\
@@ -137,7 +139,7 @@ Next, taking the derivative of \cref{eq:voltage} yielding
 Now using the pseudo-inverse to rewrite the voltage equation \cref{eq:voltage} as
 \begin{equation}\label{eq:voltage_2}
 \begin{aligned}
-\bmu{V}(t)&=\bmu{\Gamma}^T(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \bmu{r}(t)\\
+\bmu{V}(t)&=\bmu{\Gamma}^T(\bmu{\hat{x}}(t)-\bmu{x}(t))-\mu \bmu{r}(t)\\
 \bmu{L}\bmu{V}(t)&=(\bmu{x}(t)-\hat{\bmu{x}}(t))-\mu \bmu{L}\bmu{r}(t)\\
 \bmu{x}(t)&=\bmu{L}\bmu{V}(t)  + \hat{\bmu{x}}(t) + \mu \bmu{L}\bmu{r}(t)\\
 \end{aligned}
@@ -161,7 +163,7 @@ With this in mind, all terms that scale with $\frac{1}{N^2}$ are neglected. As a
 \end{aligned}
 \end{equation}
 
-Lastly, to complete the derivation, a noise term was added on the voltage equation to simulate the inherent noise found in the brain.
+Lastly, to complete the derivation, a noise term $\bmu{\eta}$ with scaling factor $\sigma_V$ was added to simulate the inherent noise found in the brain.
 
 \subsection{Regularization}\label{sssection:regularization}
 
@@ -198,7 +200,7 @@ ideally setting the Voltage to $-T_i$. This can be seen when looking at the thre
 \begin{equation}
 T_i =\frac{ \bmu{\|\Gamma}_i\|^2}{2}= \frac{-\text{diag}(\bmu{W^f})}{2}.
 \end{equation}
-The repolarization of the spiking neuron acts as a depolarization or pushing the voltage towards its threshold for neurons with opposing sign. The problem now is that for neurons with the same kernel magnitude the depolarization is larger enough to push this neuron over the threshold. The subsequent spike re-polarizes the neuron but in turn excites the first neuron over its threshold. This back and forth pattern of "ping-ponging" repeats indefinitely.\\\todo[inline]{maybe a picture?}
+The repolarization of the spiking neuron acts as a depolarization or pushing the voltage towards its threshold for neurons with opposing sign. The problem now is that for neurons with the same kernel magnitude the depolarization is larger enough to push this neuron over the threshold. The subsequent spike re-polarizes the neuron but in turn excites the first neuron over its threshold. This back and forth pattern of "ping-ponging" repeats indefinitely.\\
 For the given example above, the threshold is given by 0.5 for both. The neurons' voltages of are identical up to the sign, since they are tracking the error for the same variable. At the time one neurons reaches the threshold of 0.5 the second neuron's voltage is close to -0.5 considering noise (in a perfect system minus the value of the spiking neuron). After the spike is fired, the first neuron is reset to -0.5 stemming from
 \begin{equation}\label{eq:reset}
 \begin{aligned}
@@ -229,11 +231,11 @@ neurons with similar kernel direction but non normalized. In a perfect noise fre
 \section{Control of Dynamic systems using \acp{SNN}}\label{sec:control}
 \subsection{Balanced networks as a controller}
 We now make the step to use the balanced network approach from above as a controller mechanism.\\
-The idea was taken from \cite{huang_optimizing_2017} and is illustrated in \cref{fig:schematic}. With the given reference signal, the network receives the feedback error of the system. The networks spikes are decoded into a control signal which is further fed into the dynamical system.\\
+The idea was adopted from \cite{huang_optimizing_2017} and is illustrated in \cref{fig:schematic}. With the given reference signal, the produced network spikes are decoded into a control signal which is then further fed into the dynamical system.\\
 The system itself is simulated using a common numerical method i.e. explicit Euler. Yet the goal is to capture the entire problem using \acp{SNN}. The control signal $\bmu{u}$ is generated using the an independent \ac{SNN} which is in turn the command $c$ for a separate \ac{SNN} simulating the states with feedback to the controlling \ac{SNN}.
 \begin{figure}
 	\centering
-	\todi{Add figure}
+	\includegraphics[width=\textwidth]{svg-inkscape/schematic_controller_network.pdf}
 	\caption{Schematic to illustrate the use of balanced networks as controllers.}
 	\label{fig:schematic}
 \end{figure}
@@ -241,7 +243,7 @@ The system itself is simulated using a common numerical method i.e. explicit Eul
 The derivation of this method is similar to the one in \cref{sec:simulation}. Names and variables are reused if not stated here.\\
 The system in question has the form
 \begin{equation}\label{eq:contsys}
-	\bmu{\dot{x}} = \bmu{Ax} + \bmu{Bu}.
+	\bmu{\dot{\hat{x}}} = \bmu{A\hat{x}} + \bmu{Bu}.
 \end{equation}
 The basic definitions of the \ac{SNN} remain the same with rate $\bmu{r}$ as well as decoding weights $\bmu{\Gamma}$. Additionally, \cite{huang_optimizing_2017} defines instantaneous decoding weights $\bmu{\Omega}$ with the same shape as $\bmu{\Gamma}\in \mathbb{R}^{J\times N}$. It is important to note that $J$ does not represent the number of state variables but the number of inputs. The decoding is the same as in \cref{eq:decoding} with the added $\bmu{\Omega}$ giving.
 \begin{equation}\label{eq:control_signal_comp}
@@ -265,9 +267,9 @@ where $\bmu{\Gamma}_k$ and $\bmu{\Omega}_k$ correspond to the $k$-th column of $
 	T_i &= \frac{\bmu{\Omega}_i^T\bmu{B}^T\bmu{B\Omega}_i + \nu  + \mu}{2}
 	\label{eq:control_dyn_end}
 \end{align}
-Note that the notation differs in the original paper and the reference signal is denoted by $\bmu{\hat{x}}$ instead of $\bmu{x}$ here and $\bmu{\Omega}_i$ again refers to the $i$-th column of $\bmu{\Omega}$.\todo[inline]{probably make it like the paper. Regardless it should probably be the state reference value in the definition of c and not the network's state}
+Note that the notation differs in the original paper and the reference signal is denoted by $\bmu{\hat{x}}$ instead of $\bmu{x}$ here and $\bmu{\Omega}_i$ again refers to the $i$-th column of $\bmu{\Omega}$.
 \subsection{The instantaneous decoding weights}
-The necessity of instantaneous decoding is necessary otherwise no spiking can occur. In \cref{eq:control_spike_change} the control signal is integrated with the matrix exponential. The problem is that the integral
+The presence of instantaneous decoding is necessary otherwise no spiking can occur. In \cref{eq:control_spike_change} the control signal is integrated with the matrix exponential. The problem is that the integral
 \begin{equation}
 	\lim_{t\longrightarrow 0 } \int_0^t e^{(\bmu{A}+\lambda_d\bmu{I})\zeta}d\zeta = 0
 \end{equation}
@@ -300,13 +302,11 @@ In total this adjustment changes the dynamics of \cref{eq:control_dyn_2} to
 \begin{equation}\label{eq:direct_error_voltage}
 	\bmu{\dot{V}} = -\lambda_V\bmu{V} + \bmu{\Omega}^T \bmu{B}^T\bmu{Ae}(t) + \bmu{\Omega}^T \bmu{B}^T \bmu{c}(t) + \bmu{W^fo} + \bmu{W^sr}.
 \end{equation}
-Important to note is that due to the investigation of the network's limit behaviour in \cite{huang_optimizing_2017}, similarly done in \cref{eq:voltage_limit} and the subsequent neglect of certain terms, changes the definition of $\bmu{W^s}$. In the derivation in \cite{huang_spiking_2019} this is not done and therefore terms remain changing $\bmu{W^s}$'s definition to
+Due to the assumption of \cref{eq:feedback_c2} the derivation changes in two aspects. Firstly, the construction of the pseudo-inverse can be avoided, making the consideration of the limit is rendered obsolete. Instead of eliminating the $\bmu{x}$ it is kept directly in the voltage equation and with the substitution of \cref{eq:feedback_c2}. Without considering the limit, the definition of $\bmu{W}^s$ changes to
 \begin{equation}
 	\bmu{W^s} = -\bmu{\Omega}^T\bmu{B}^T\bmu{B\Gamma} + \mu\bmu{I}.
 \end{equation}
-\todi{add that there is always noise somewhere}
-
-
+As done previously, a white noise process $\bmu{\eta}$ is added to complete the dynamics.
 \section{Learning of network parameters}\label{sec:learning}
 All the methods described above work on the optimally ideal weights for the dynamics. However in nature often new skills or dynamics are learned and not optimally tuned for the problem at hand. In the following chapter the optimally of derived is explained and local learning rules for the weights are introduced. Specifically, the learning rules presented in \cite{bourdoukan_learning_2012,brendel_learning_2020,bourdoukan_enforcing_2015}.
 

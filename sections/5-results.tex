@@ -1,8 +1,10 @@
 \chapter{Results}
+In the following chapter we present the results from implementing the in \cref{c:method} introduced methods in the same order. We start by giving an interpretation of the networks behaviour in simulation with a subsequent parameter study.\\
+Afterwards, the control approach is discussed and both derivations are briefly compared. To that important implementation details are explained to facilitate acceptable performance. It is also illustrated that the network as described acts more as an open loop controller. Control is displayed with both a dynamic system as well as a network as the underlying system to control.\\
+As a next step, the results on the learning are presented and a parameters study is conducted for selected parameters and corresponding values. Also different sequences for learning are considered.\\
+Lastly all of the previous steps are combined in a
 \subsubsection{Acceptable error}
-Due to the networks discrete nature of spikes, the error cannot surpass a certain minimal threshold. This threshold is fixed by the fact that a spike of neuron $i$ produces a constant change in the signal given by the decoding $\bmu{\Gamma}_i$. It is therefore impossible to reach accuracy levels commonly seen with classic control schemes and numerical methods. While it is theoretically possible to achieve arbitrarily small errors by scaling $\bmu{\Gamma}_i$, the error is bound by the spiking threshold  $\frac{\|\bmu{\Gamma}_i\| + \mu}{2}$ and the uniformity of $\bmu{\Gamma}$.\\
-\todo[inline]{add something here maybe? Maybe about relative error or what kind of accuracy we are striving for and how we measure that.}
-
+Due to the networks discrete nature of spikes, any error below the threshold cannot be eliminated. This threshold is fixed by the fact that a spike of neuron $i$ produces a constant change in the signal given by the decoding $\bmu{\Gamma}_i$. Accuracy levels commonly observed with classic control schemes and numerical methods are unattainable due to this restriction. On the other hand, error is also bound from above by the threshold. While it is theoretically possible to achieve arbitrarily small errors by scaling $\bmu{\Gamma}_i$, the error is bound by the spiking threshold  $\frac{\|\bmu{\Gamma}_i\| + \mu}{2}$ and the only considered in the directions projected by $\bmu{\Gamma}$. This will be illustrated later.\\
 \section{Results on the Simulation from \cref{sec:simulation}}\label{sec:res_simulation}
 \subsection{Toy Example}
 \begin{figure}[h!]
@@ -208,14 +210,8 @@ end
 \end{lstlisting}
 In order to retain biologic plausibility, it is necessary to limit the number of spikes fired in one time step. While this is not a problem in most cases when hyper-parameters are properly tuned, it can be an issue if there are sudden jumps or rapid transitions.\\
 
-\subsubsection{Signed Error and Slow Connectivity}
-\paragraph{Neglected Term}
-First to note is that the derivation of $\bmu{W}^s$  in \cref{eq:Ws_wrong} is different from the definition it \cite{huang_optimizing_2017} in two ways. Firstly in the original derivation the rate is scaled by $\lambda_d$ i.e.
-\begin{equation}
-	\hat{r}(t) = \lambda_dr(t).
-\end{equation}
-Substituting this in for the equations in \cref{ssec:control_dynamics} gives the exact same dynamics.\\
-Secondly and more importantly in their derivation consider network in the limit for $N\rightarrow \infty$ neurons. Specifically the derivation arrives at
+\subsubsection{Slow Connectivity Term}
+In their derivation consider network in the limit for $N\rightarrow \infty$ neurons. Specifically the derivation arrives at
 \begin{equation}
 \begin{aligned}
 \dot{\bmu{V}}(t)= & \bmu{\Omega}^T \bmu{B}^T\left(\dot{\hat{\bmu{x}}}(t)-\dot{\bmu{x}}(t)\right)-\mu \lambda_d \dot{\bmu{r}}(t) \\
@@ -228,11 +224,10 @@ Secondly and more importantly in their derivation consider network in the limit 
 where $$\bmu{L} = \left(\bmu{B\Omega\Omega}^T\bmu{B}^T\right)^{−1}\bmu{B\Omega}$$ is the pseudo-inverse of $\left(\bmu{B\Omega}\right)^T$. Our focus is now set on the terms in front of the rate. As \cite{huang_optimizing_2017} and the original derivation in \cite{boerlin_predictive_2013} argue the term $\mu\lambda_d^2$ vanishes in the limit and can therefore be neglected, yielding the above result for $\bmu{W}^s$ above in \cref{eq:Ws_wrong}.\\
 However in the testing it was noticed that this derivation only produces acceptable results for a small range of values for $\lambda_d$, explicitly $\lambda_d \leq 20$. For values above the performance deteriorates rapidly if not a large number of neurons is considered.\\
 After testing the relative importance of terms it was noted that the term $\mu\lambda_d^2$ does improve the performance with a smaller number of neurons significantly compared to the other terms and was therefore added in the results following below.\\
-Furthermore the authors' examples clearly indicate their use of the extra term as well in the calculation of $\bmu{W}^s$. In addition to own tests, this concludes the permanent addition of $\mu\lambda_d^2$.
-\todo{It is possible to show a plot in case}
+Furthermore the authors' examples clearly indicate their use of the extra term as well in the calculation of $\bmu{W}^s$. This, in addition to our testing, confirms the permanent addition of $\mu\lambda_d^2$.
+\todo[inline]{It is possible to show a plot in case.}
 
 \subsection{Performance Comparison}
-
 To compare both derivation, we test both schemes with the same control trajectories.\\
 Both methods require to receive the desired state trajectory as input. To test their usability, different size problems as well as configurations of $\bmu{B}$ and $\bmu{C}$ will be tested.\\
 For testing purposes, we set the test system $\bmu{A}$ to
@@ -313,20 +308,9 @@ In the error free formulation, the above mentioned issues are no problem. Since 
 Due to control network's conditions, its most feasibly used in problems without output $\bmu{C}$. Since it is required to supply the full state trajectory, the obstacles arising from $\bmu{C} \neq \bmu{I}$ with respect to the previously mentioned rank of $\bmu{B}^T\bmu{C}^T$ limit the network's applicability.\\
 Nonetheless if the the conditions are met, control performance is within the margin of a single spike away from the target.
 In ideal conditions, both networks perform indistinguishably well. Only in the presence of considerable noise the error term slightly improves the performance.\\
-\todo[inline]{Write that if we ignore B and with the many restrictions we could just skip this network completely and use only the definition of c. This way we could save complexitiy while retaining the control capabilities. In and of itself it is possible to now learn the network for simulation and run the learned network in combination with this network. However this network itself is unclear on how to learn.}
-
 \todo[inline]{Somehow restructure the control part. What do i want to say or conclude? only useful for siso? idk}
 \todo[inline]{Maybe add 1 plot. But what kind of plot????}
-\paragraph{Combining 2 network}\label{par:combining-2-network}
-As is, with suitable $\bmu{B}$ and $\bmu{C}$, it is now possible to combine this network with the with the previous simulating network for control. Given our model problem, $\bmu{B} = [0,1]^T$ and $\bmu{C} = \bmu{I}$ the performance is comparable to control of the dynamic system directly. This can be seen successfully applied in \cref{fig:2_connected_control}. However, these results only apply to the analytically computed matrices $\bmu{W}^s$ and $\bmu{W}^f$.  When learned matrices are used, presented in the next section, control quickly deteriorates even with the error feedback present.\\
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{../../plots/Control/2_nets_compare_anal_train.pdf}
-	\caption{Control of our model problem with the controlling and simulating network in series. Latter produces $\bmu{c} = \bmu{Bu}$, fed to the former. Both networks used 50 neurons and analytically computed parameters. Top: Analytically computed matrices. Bottom: Trained matrices from \cref{sec:res_combined_learning}. In blue the networks' output to the target (red).}
-	\label{fig:2_connected_control}
-\end{figure}
-Since efficient tracking is only possible using the analytically calculated matrices $\bmu{W}^f$ and $\bmu{W}^s$, it disqualifies this approach as we aim to use the learned matrices. Additionally, it was not possible to find training rules that would allow the training of the matrices used in the control network.\\
-However, during testing it was found that the governing force in the control is not given by the error term nor the network in general but rather only the definition of $\bmu{c}$. The network itself is primarily based around producing the necessary spikes and rates to return the corresponding control input $\bmu{u}$.
+
 \section{Results on the learning}\label{sec:res_combined_learning}
 
 To give a complete examination of results, the rigorous testing required to demonstrate them is not possible. Therefore we restrict our testing to select model problems and only demonstrate a selection of interesting results. Meanwhile testing has been conducted with more and different settings than presented here which will be mentioned occasionally for the purpose of completeness.\\
@@ -486,7 +470,6 @@ When looking at raster plot in the middle panel of \cref{fig:Wf_learned_spikes} 
 	\caption{Top panel: Relative Spike Difference between the network with $L_2$ costs added to $\bmu{W}^f$ after learning and no addition. Error is given in multiples of decoder norm $\|\bmu{\Gamma}_i\|_2$. Middle panel: Raster spiking plot of $N=50$ neurons after simulation without the $L_2$ costs added afterwards. Bottom panel: Raster plot with costs added. Both matrices were trained for 1000 epochs with identical settings and received a scaled sin wave as external stimulus $\bmu{c}$. For these simulations, noise terms during training and simulation have been disabled.}
 	\label{fig:Wf_learned_spikes}
 \end{figure}
-\todo[inline]{Redo the plot such that the y axis is not cut}
 This is biologically implausible. When using the adapted learning rule of \cref{eq:Wf_learning_rule_improved} other problems arise.\\
 As noted in the supplementary of \cite{brendel_learning_2020}, this particular learning rule does not learn the optimal weights but the optimal structure. As such it is therefore only a qualitative learning of the $\bmu{W}^f$. The scaling factor is now known a priori. The different scale of $\bmu{W}^f$ is detrimental to the networks convergence. In test no parameter set was found that mitigated this.\\
 It is therefore mandatory to allow the Feed-Forward $\bmu{\Gamma}$ weights to adjust i.e they are learned as well. With Feed-Forwards also scaling over the course of training allows the different scales to balance out.\\
@@ -502,9 +485,7 @@ It is important to note that all the above testing was conducted only on the ori
 This lack of convergence, the sensitive hand-tuning of the scaling parameters for $\bmu{W}^f$ and $\bmu{\Gamma}$ already without the training of $\bmu{W}^s$, the adoption of the improved learning rule \cref{eq:Wf_learning_rule_improved} was rejected.\\
 Instead, to reestablish a more plausible spiking behaviour we
 artificially introduce the diagonal term from the analytic solution for $\bmu{W}^f$. Since the first learning rule learns is approaching the $\bmu{W}^f = \bmu{\Gamma}^T\bmu{\Gamma}$ the addition is the most convenient way to reach our target ideal matrix $\bmu{W}^f = \bmu{\Gamma}^T\bmu{\Gamma} + \mu\mathbf{I}$.While this addition is biologically implausible itself\todo[inline]{Is it really? Could it be maybe somehow plausible?} we get more plausible spiking behaviour with little to no performance impact in return. The change in spiking behaviour can be seen in \cref{fig:Wf_learned_spikes} bottom panel.\\
- In comparison to the ideal network, both simulations performed well with an absolute error less than 0.1 compared the optimum. The dynamics between both networks also differ only marginally. In the top panel the differences in networks dynamics are displayed by the relative difference of spikes. For each spike of neuron $i$, the output signal shifts by $\bmu{\Gamma}_i$ as it is added to the spike train. From the top panel of \cref{fig:Wf_learned_spikes} it can be seen that the differences between both simulations were never more then 3 spikes different from each other.\todo[inline]{Is this saying smth? Maybe the absolute error is better?}
-
-\todo{Eigenvalues are again interesting because with smaller eigenvalues we can use  that when the eigenvalues are not changing anymore the approx is ok-good.}
+ In comparison to the ideal network, both simulations performed well with an absolute error less than 0.1 compared the optimum. The dynamics between both networks also differ only marginally. In the top panel the differences in networks dynamics are displayed by the relative difference of spikes. For each spike of neuron $i$, the output signal shifts by $\bmu{\Gamma}_i$ as it is added to the spike train. From the top panel of \cref{fig:Wf_learned_spikes} it can be seen that the differences between both simulations were never more then 3 spikes different from each other.
 
 \subsection{Combined Learning}\label{ssec:combined_learning}
 For this chapter we consider the combined learning performance of slow weights $\bmu{W}^f$ and slow weights $\bmu{W}^s$. We skip the investigation of $\bmu{W}^s$ alone as the authors of the slow emphasize to learn both matrices simultaneously. Indeed, slow weights struggle to converge without learning of $\bmu{W}^f$.\\
@@ -574,22 +555,21 @@ Firstly we note the general framing of our learning. So far we have used the com
 \paragraph{Gaussian noise and smoothing}
 \begin{figure}
 	\centering
-	\includegraphics[width=\textwidth]{../../plots/Learning/combined_learning_smoothness.pdf}
+	\includegraphics[width=\textwidth]{../../plots/Learning/different_noise.pdf}
 	\caption{Illustration of smoothing with $\sigma$ changing in the kernel. F.l.t.r $\sigma = \begin{Bmatrix}
-		6 & 60 & 600\end{Bmatrix}$. Plots show only the first 10\% of a learning epoch for visibility.}
+		6,60,600\end{Bmatrix}$. Plots show only the first 10\% of a learning epoch for visibility.}
 	\label{fig:generate_input_seq}
 \end{figure}
 \todo[inline]{integrate the above figure in the text!}
-The current setup of learning is based on a sequence $\bmu{v}$ of Gaussian noise that is generated for each epoch. One sequence is 100000 timesteps long and each gets convoluted by a exponential kernel to obtain $\bmu{c}$. The standard deviation for $w$ was chosen tight to allow for rapid movement of $\bmu{c}$ allowing for great variety which drives the error and subsequently the learning of $\bmu{W}^s$.\\
+The current setup of learning is based on a sequence $\bmu{v}$ of Gaussian noise that is generated for each epoch. One sequence is 100000 timesteps long and each gets convoluted by a exponential kernel to obtain $\bmu{c}$. Different standard deviations $\sigma$ for smoothing are visualized in \cref{fig:generate_input_seq}. The all runs, the standard deviation for $w$ was chosen $\sigma = 6$ to allow for rapid movement of $\bmu{c}$ allowing for great variety which drives the error and subsequently the learning of $\bmu{W}^s$.\\
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/Learning/combined_learning_smoothness.pdf}
 	\caption{Learning results for different smoothing grades of $\bmu{c}$. Smoothing is governed by the std. dev. $\sigma$ of the exponential kernel. Top and bottom panel shows the largest rel. dev. of $\bmu{W}^f$ and $\bmu{W}^s$ respectively. Middle panel shows the absolute error. Trained was for 1000 epochs.}
 	\label{fig:combined_learning_smoothness}
 \end{figure}
-This can be seen in \cref{fig:combined_learning_smoothness}. For $\sigma = 6$, a tiny smoothing window, the networks shows the best results with an maximum absolute error of $0.03$ which is within one spike difference from the ideal with the given setup. The second best option is for $\sigma = 60$ with double the error of $\sigma = 6$. Also in the convergence of both $\bmu{W}^f$ and $\bmu{W}^s$ the least amount of smoothing appears to yield the best results. Though this is heavily depending on the signal that the network is being tested with.
+This can be seen in \cref{fig:combined_learning_smoothness}. For $\sigma = 6$, a tiny smoothing window, the networks shows the best results with an maximum absolute error of $0.03$ which is within one spike difference from the ideal with the given scaling of $\bmu{\Gamma}$. The second best option is for $\sigma = 60$ with double the error of $\sigma = 6$. Also in the convergence of both $\bmu{W}^f$ and $\bmu{W}^s$ the least amount of smoothing appears to yield the best results. Though this is heavily depending on the signal that the network is being tested with.
 Moreover difference in error is reduced when tested with different signals $\bmu{c}$ to input. With oscillating input similar to what was used in training the network or larger amplitude $c$, the trials with more smoothing reduce the difference in the error almost completely.\\
-\todo{Figure for illustrating the different smoothing.}
 \paragraph{Alternative Learning inputs forms}
 The importance of sudden movement and therefore the necessity for tiny smoothing becomes apparent when comparatively smooth input sequences are tested. To illustrate this the network is trained with the previous white noise with $\sigma = 60$ and compared to similar magnitude sine and square waves.\\
 To introduce some variability in the sine wave. For each epoch the phase for each input is varied.\\
@@ -609,28 +589,6 @@ Surprisingly the spiking behaviour with the sine wave and the Gaussian noise exh
 	\label{fig:sin_square_bad}
 \end{figure}
 
-\paragraph{Spike firing}
-
-das ungleiche feuern abhanging von A
-die input sequenzen
-das manche neuronen die anderen das feuern stehlen
-warum die anderen sequenzen scheisse sind (fuer Ws)
-Anpassen der Lernsequenz so dass alle neuronen gleich oft feuern
-Finde die anzahl an spikes die man braucht um ausreichend gelernt zu haben
-
-In training, each neuron is fired ideally the same number of times to facilitate evenly distributed training progress. However, when looking at the spike numbers during training this is not the case. In fact, the learned system $\bmu{A}$ is crucial for the spike distribution. This can be seen in \cref{fig:spike_dist}, where the cumulative sum of spikes are added for each epoch on 2 different systems $\bmu{A}$. The crucial difference is that our model problem's eigenvalues are further apart. Generally it was observed that the distance between eigenvalues relative to their absolute values was the determining factor.\\
-The reason of lies in $\bmu{W}^s$. If $\bmu{A}$ exhibits a large difference in its eigenvalues this is reflected in $\bmu{W}^s$. During training, neuron voltages increase more for neurons projecting in the dimension of the large eigenvalue, causing it to spike. This can be seen again in \cref{fig:spike_dist}, where the neurons with the highest spike count
-
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{../../plots/Learning/combined_learning_smoothness.pdf}
-	\caption{Spike distribution for our model problem and $A = -10\bmu{I}$. Cumulative sum of all spikes for each epoch.}
-	\label{fig:spike_dist}
-\end{figure}
-\todo{using less smooth input helps distribute spikes better. Therefore more distributed learning etc.. better }
-
-\todo{Reason? Eigenvalues? or Separation between eigenvalues? Off diagonals in the eigenvalues?}
-
 \subsubsection{Random init of matrices}\label{sssec:rand_init}
 As we have done in the section \cref{ssec:Wf_res}, results so far have only considered optimal conditions for learning. In light of more challenging conditions, especially the initialization of $\bmu{W}^f$ and $\bmu{W}^s$ to zero is a significant aide towards the learning and network performance.\\
 To test the influence of initial weights in both matrices we initialize the matrices with random numbers scaled to the appropriate range of $\bmu{W}^f$ and $\bmu{W}^f$ respectively.\\
@@ -642,7 +600,7 @@ Thus, $\bmu{W}^s$ has massive influence on $\bmu{W}^f$. This can also be seen wh
 This shows that $\bmu{W}^s$ influences $\bmu{W}^f$ to adapt to the (wrong) structure of itself. Hence it is advisable to only allow noise to impact $\bmu{W}^f$. While this notion deviates from biologic plausibility since noise is inherent to any system and connectivities between neurons are not nullified at when learning commences, this is an manageable restriction for the sake of usable results.
 
 \subsubsection{Limitations}
-Limitations in the learning of $\bmu{W}^s$ arise when the eigenvalues of $\bmu{A}$ have positive real parts. For purely imaginary eigenvalues, results depend on the magnitude of the imaginary part. For increasing imaginary parts the matrices converge to the correct structure be it not the correct magnitude. This can be combatted by tuning of hyperparameters though it depends on the $\bmu{A}$, making it infeasible for wide range use. Without tuning, the error remains high and results unusable.\\
+Limitations in the learning of $\bmu{W}^s$ arise when the eigenvalues of $\bmu{A}$ have positive real parts. For purely imaginary eigenvalues, results depend on the magnitude of the imaginary part. For increasing imaginary parts the matrices converge to the correct structure be it not the correct magnitude. This can be combatted by tuning of hyper-parameters though it depends on the $\bmu{A}$, making it infeasible for wide range use. Without tuning, the error remains high and results unusable.\\
 The second big limitation comes with the choice of $\bmu{\Gamma}$. During testing, the choice of $\bmu{\Gamma}$ impacted network accuracy. With randomly chosen $\bmu{\Gamma}$ on $\mathit{S}^n$, the network error was too large to be useful This was especially the case when working with higher dimensional systems ($\bmu{J}\geq4$). The necessary accuracy for $\bmu{W}^f$ to yield a functioning network was not learned anymore. Without sufficiently approximated $\bmu{W}^f$, training was incapable to produce acceptable network performance.\\
 Instead, $\bmu{\Gamma}$ was chosen as equidistant points on $\mathit{S}^n$ to have uniform error projection and retain accurate results.\\
 Apart from the choice of $\bmu{\Gamma}$, higher order problems pose a problem for the networks learning. Due to small inaccuracies in training, errors add up in the integration of higher order problems. Especially $\bmu{W}^s$ becomes the major factor in network error.\\
@@ -656,13 +614,58 @@ It is unclear what causes $\bmu{W}^s$ to fail to reach the same accuracy compare
 \todo[inline]{rewrite the conclusion to the changed results in control-results.}
 long sim times
 \todo[inline]{In general, give a bit of anayses to all the plots}
+
 \section{Results of the learned control objective}\label{sec:res_total}
-Now we review the results when we use the learned matrices $\bmu{W}^f$ and $\bmu{W}^s$ together with the control idea of $\bmu{c} = \dot{\hat{\bmu{x}}} - \bmu{A}\hat{\bmu{x}}$ in \cref{eq:feeback_c}.\\
-As seen in the previous section, the combination of the 2 networks only yielded good results when the analytical matrices were used. However our goal was to apply the aforementioned training rules.\\
-As noted before, the significant factor of the control was by the definition of $\bmu{c}$, the necessary input to force the network to change similar to the target. If we restrict ourselves to \ac{SISO} systems, we can utilize this finding to set up a single network that combines the control with the simulation using the learned parameters.\\
-This is done by setting up the a network for simulation as in \cref{sec:simulation} but changing the definition of $\bmu{c}$ to \cref{eq:feeback_c}. Likewise to the control network, $\bmu{c}$ is multiplied by $\bmu{B}^T$ to filter only the directly actuatable states. The rest of the network remains unchanged. With the use of $\bmu{c}$, we apply our reference state vector as well as its derivative making it a open loop controller without any feedback from the network.\\
+
+\subsection{Combining the two networks}\label{par:combining-2-network}
+As is, with suitable $\bmu{B}$ and $\bmu{C}$, it is now possible to combine this network with the with the previous simulating network for control. Given our model problem, $\bmu{B} = [0,1]^T$ and $\bmu{C} = \bmu{I}$ the performance is comparable to control of the dynamic system directly. This can be seen successfully applied in \cref{fig:2_connected_control}. However, these results only apply to the analytically computed matrices $\bmu{W}^s$ and $\bmu{W}^f$.  When learned matrices are used control quickly deteriorates independent of which derivation of control is implemented.\\
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/Control/2_nets_compare_anal_train.pdf}
+	\caption{Control of our model problem with the controlling and simulating network in series. Latter produces $\bmu{c} = \bmu{Bu}$, fed to the former. Both networks used 50 neurons and analytically computed parameters. Top: Analytically computed matrices. Bottom: Trained matrices from \cref{sec:res_combined_learning}. In blue the networks' output to the target (red).}
+	\label{fig:2_connected_control}
+\end{figure}
+
+The error introduced to the system by the learned matrices is too much for the open controller to handle. Thus, a way to mitigate this by using an additional feedback line around the network. To add feedback, we add the error between target and network output to the input $c$ of the control net. In the computation of $\bmu{c}$ we add the reference target $\bmu{x}$ and subtract the network output to construct the error signal. The computation of $\bmu{c}$ changes to
+\begin{equation}
+\bmu{c} = \dot{\bmu{x}} - \bmu{Ax} + \bmu{x} - \hat{\bmu{x}}.
+\end{equation}
+Schematically, this can be seen in \cref{fig:schematic_feedback_control_2_nets}. From this we subtract the network output to construct the error signal.
+\begin{figure}
+	\centering
+
+	\begin{subfigure}{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{svg-inkscape/schematic_controller_network_feedback_2_nets.pdf}
+		\caption{Add extra loop to introduce feedback into the control network.}
+		\label{fig:schematic_feedback_control_2_nets}
+	\end{subfigure}
+	\vfill{1cm}
+	\begin{subfigure}{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../../plots/everything/feedback_2_nets.pdf}
+		\caption{Comparison of control for our model problem with the controlling and simulating network with and without feedback. Both runs used networks 50 neurons with identical parameters. Plots for $x_1$ and $x_2$ separately.}
+		\label{fig:feedback_control_2_nets_error}
+
+	\end{subfigure}
+	\caption{Schematic to the addition of feedback in the in the control network. Additions are highlighted in red }
+\end{figure}
+
+While this improves performance, as seen in \cref{fig:feedback_control_2_nets_error}, the network output is still unusable due to the error.\\
+Thus, efficient tracking is only possible using the analytically calculated matrices $\bmu{W}^f$ and $\bmu{W}^s$ and therefore disqualifies this approach as we aim to use the learned matrices.\\ Additionally, it was not possible to find training rules that would allow the training of the matrices used in the control network, posing further problems to our goal of using learning rules for the entire scheme.\\
+
+\subsection{Merging 2 networks}
+Unfortunately, the use off feedback did not help to achieve acceptable results. It is therefore necessary to make a trade-off between biologic plausibility and control scheme performance.\\
+The alternative option being a combined network, incorporating both control and simulation at the same time.\\
+As highlighted before, the governing force behind the control was not the network but rather only the definition of $\bmu{c}$. The network itself is primarily based around producing the necessary spikes and rates to return the corresponding control input $\bmu{u}$.
+Therefore we construct a single network that handles both the control as well as the dynamic system itself. We define $\bmu{c}$ as
+\begin{equation}
+	\bmu{c} =  \bmu{\dot{x}}-\bmu{Ax}
+\end{equation}
+as before in the control network. In the current state, no control matrix is incorporated in the network which means that the network assumes $\bmu{B} = \bmu{I}$ which will be addressed later.\\
+
 \subsubsection{Working as a open loop controller}
-To begin we set a sine wave as our target. As can be seen in \cref{fig:all_open_sine_base}, the aforementioned control using $\bmu{c}$ appears to deliver good results using the optimal weights. Both state trajectories almost perfectly overlap the target. However similarly to \cref{par:combining-2-network} dynamics quickly diverge due to small imperfections in the learned matrices. With the open loop control, these error slowly add up leading to an almost complete loss of the target trajectory.
+To begin we set a sine wave as our target. As can be seen in \cref{fig:all_open_sine_base}, the aforementioned control using $\bmu{c}$ appears to deliver good results using the optimal weights. Both state trajectories almost perfectly overlap the target. As seen before, similar to \cref{par:combining-2-network}, dynamics quickly diverge due to the imperfections in the learned matrices making it impossible for the open loop to properly control the system, leading to an almost complete loss of the target trajectory. Yet the output shows better tracking than the separate networks.
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/everything/open_sine_base.pdf}
@@ -676,76 +679,98 @@ The error shown in \cref{fig:all_open_sine_base} is almost purely due to inaccur
 	\caption{Control results from \cref{fig:all_open_sine_base} but with only either $\bmu{W}^f$ or $\bmu{W}^s$ trained. Top panel shows the $x_1$ state and bottom $x_2$. Matrices were trained for 1000 epochs using the previously studied optimal parameters.}
 	\label{fig:all_open_sine_base_ideal_Ws}
 \end{figure}
-In \cref{fig:all_open_sine_base_ideal_Ws} the results show that if the ideal $\bmu{W}^s$ is used, control accuracy is greatly improved. Small error still accumulate over time. These are from the remaining error in $\bmu{W}^f$ that is caused by small errors from training but also because $\bmu{W}^f$ adapts to the potential errors in $\bmu{W}^s$ during training. The opposite configuration yields even worse results, proofing the principal error contribution stems from $\bmu{W}^s$.\\
-The main problem is that due to the open loop design very precise system information is necessary. With training, only a perturbed system $\bmu{A}' = \bmu{A} + \bmu{\varepsilon}$ of the system matrix is learned. Without state feedback, control over $\bmu{A}'$ produces different dynamics which cannot be compensated with state feedback.\\
+In \cref{fig:all_open_sine_base_ideal_Ws} the results show that if the ideal $\bmu{W}^s$ is used, control accuracy is greatly improved. Small error still accumulate over time. These are from the remaining error in $\bmu{W}^f$ that is caused by small errors from training but also because $\bmu{W}^f$ adapts to the potential errors in $\bmu{W}^s$ during training. The opposite configuration yields even worse results, proving the principal error contribution stems from $\bmu{W}^s$.\\
+As before, the main problem is that due to the open loop design very precise system information is necessary. With training, only a perturbed system $\bmu{A}' = \bmu{A} + \bmu{\varepsilon}$ of the system matrix is learned. Without state feedback, control over $\bmu{A}'$ produces different dynamics which cannot be compensated without state feedback.\\
 This limits the applicability of any learned matrices.
-\subsubsection{Limitations}
-
-Due to the open loop design the network is susceptible to noise inside the network. Noise in the target trajectory is a lesser problem than noise inherent in the network. The former can be directly translated into the network since we are implicitly working with $\bmu{B} = \mathit{I}_{J\times J}$. Therefore each state is controlled separately and the noise only influence its respective state. The network noise inside the network is impossible to be accounted for due to the lack of feedback. Therefore inherent noise in the network is completely unchecked. The only method to combat this is by scaling the network with extremely small $\bmu{\Gamma}$. Spikes caused by noise are negligible compared to the large number of spikes to represent a signal. The scaling basically converts it to a classic rate network.\\
-\subsection{Adding Feedback}
-
-In order to build a more robust controller, we aim to add feedback to the control scheme. This is done similarly to the idea of how the feedback of fast and slow weights $\bmu{W}^f$, $\bmu{W}^s$ were introduced.\\
-So far the external input $\bmu{c}$ is computed via
+\subsubsection{Adding Feedback}
+In order to build a more robust controller, we add feedback to the control scheme as done before.\\
+Although this can be done identically by adding the error term directly onto c, we can change the formulation here due to only one network being present.
+While we still send add the target trajectory to $\bmu{c}$ we can move the feedback loop directly into the network. This is done similarly like the matrices of fast and slow weights $\bmu{W}^f$, $\bmu{W}^s$ were introduced.\\
+\todo[inline]{did we introduce this before?}
+By using the definition of $\bmu{\hat{x}}$ we can formulate the loop as a matrix given by
 \begin{equation}
-	\bmu{c} = \bmu{Ax} -\dot{\bmu{x}}
+	\bmu{W}^e = \bmu{\Gamma}^T\bmu{\Gamma}
 \end{equation}
-where $\bmu{x}$ is the target. The result is fed to the network. However to more accurately follow our target with state feedback, an additional error term is added to $\bmu{c}$ for potential deviations of the state vector from the target. \cref{fig:schematic_feedback_control} illustrates this idea.
+and add this matrix to the network dynamics as illustrated in \cref{fig:schematic_feedback_control}.
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{svg-inkscape/schematic_closed_loop_controller.pdf}
 	\caption{Add extra loop to introduce feedback into our control scheme. The outside loop can be integrated into the network similarly to $\bmu{W}^s$.}
 	\label{fig:schematic_feedback_control}
 \end{figure}
-We therefore adapt the computation of $\bmu{c}$ to
-\begin{equation}
-	\bmu{c} = \dot{\bmu{x}} - \bmu{Ax} + \bmu{x} - \hat{\bmu{x}}
-\end{equation}
-To measure its effectiveness, we first run the simulation with the extra added loop. In \cref{fig:all_closed_feedback_extra_loop} we can clearly see the network performance is greatly improved. Both trajectories follow their target almost perfectly.\\
-Moreover with the addition of feedback, the robustness against noise has increased significantly during testing.\\
+
+\todo[inline]{We can skip that the loop and the extra matrix work identically....}
+To measure its effectiveness, we run the simulation with the added matrix. In \cref{fig:all_closed_feedback_extra_loop} we can clearly see the network performance is greatly improved. Both trajectories follow their target almost perfectly.\\
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/everything/all_closed_sine_base.pdf}
 	\caption{Control results from \cref{fig:all_open_sine_base} but with the added feedback loop seen in \cref{fig:schematic_feedback_control}.}
 	\label{fig:all_closed_feedback_extra_loop}
 \end{figure}
-\subsubsection{Learning the new feedback loop}
 
-As a next step the outer feedback loop can be integrated in the network. With the given feed-forward/decoder, the loop can be added inside the network by the matrix
-\begin{equation}
-\bmu{W}^{s_2} = \bmu{\Gamma}^T\bmu{\Gamma r}.
-\end{equation}
+
+\subsubsection{Learning the new feedback loop}
 Instead of introducing another matrix that is multiplied by the with the neuron firing rates, we can adjust the definition of $\bmu{W}^s$ to
-\begin{equation}
-\bmu{W}^s = \bmu{\Gamma}^T\left(\bmu{A} + (\lambda_d-1)\mathbf{I} \right)\bmu{\Gamma}.
+\begin{equation}\label{eq:feedback_in_Ws}
+\bmu{W}^s = \bmu{\Gamma}^T\left(\bmu{A} + (\lambda_d-1)\bmu{I} \right)\bmu{\Gamma}.
 \end{equation}
-This matrix can further be learned by the previous training algorithms by subtracting the identity matrix from $\bmu{A}$ before training.\\
+This matrix can further be learned by the previous training algorithm by subtracting the identity matrix from $\bmu{A}$ before training.\\
 We check if the learning of $\bmu{A-I}$ gives similar to results  with the extra loop in \cref{fig:all_closed_feedback_extra_loop}. We retrain our model problem using the identical parameter set as before with the identity matrix subtracted.\\
-To measure whether the training was able to reproduce the subtraction we calculate the inner learned matrix using regression.
+To measure whether the training was able to reproduce the subtraction we calculate the inner matrix of \cref{eq:feedback_in_Ws} using regression.
 \begin{equation}
 	\bmu{M^*} = \min_{\bmu{M}} \| \bmu{\Gamma}^T\left(\bmu{M}+\lambda_d\bmu{I}\right)\bmu{\Gamma} - \bmu{W}^s\|_2^2
 \end{equation}
-It shows that in this test case the training was able to resolve the subtraction with a relative error of less than 8\%.\todo[inline]{Idk if this is really correctly written. What I want to say is that after both trainings the subtraction is clearly visible with the off diagonals being off from zero less than 0.023 and the main diagonals being of from an identity matrix by at most 0.075 which is kind of impressive.}
-As can be seen in \cref{fig:all_closed_loop_learned} this is sufficient to lead to almost perfect results as well. The target is tracked with almost identical performance as in \cref{fig:all_closed_feedback_extra_loop}
+It shows that in this test case the training was able to resolve the subtraction with relative errors between both matrices being less than 8\%.\todo[inline]{Idk if this is really correctly written. What I want to say is that after both trainings the subtraction is clearly visible with the off diagonals being off from zero less than 0.023 and the main diagonals being of from an identity matrix by at most 0.075 which is kind of impressive.}
+In \cref{fig:all_closed_loop_learned} the result of training can be compared to the addition of the extra matrix after training. The final results is sufficiently accurate for almost perfect results. The target is tracked with almost identical performance as in \cref{fig:all_closed_feedback_extra_loop}
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../../plots/everything/all_closed_loop_learned.pdf}
 	\caption{Control results from \cref{fig:all_closed_feedback_extra_loop} but with the added feedback loop learned and integrated into the network directly.}
 	\label{fig:all_closed_loop_learned}
 \end{figure}
+-\todo[inline]{Write that if we ignore B and with the many restrictions we could just skip this network completely and use only the definition of c. This way we could save complexitiy while retaining the control capabilities. In and of itself it is possible to now learn the network for simulation and run the learned network in combination with this network. However this network itself is unclear on how to learn.}
+
+\todo[inline]{Somehow restructure the control part. What do i want to say or conclude? only useful for siso? idk}
+\todo[inline]{Maybe add 1 plot. But what kind of plot????}
+
+\subsubsection{Limitations on $\bmu{B}$}
+All previous results are build on the implicit assumption of $\bmu{B} = \bmu{I}$. Although the results are acceptable, this assumption is prohibitively restrictive.\\
+The easiest way to circumvent this restriction would be to have use the pseudo-inverse  $\bmu{B}^+$. If $\bmu{B}^+$ is available, the computations of network input can be simplified directly to
+\begin{equation}\label{eq:feedback_with_B}
+	\bmu{c} = \bmu{BB}^+\left(\bmu{\dot{x}- Ax}\right)
+\end{equation}
+ignoring feedback. But $\bmu{B}^+$ is often unavailable and biologically it is unrealistic to assume that the brain does matrix inversion. Instead, we restrict ourselves to matrices $\bmu{B}$ such that
+\begin{equation}
+	\bmu{BB}^+ = \bmu{BB}^T,
+\end{equation}
+which can be transformed to
+\begin{equation}
+\begin{aligned}
+	\bmu{BB}^T &= \bmu{BB}^+\\
+			  &= \bmu{B}\left(\bmu{B}^T\bmu{B}\right)^{-1}\bmu{B}^T\\
+			  &\longrightarrow \bmu{B}^T\bmu{B} = \bmu{I}
+\end{aligned}
+\end{equation}
+the condition that the Gram matrix of $\bmu{B}$ is the identity or the columns of $\bmu{B}$ form an orthonormal basis. The pseudo-inverse in \cref{eq:feedback_with_B} can then be replaced by $\bmu{B}^T$.\\
+\todo[inline]{I guess this is more biologically plausible. but how much? Ask arvind}
+
+While this again is a strong limitation, it does increase the applicability of the network. To illustrate the this rerun the previous simulation with $\bmu{B} = [0,1]^T$ in \cref{fig:all_closed_1_net_with_b}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../../plots/everything/1_net_feedback_with_B.pdf}
+	\caption{Control results from \cref{fig:all_closed_feedback_extra_loop} with the input matrix $\bmu{B} =[0,1]^T$.}
+	\label{fig:all_closed_1_net_with_b}
+\end{figure}
+Unfortunately, the addition of $\bmu{B}$ ruins the network performance. This is mainly caused by inaccuracies in $\bmu{W}^s$, as the network shows perfect results in \cref{fig:all_closed_1_net_with_b} when both $\bmu{W}^s$ and $\bmu{W}^f$ (red) or just $\bmu{W}^s$(not shown) is computed analytically.\\
 
 
-\todo[inline]{Rewrite this to sound a bit more professional}
-\todo[inline]{Continue here or write another sentence to the above section.}
-
-\subsubsection{Control with rand init matrices for learing}
-Due to the feedback, it might be possible to use the matrices generated with random initialization from \cref{sssec:rand_init}. However this is not the case. Due to the lack of convergence in $\bmu{W}^f$ the network control cannot compensate. Unfortunately the error in both matrices were too large to yield usable results.\\
+\subsubsection{Control with rand init matrices for learning}
+Even with feedback, it was not possible to use the matrices generated with random initialization from \cref{sssec:rand_init} regardless of the aforementioned problems with the input matrix $\bmu{B}$. Due to the lack of convergence in $\bmu{W}^f$ the network control cannot compensate. Unfortunately the error in both matrices were too large to yield usable results.\\
 \todo[inline]{This is part of the limitations}
 
 
-\todo{Using optimization we can calculate the A that we trained. Maybe we can use this somewhere}
-
-
 \todo[inline]{Explain how the feedback of the autoencoder gave rise to Ws. Same for Wf. Do it in the explanation of the efficient coding network. So basically the spikes are the input and the filtered spikes is the leaky integration of the input. But first add that the Fast weights made a feedback loop and the afterwards the slow weights as well... }
+
 
 
 \subsection{Limitations}
@@ -760,3 +785,16 @@ Big system?
 A plot with different strengths of noise? Show how we improved with feedback
 Jumps? Step?
 Plausibility??
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\todo[inline]{The limits below were from an earlier subsubsection. Build them together into one}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\todo[inline]{Start introducing the single network idea}
+
+\todo[inline]{Continue here or write another sentence to the above section.}
+\todo[inline]{Rewrite this to sound a bit more professional}
+\todo[inline]{Accuracy of Ws is a limitation}
+Due to the open loop design the network is susceptible to noise inside the network. Noise in the target trajectory is a lesser problem than noise inherent in the network. The former can be directly translated into the network since we are implicitly working with $\bmu{B} = \mathit{I}_{J\times J}$. Therefore each state is controlled separately and the noise only influence its respective state. The network noise inside the network is impossible to be accounted for due to the lack of feedback. Therefore inherent noise in the network is completely unchecked. The only method to combat this is by scaling the network with extremely small $\bmu{\Gamma}$. Spikes caused by noise are negligible compared to the large number of spikes to represent a signal. The scaling basically converts it to a classic rate network.\\
