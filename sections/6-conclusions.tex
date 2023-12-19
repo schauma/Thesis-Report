@@ -1,41 +1,29 @@
-\chapter{<Conclusions>}
-Describe the conclusions (reflect on the whole introduction given in Chapter 1).
-
-Discuss the positive effects and the drawbacks.
-
-Describe the evaluation of the results of the degree project.
-
-Describe valid future work.
-
-The sections below are optional but could be added here.
-
+\chapter{Conclusions}\label{c:conclusions}
 
 In the end, we build a controller in three stages to control a linear system. The controller is based on \acp{SNN} using the Efficient balanced coding scheme with biologic plausibility. In this framework the first stage, the simulation, was capable of simulating any given dynamical system using analytically calculated values.\\
-As a second step, a controller was devised to create the control signal $\bmu{u}$. The controller was using the same \ac{SNN} architecture and was supposed to be used in conjunction with the previous stage. The control signal or even the spikes would have been fed to the simulating network. However this idea was dismissed due to its problems in the implementation and function of the controller. Furthermore, the necessary conditions for the controller to work are prohibitively high that a realisation was deemed to only bring marginal benefits. Furthermore the dynamics of the controlling capabilities were predominantly stemming from the definition of the external inputs $\bmu{c}$ instead of the whole network. For control, $\bmu{c}$ acted as a forcing term to the network bridging the necessary input to push the network into following the desired trajectory. This purely open loop design faced the classic issues of open loop designs e.g in aspects of noise. In a separate similar derivation the emerging explicit error term was insignificant in most test cases as well. These limitations in addition to the lack of a conceivable learning rule resulted that only the definition of $\bmu{c}$ was adopted for control.\\
-Lastly, the analytically derived network dynamics were learned with local learning rules. The fast recurrent dynamics were learned by an unsupervised learning rule while the slow dynamics trained by a supervised student-teacher approach. The learning performance was examined and parameters tuned to allowing for a significant improvement in network accuracy for our model problem. Challenges in the learning process were primarily connected to the random initialization of the matrices intended for training, the scaling of learning rate, form of training input sequences and initialization of $\bmu{\Gamma}$. Higher-dimensional problems, in general, were only applicable in specific cases with manual parameter tuning, yielding mixed results overall.\\
-In the last step, the previously learned matrices were run with the simulation build in stage one with the control scheme copied from the approaches in stage two. Due to the open loop design and the inherent perturbations in the learned matrices, the control was failing. With the addition of an extra feedback loop into the network, the definition of $\bmu{c}$ was slightly altered to incorporate error feedback.
-Although the feedback greatly improved performance, the hope it was unable to work on non-zero initialized trained matrices that previously led to divergence even in mere simulation was not fulfilled.\\
-Fortunately, the introduced feedback loop could be integrated the network itself and moreover learned automatically, given the initialization was zero.\\
+As a second step, a controller was devised to create the control signal $\bmu{u}$. The controller was using the same \ac{SNN} architecture to be added in front of the previous stage to generate the necessary control signals. The controller in conjunction with the previous stage allowed for good control of the system dynamics. The control stage requires certain conditions on the control problem to work properly, limiting its applicability.\\
+Furthermore, the dynamics of the control stage were predominantly stemming from the definition of the external inputs $\bmu{c}$ instead of the whole network. For control, $\bmu{c}$ acted as a forcing term to the network bridging the necessary input to push the network into following the desired trajectory. The main objective of the control network was the generation of spikes and subsequent output of the control signal $\bmu{u}$.\\
+The purely open loop design of the control was faced with the common design problems e.g in aspects of noise. In a separate similar derivation the emerging explicit error term was insignificant in combatting these issues. \\
 
-\todo[inline]{is the feeding of the dot x and Ax even biologically plausible. Likely not.... ASK ARVIND}
+Thirdly, the analytically derived network dynamics of stage one were learned with local learning rules. The fast recurrent dynamics were learned by an unsupervised learning rule while the slow dynamics trained by a supervised student-teacher approach. The learning performance was examined and parameters tuned resulting in a significant improvement in network accuracy for our model problem. Challenges in the learning process were primarily connected to the random initialization of the matrices intended for training, the scaling of learning rate, form of training input sequences and initialization of $\bmu{\Gamma}$. Higher-dimensional problems, in general, were only applicable in specific cases with manual parameter tuning, yielding mixed results overall.\\
+In the last step, the previously learned matrices were run with the control scheme. Due to the open loop design and the inherent perturbations in the learned matrices, the control was failing. With the addition of an extra feedback loop into the network, the definition of $\bmu{c}$ was slightly altered to incorporate error feedback.\\
+Error feedback improved results overall, however errors were still unusably high when working with 2 network in series.\\
+Separately, a single network was build incorporating both approaches in one. By copying the control network's definition of $\bmu{c}$, results were comparable to the 2 network approach, this came with the prohibitive restriction of forcing $\bmu{B} = \bmu{I}$. Attempts to enable orthonormal input matrices into the network were possible, though limited by the use of the analytically computed matrices in stage 1. The addition of feedback did not give any improved results.\\
+The main limiting factor is set by inaccuracies in $\bmu{W}^s$. Under the premise that a highly accurate $\bmu{W}^s$ could be learned, either method could bring viable results for control.\\
+Overall, the network and learning rule choices are biologically plausible, although the chosen control scheme as well as the construction of the single network is questionable. Unclear is also the whether plausible learning rules for the control network exist. Furthermore, the computation of $\bmu{c}$ requiring the target state, its derivative and the system matrix itself bring the entire control aspect in question.\\
+All in all the goal of creating a controller for arbitrary systems was missed. Due to limitations in control as well as in learning the use cases for the presented scheme are highly limited if analytically computed matrices are not used. Additionally, the inherent tuning of for different systems makes the approach inviable as a "black box".
 
-\todo{maybe this is the final words section? Think about where to put this}
-All in all, the network is capable of controlling a dynamic system. However the limitations set mostly by the control idea makes the realistic use of this approach impossible. The requirement on the input matrix $\bmu{B} = \bmu{I}$ for the presented approach is fundamentally restrictive and therefore unusable. Meanwhile even when the necessary conditions for control in stage 2 are met, network performance can still be subpar, requiring further investigation.\\
 
-Nonetheless the found accuracy as well as the proven robustness by previous authors given by a discrete spiking neural network in the context of biologically plausible was impressive, fulfilling the set out goal in the beginning.\\
 
-\todo[inline]{Results should be somehow generalizable to LSM and NEF using the paper i dont understand form Emil and Arvind}
-\todo[inline]{Is it a limitation or biologic problem that it is not deep?}
-\subsection{Future Work}
-
+\section{Future Work}
 There are a plethora of ways to extend upon the work that has been done here. These can be grouped into extending the capabilities, adding more biologic plausibility or topics that merit further investigation.
 \subsubsection{Extending capabilities}
 \paragraph{Learning of $\bmu{\Gamma}$}
 A straight forward step to expand the learning in our network would be to allow learning of the decoder $\bmu{\Gamma}$ from \cite{brendel_learning_2020}. While this has been briefly attempted here, the rigorous integration and testing is lacking.\\
 In first tests, the combination of feed-forward training and the learning of $\bmu{W}^s$ was unsuccessful and requires further research.
 \paragraph{Learning during Control}
-As it is common in most neural networks, training and testing form 2 different steps in the networks deployment. Also here this is required as training demands a white noise process to enable firing of all neurons. Training with non-zero mean signals, e.g already a desired reference trajectory in a control setting, could enable the network to adopt to changing a changing environment and greatly improve its capabilities. With a combination feed-forward learning and training non-whitened input using the covariance matrix $\bmu{\Sigma} = \text{cov}(\bmu{x},\bmu{x})$ and recentering the input $\bmu{x
-}_c = \bmu{x} - <x>$ by its mean seen in \cref{vertechi_unsupervised_2014} could show interesting results.\\
+As it is common in most neural networks, training and testing form 2 different steps in the networks deployment. Also here this is required as training demands a white noise process to enable firing of all neurons. Training with non-zero mean signals, e.g already a desired reference trajectory in a control setting, could enable the network to adopt to changing a changing environment and greatly improve its capabilities. With a combination feed-forward learning and training non-whitened input using the covariance matrix $\bmu{\Sigma} = \text{cov}(\bmu{x},\bmu{x})$ and recentring the input $\bmu{x
+}_c = \bmu{x} - \langle \bmu{x}\rangle$ by its mean seen in \cite{vertechi_unsupervised_2014} could show interesting results.\\
 Another interesting approach to enable continual learning would be to further integrate the in \cref{sssec:plasticity} mentioned methods of \ac{EWC}. While this has not been researched yet for \acp{SNN}, it could potentially open ways to build networks that can increase in their neuron count or the number of represented states over time. Adding neurons while the network is active and training could give a more adaptable controller, activating "sleeping neurons" if the problem at hand requires more robustness or more precise results.\\
 
 \paragraph{Non-linear systems and Control}
@@ -43,12 +31,12 @@ The restriction to linear function poses limits on the applicability to broader 
 
 
 \subsubsection{Biologic plausibility}
-On the biologic side
-Dale's law integration
-Add synaptic delays and aka delay of synaptic transmissions
+\paragraph{Dale's Law}
+There are some immediate developments available. First of all could be the implementation of Dale's Law.\\
+Following Dale's principle, it is not possible for a neuron to act as an excitatory and inhibitory neuron at the same time. In the network build in this project this has been ignored for simplicity. In order to adhere Dale's law it would be necessary to separate groups of excitatory and inhibitory neurons that interact both with themselves and each other. This would also require an adjustment of the learning rules and can be implemented following the supplementary material of \cite{brendel_learning_2020}.\\
+\paragraph{Synaptic Delays}
+Another increase of biologic plausibility would be the integration of synaptic delays. In this implementation of network architecture a spike is processed within the same time-step and as such changes the network instantaneously.  In \cite{rullan_buxo_poisson_2020}, the authors show that the addition of delays results in the network ping-ponging, the rapidly alternating firing of spikes. They propose a conditionally Poisson firing neurons that allows for synaptic delays while retaining the network accuracy and robustness.\\
 
-
-\todo[inline]{Keep this in as well?}
 \subsubsection{Investigating}
 \paragraph{Different noise types}
 The previously done study on the input sequences for learning could be extended upon with a more rigorous testing and examination of spiking behaviour. Additionally, different noise types could be considered except of white noise. During testing, Inputs with less smoothing yielded better results. This was attributed to fast changing signal input causing an increase of error, spiking and subsequent adjustment or parameters. This could be tested further using Blue or violet noise.
@@ -56,12 +44,11 @@ The previously done study on the input sequences for learning could be extended 
 In addition to investigating the noise, spiking behaviour during learning also merits further investigation. During training, the system matrix $\bmu{A}$ had significant influence over the spike distribution over neurons. This caused that at the end of training only a couple of neurons could amount to more than 90\% of total spikes during learning. It was found that eigenvalue grouping appears to be the main factor in the spike distribution.\\
 It is desirable that spikes in training are as distributed as possible due to the least trained neuron causing the highest error. Therefore this imbalance can cause prolonged training times. But as the system matrix $\bmu{A}$ is known, adapting training input to the system could improve spike distribution and therefore shorter training time.\\
 
-\subsection{Final Words}
-\todo[inline]{what to put here?}
-\todo[inline]{Write an acknoledgement}
-\todo[inline]{did i write that Gamma still worked but gave a bit worse results?}
-\todo[inline]{Write that there was also a lot of handtuning involved and it makes it unusable}
-\listoftodos
+\section{Final Words}
+
+All in all, the network is capable of controlling a dynamic system. However the limitations set mostly by the control concept makes the realistic use of this approach impossible. The requirement on the input matrix $\bmu{B} = \bmu{I}$ for the presented approach is fundamentally restrictive and therefore demands the use of the exact, instead of the learned, matrices. Meanwhile even when the necessary conditions for control in stage 2 are met, network performance can still be subpar, requiring further investigation.\\
+
+Nonetheless the found accuracy as well as the proven robustness by previous authors given by a discrete spiking neural network in the context of biologically plausibility was impressive, fulfilling the set out goal in the beginning.\\
 
 
 

@@ -1,8 +1,5 @@
-\chapter{Methodology}
+\chapter{Methodology}\label{c:method}
 % \thispagestyle{fancy}
-
-\todo[inline]{Research question: Develop a biologically sensible SNN to control any linear dynamical system.}
-
 
 
 \section{Choice of Network architecture}
@@ -341,9 +338,7 @@ Rewriting the equation above and adding a tuning parameter gives the learning ru
 \end{equation}
 It is important to note that this learning rule only becomes active during the firing of a spike. This means that if no spike is fired no learning takes place. To introduce spiking and learning, smoothed  Gaussian white noise if often used for training and inducing firing of all neurons.\\
 The role of $\beta$ is to regulate the amount of spiking by artificially increasing the magnitude of the recurrent weights. Therefore, with increased magnitude neurons are overly hyperpolarized after a spike making it harder to spike again soon, similar how the linear costs above reduce spiking activity.\\
-For $\beta = \frac{1}{2}$ no regulation is present since in the optimal case  $\bmu{W}^f$ will be twice the threshold Voltage.\\\todo[inline]{Keep this in?}
-However values $\beta<\frac{1}{2}$ lead to unstable ping pong patterns described previously.\\
-It is important to note that this learning rule is entirely local and can be categorized as a Hebbian learning rule, as the presynaptic voltage is multiplied by the postsynaptic reset, given by the column in $\bmu{W}^f$.\\
+Choosing $\beta \approx \frac{1}{2}$ will lead to low linear costs at the risk of degrading into ping-ponging patterns described previously. It is important to note that this learning rule is entirely local and can be categorized as a Hebbian learning rule, as the presynaptic voltage is multiplied by the postsynaptic reset, given by the column in $\bmu{W}^f$.\\
 \paragraph{Learning with $\bmu{L_2}$ costs}
 The previous derivation did only incorporate $L1$ costs using the $\beta$ parameter, but does not implement any $L2$ regularization as in the derivation in \cref{sec:simulation}. With L2 costs, the optimal matrix is given by the addition of the quadratic cost term to the diagonal as in \cref{eq:simple_sim}. Since the cost term is added to the matrix $\bmu{W}^f$ and the voltage definition in \cref{eq:voltage} the voltage no longer explicitly tracks the projected error. To reuse the argument about minimizing Voltage fluctuations as a performance measure we therefore add the terms again to cancel out the terms from the previous definition. Specifically, we want to work the true projection error $\bmu{V}_{\text{ex}}$ and therefore compute the loss in \cref{eq:vol_bases_loss} using
 \begin{equation}\label{eq:Wf_learning_rule_improved}
@@ -412,5 +407,4 @@ To convert this learning rule for the system $\bmu{A}$ into a learning rule for 
 	\dot{\bmu{W}}^s \propto \bmu{\Gamma}\dot{\bmu{M}}\bmu{\Gamma}.
 \end{equation}
 Another interpretation of the formulation is in a form of feedback alignment. As the error is feed back into the network via $\bmu{\Gamma}$ (\cref{fig:error_feedback_Ws}), the matrix $\bmu{M}$(and in extension $\bmu{W}^s$) self-aligns to the error along $\bmu{\Gamma}^T$.
-This has been demonstrated in \cite{lillicrap_random_2016} and shown comparable performance to \ac{BP}.
-\todo[inline]{Is this explanation of feedback alignment even worth keeping in?}
+This has been demonstrated in \cite{lillicrap_random_2016} and has shown comparable performance to \ac{BP}.

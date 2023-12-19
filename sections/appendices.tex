@@ -9,10 +9,76 @@
 \newpage
 
 
-\chapter{First Appendix}
-This is only slightly related to the rest of the report
+\chapter{Control Network Parameters}
+\begin{center}
+\begin{tabular}{|>{\bfseries}l|p{8cm}|c|}
+	\hline
+	Parameter & Description & Value \\
+	\hline
+	$N$ & \# Neurons & $50$ \\
+	\hline
+	$\lambda_d$ & Decoder filter & $10$ \\
+\hline
+$\lambda_V$ & Voltage leak & $5$ \\
+\hline
+$\sigma_V$ & Voltage noise scaling & $0.001$ \\
+\hline
+$\mu$ & Quadratic cost & $10^{-6}$ \\
+\hline
+$\nu$ & Linear cost & $0$ \\
+\hline
+$dt$ & Timestep & $10^{-4}$ \\
+\hline
+$TE$ & Simulation time & $10$ \\
+\hline
+$\bmu{\Omega}$ & Instantaneous Decoding weights with normalization per column& $\bmu{\Omega}\in \mathbb{R}^{b\times N} \sim N(0,1) ,\, \|\bmu{\Omega}_i\| = 0.01$\\
+\hline
+$\bmu{\Gamma}$ & Rate Decoding weights & $\bmu{\Gamma} = 0\cdot \bmu{\Omega}$\\
+\hline
+$b$ & \# Columns of $\bmu{B}$ & \\
+\hline
+	% Add more parameters as needed
+\end{tabular}
+\end{center}
 
 
-\chapter{Second Appendix}
-this is the information
-
+\chapter{Learning Parameters}
+\begin{center}
+	\begin{tabular}{|>{\bfseries}l|p{8cm}|c|}
+		\hline
+		Parameter & Description & Value \\
+		\hline
+		$N$ & \# Neurons & $50$ \\
+		\hline
+		$\lambda_d$ & Decoder filter & $10$ \\
+		\hline
+		$\lambda_V$ & Voltage leak & $5$ \\
+		\hline
+		$\beta$ & Linear cost & $0.522$ \\
+		\hline
+		$dt$ & Timestep & $10^{-4}$ \\
+		\hline
+		$TE$ & Simulation time & $10$ \\
+		\hline
+		$K$ & Error Gain & $10$ \\
+		\hline
+		$N_{ep}$ & \# Epochs & $1000$ \\
+		\hline
+		$N_s $ & Steps per epoch & $100000$ \\
+		\hline
+		$\alpha^s$ & $\bmu{W}^s$ learning rate & $0.01$\\
+		\hline
+		$\alpha^f$ & $\bmu{W}^f$ learning rate & $0.005$\\
+		\hline
+		$\bmu{\Gamma}$ & Feed-forward weights Uniform around $S^{J-1}$ columns normalized to $\|\bmu{\Gamma}_i\| = 0.03$ & \\
+		\hline
+		$J$ & \# State variables & \\
+		\hline
+		$p^s$ & Drop rate of $\alpha^s$ & $0.005$\\
+		\hline
+		$p^f$ & Drop rate of $\alpha^f$ & $0.0005$\\
+		\hline
+		$\sigma$ & Std. Dev. for input sequence smoothing & $6$\\
+		\hline
+	\end{tabular}
+\end{center}
