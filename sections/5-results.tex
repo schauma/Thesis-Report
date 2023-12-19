@@ -52,7 +52,7 @@ Alternatively, if the decoding weights can be scaled to let each spike make a sm
 
 In two dimensions the network also allows for a geometric interpretation. For this we let the network simulate a simple leaky integration of inputs as in \cref{eq:leaky_integration_example} but in two dimensions. In \cref{fig:sim_res_simple} we can see that at different times different neurons are activated. The corresponding fires according to the phase plot on the right in \cref{fig:sim_res_simple}.\\
 In detail this can be seen in \cref{fig:sim_res_geometric}. Here a simulation is run with just 4 neurons, covering the two axis. The lines in the bottom right panel show the thresholds of each neuron in the direction of its projected error. As the input $\bmu{c}$ is fed into the net, the error rises while the network remains dormant. This can be seen in the zoom-in section of \cref{fig:sim_res_geometric} in the bottom left. This error is also shown as an orange arrow of originating from the origin in the bottom right panel. The Voltage, and thus the error, rise until the threshold is reached. After a spike is fired, indicated by the spike plot underneath on the left and the crossing of threshold in dark blue, the network output is shifted by adding $\bmu{\Gamma}_i$ to it. This can also be observed, as the error in the bottom left panel moves closer to the origin. With the continuous input $\bmu{c}$ next the threshold of the neuron in green is reached, causing a spike to be fired resetting the error again and adding a jump in negative $y$ direction to the network output. The spike moves the error orthogonal to the threshold line closer to the origin. In networks with more neurons this jump can reduce or increase the errors of other neurons. In the perspective of the neuron with turquoise limit, a spike of the dark blue neuron directly increases its perceived error. If no regularization in terms of $\mu$ or $\nu$ is used, a spike from one side of the threshold would move the signal exactly to the opposite neuron threshold.
-\subsection{Geometry in 2D}
+\subsection{Geometric Interpretation in 2D}
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width = \textwidth]{../../plots/Simulation/2d_simple_spikes.pdf}
@@ -62,7 +62,7 @@ In detail this can be seen in \cref{fig:sim_res_geometric}. Here a simulation is
 
 
 \subsection{Importance of Feedforward weights}
-So far we have not given much attention to decoding/feedforward weights. Yet they play a crucial rule in the performance of our network as seen in \cref{fig:sim_res_3}. Here we simulate again a simple leaky integration as in \cref{eq:leaky_integration_example} however this time in 2D. With the output, in each test we also plot the bounding box of neuron thresholds for the projected error.\\
+So far we have not given much attention to Feedforward weights. Yet they play a crucial rule in the performance of our network as seen in \cref{fig:sim_res_3}. Here we simulate again a simple leaky integration as in \cref{eq:leaky_integration_example} however this time in 2D. With the output, in each test we also plot the bounding box of neuron thresholds for the projected error.\\
 The bounding box of the error is the normal to each of the decoding weights. In \cref{eq:x_hat} the network output gets the $i$th column $\bmu{\Gamma}$ added when the $i$th neuron spikes. From the minimization of the cost we know that the spike of neuron $i$ reduces the error in projected by $\bmu{\Gamma}_i$. If we know imagine the origin of the \cref{fig:sim_res_3} l to always be on top of the true trajectory of $\left[x ,\ y\right]^T$, the network's error is just deviation from the origin.\\
 As can be seen in the \cref{fig:sim_res_3}, the more uniform the decoding weights are distributed, the better the network accuracy. In \cref{fig:sim_perfect_gamma}, it is possible to see the spiking neurons engage after another as the input is alternating. This can also be observed in \cref{fig:sim_random_gamma} although higher irregularity in the spiking can be observed compared to \cref{fig:sim_perfect_gamma}. This is because in the second quadrant of the projected error plot more neurons are more densely packed. Meanwhile in the third and the fourth quadrant approximately 3 neurons cover the bottom limit (if their lines are extended). This cone comprised of the dark blue and yellow neuron engage in rapid alternating firing in order to keep follow the trajectory.\\
 In the last example a particular bad choice of Feedforward weights is displayed. Here, the box is not fully enclosed by neurons, resulting in the network to be completely blind to errors in these directions.
@@ -249,7 +249,7 @@ In the presence of noise, the control scheme with the direct error performed sli
 
 \subsubsection{Suboptimal $\bmu{B}$, $\bmu{C}$ and \ac{MIMO}}
 Difficulties arise when more complex problems are considered.\\
-In order for the control schemes to work the necessary condition $\bmu{B}^T\bmu{C}^T \neq 0$\cite{huang_dynamics_2019} has to hold. However the condition has to be understood as $\rank\left(\bmu{B}^T\bmu{C}^T\right) = \rank{\bmu{B}}$. Otherwise certain state variables cannot be controlled. These "invisible states" are neglected by the network. This limitation is shared between both methods. Reason behind that is
+In order for the control schemes to work the necessary condition $\bmu{B}^T\bmu{C}^T \neq 0$ has to hold\cite{huang_dynamics_2019}. However the condition has to be understood as $\rank\left(\bmu{B}^T\bmu{C}^T\right) = \rank{\bmu{B}}$. Otherwise certain state variables cannot be controlled. These "invisible states" are neglected by the network. This limitation is shared between both methods. Reason behind that is
 that the matrix $\bmu{B}^T\bmu{C}^T$ blinds the Voltage on projecting the error properly in \cref{eq:control_dyn_begin} and \cref{eq:direct_error_voltage}.\\
 If $\bmu{B}^T\bmu{C}^T$ exhibits rank deficiency, certain neurons do not receive the input $\bmu{c}$. They are therefore only affected indirectly in \cref{eq:control_dyn_2} by the spiking of other neurons and not by the target trajectory. This results that either the output trajectory is not tracked in the first place or if the output is tracked, the internal states are moving freely.\\
 To insure the rank condition this restricts the possibilities of $\bmu{B}$ and $\bmu{C}$.
@@ -259,18 +259,17 @@ If $\bmu{B} \in \mathbb{R}^{n\times J}$ and $\bmu{C} \in \mathbb{R}^{m\times n}$
 \end{equation}
 
 \subsubsection{Equivalence of $\bmu{\hat{x}}$ and $\bmu{x}$}
-However for the direct error method to work it is crucial that the external input $\bmu{c}$ is accurately calculated from the reference by
+The derivation of error method to work it is crucial that the external input $\bmu{c}$ is accurately calculated from the reference by
 \begin{equation}
 	\dot{\hat{\bmu{x}}} = \bmu{A}\hat{\bmu{x}} + \bmu{c}.
 \end{equation}
-This represents an open loop controller without any feedback from the system itself.
-Now as both $\bmu{\hat{x}}$ and $\bmu{x}$ follow the same dynamics, it appears natural that they can be interchanged to allow for feedback. with the actual state present in the network. However in practice plugging this in \cref{eq:direct_error_voltage} can pose problems to the network, even if $\bmu{C}$ and $\bmu{B}$ are chosen ideally.\\
+This represents an open loop controller without any feedback from the system itself. Even though the network output is directly part of the equation, the error term is present due to the definition of the voltage. In previous derivations this term was neglected after considering the limit of $N_{\text{neur}}\longrightarrow \infty$.\\
+Now as both $\bmu{\hat{x}}$ and $\bmu{x}$ follow the same dynamics, it appears natural that they can be interchanged to allow for true feedback. When determining the network input $\bmu{c}$, using the actual network output present to compensate any errors. However in practice plugging this in \cref{eq:direct_error_voltage} can pose problems to the network, even if $\bmu{C}$ and $\bmu{B}$ are chosen ideally.\\
 While they both follow the same dynamics, their values may be different. Yet even with tiny differences, $\bmu{c}$ can ruin the control completely.\\
-After careful investigation, the problem from the aforementioned supposed equivalence for $\bmu{c}$.\\
-While it is possible to apply this equivalence successfully in the error free derivation, the addition of the error term forces the use of the reference.
+After careful investigation, the problem stems from the aforementioned supposed equivalence for $\bmu{c}$.\\
 To illustrate the problem we consider a 1D example.
-\subsubsection{$\hat{\bmu{x}} \neq \bmu{x}$}
-The second important detail in implementation concerns the error term in \cref{eq:direct_error_voltage} in \cite{huang_spiking_2019}. After investigating the problem it was found to be an issue with the error term. To illustrate this it is useful to consider their basic example of a scalar system
+\paragraph{$\hat{\bmu{x}} \neq \bmu{x}$}
+The reason for control failure when using the network output instead of the reference was found to lie in the error term of \cref{eq:direct_error_voltage} in \cite{huang_spiking_2019}. To illustrate this it is useful to consider their basic example of a scalar system
 \begin{equation}
 \dot{x} = -10x + u\\
 \end{equation}
@@ -298,9 +297,7 @@ Now, let's examine a scenario where the network is falling short of the referenc
 Due to the minus sign obtained from $\bmu{A} = -10$, the respective projections of the error by $\bmu{\Omega}$ gets flipped leading to an exponential increase in voltage. If $\bmu{c}$ is calculated from the reference trajectory and its derivative, this error is compensated for. However by the erroneous substitution this is no longer the case and the error increases while $\bmu{c}$ does not compensate.\\
 The problem is that the reference $\bmu{x}$ changes on scales that the network cannot resolve. These small changes are amplified by the multiplication of $\bmu{A}$ in \cref{eq:feeback_c} allow to balance the error term. The network state $\bmu{\hat{x}}$ is not accurate enough to resolve this e.g. when the simulation is starting and all neuron activity is zero.
 One way to resolve this issue is to artificially set the error to zero if $\|\bmu{A}\|<<\|x\|$. This is possible since in most problems the error term only contributes a negligible amount to the total voltage change. The biggest contribution is from $\bmu{c}$ after which the error is small enough to be ignored directly.\\
-In the error free formulation, the above mentioned issues are no problem. Since there is no direct error in the network, the network state $\hat{\bmu{x}}$ can be substituted instead of the reference without loss of performance.\\
-
-
+In the error free formulation, the above mentioned issues are less significant. Since there is no direct error in the network, the network state $\hat{\bmu{x}}$ can be substituted instead of the reference. However this substitution breaks down as soon as jumps or discontinuities are present.\\
 
 \subsubsection{Conclusion}
 
@@ -315,8 +312,7 @@ For our result evaluations we give a simple test scenario, with which we then ev
 For the combined training we set out to find the determining  source of error in overall performance. To access we look into different metrics to determine the progress of learning and highlight key parameters for the success of learning the given system, e.g hyper-parameters or learning input sequences.\\
 Lastly we describe the limits of this methods found in different configurations where the learning breaks down.
 
-\subsection{Testing method}
-\subsubsection{Model problem}
+\subsection{Model problem}
 As the first problem we consider a simple 2D toy example given by a damped oscillator of the form
 \begin{equation}\label{eq:toy_example}
 	\bmu{\dot{x}} = \begin{bmatrix}
@@ -324,7 +320,6 @@ As the first problem we consider a simple 2D toy example given by a damped oscil
 	\end{bmatrix}\bmu{x} + \bmu{c}(t).
 \end{equation}
 Since we are only concerned with the learning and neglect the control at this point we give a predefined input $\bmu{c}(t)$ set as a single square impulse. With this trajectory we can observe the systems response to a sudden jump as well as the evolution of the system in the absence of external input. This allows us to see the system's performance in both scenarios of the control problem later on.
-
 
 \subsubsection{Testing}
 To measure the learning performance, we consider different metrics in order to get a complete picture.\\
@@ -341,7 +336,7 @@ However also other measurements can be obtained to assess the networks learning.
 \begin{equation}\label{eq:largest_rel_dev}
 	\Delta^\text{rel} \bmu{W}_{ij} =\left|1 - \frac{\bmu{W}^{\text{learned}}_{ij}}{\bmu{W}^\text{ex}_{ij}}\right|
 \end{equation}
-for each parameter. From there we can measure the maximum relative deviation or compute the sum of of deviations to access the parameter convergence.\\
+for each parameter. From there we can measure the maximum relative deviation or compute the sum of deviations to access the parameter convergence.\\
 Alternatively, since we are working on matrices, we look at the convergence of eigenvalues.\\
 Knowing the optimal values to
 \begin{equation}
@@ -353,7 +348,7 @@ Knowing the optimal values to
 the eigenvalues can be computed.\\
 For $\bmu{W}^f$ we only need to look at the eigenvalues of $\bmu{\Gamma}^T\bmu{\Gamma}$ and shift them by $\mu$. $\bmu{\Gamma}^T\bmu{\Gamma}$ itself only has $J$ non-zero eigenvalues $\text{rank}(\bmu{\Gamma}^T\bmu{\Gamma}) = J$ since $\text{rank}\left(
 \bmu{\Gamma}\right) = J$.\\
-For $\bmu{W}^s$, only J eigenvalues are nonzero since again the $\text{rank}(\bmu{\Gamma}) = J$.\\
+For $\bmu{W}^s$, only J eigenvalues are non-zero since again the $\text{rank}(\bmu{\Gamma}) = J$.\\
 Thus, we access the learning progress by measuring the distance of the learned eigenvalues compared to the true eigenvalues.\\
 
 
@@ -471,12 +466,12 @@ It is therefore mandatory to allow the Feed-Forward $\bmu{\Gamma}$ weights to ad
 Learning of $\bmu{\Gamma}$ was adopted from \cite{brendel_learning_2020} which allowed the network to converge.\\
 After convergence was achieved, the hyper-parameter scaling factors for $\bmu{W}^f$ and $\bmu{\Gamma}$ were tuned.\\
 Goal of the tuning was to empirically find a parameter set of scaling factors s.t. the scale of $\bmu{\Gamma}$ remains unchanged throughout learning and transfer this to the learning with fixed $\bmu{\Gamma}$. However this again led to unusably erroneous results or failure in convergence outright.\\
-The error itself in \cite{brendel_learning_2020} is not calculated using the learned decoder $\bmu{\Gamma}$ (noted as $\bmu{F}$) but the mathematically optimal decoder
+For comparison the error plots itself in \cite{brendel_learning_2020} are not calculated using the learned decoder $\bmu{\Gamma}$ (denoted by $\bmu{F}$) but the mathematically optimal decoder
 \begin{equation}
 \bmu{F}^T = \min_{\bmu{F}^T} \|\hat{\bmu{x}} - \bmu{x}\| = \min_{\bmu{F}^T} \|\hat{\bmu{x}} - \bmu{F}^T\bmu{r}\|
 \end{equation}
 using conventional methods of regression. While the learned decoding weights do converge, they lack behind the presented precision my orders or magnitude.\\
-It is important to note that all the above testing was conducted only on the original example with $A = -\lambda_d\bmu{I} \longrightarrow \bmu{W}^s = \bmu{0}$. With custom $\bmu{A}$ convergence was not achieve with any parameter set or configuration.\\
+All the above testing was conducted only on the original example with $A = -\lambda_d\bmu{I} \longrightarrow \bmu{W}^s = \bmu{0}$. With custom $\bmu{A}$ convergence was not achieve with any parameter set or configuration.\\
 This lack of convergence, the sensitive hand-tuning of the scaling parameters for $\bmu{W}^f$ and $\bmu{\Gamma}$ already without the training of $\bmu{W}^s$, the adoption of the improved learning rule \cref{eq:Wf_learning_rule_improved} was rejected.\\
 Instead, to reestablish a more plausible spiking behaviour we
 artificially introduce the diagonal term from the analytic solution for $\bmu{W}^f$. Since the first learning rule learns is approaching the $\bmu{W}^f = \bmu{\Gamma}^T\bmu{\Gamma}$ the addition is the most convenient way to reach our target ideal matrix $\bmu{W}^f = \bmu{\Gamma}^T\bmu{\Gamma} + \mu\mathbf{I}$. The change in spiking behaviour can be seen in \cref{fig:Wf_learned_spikes} bottom panel.\\
@@ -528,7 +523,7 @@ To do this we again set our learning rate according to \cref{eq:drop} and test d
 \end{figure}
 
 
-\paragraph{K}
+\paragraph{Error Gain}
 The parameter $K$ describes the influence of the error during training. With increasing $K$ the importance of the error and therefore the teacher grows.\\
 As can be seen in \cref{fig:combined_learning_K}, the parameter $K$ only slightly impacts the network's learning. Also in contrast to the derivation in which $K$ is assumed to be large, the smaller the K the better the network performs. Furthermore, for this example values $K>100$ did not give acceptable results. For $K>500$ convergence did not in the $4000$ epochs of learning.\\
 In the middle panel of \cref{fig:combined_learning_K} tested values above $50$ ($K = 100, 200,500,1000$ not all shown) present a bend in the error after $\approx 1050$ epochs and the error starts increasing again. With larger $K$ the bend is more pronounced and occurs after fewer epochs.\\
@@ -564,7 +559,7 @@ The current setup of learning is based on a sequence $\bmu{v}$ of Gaussian noise
 \end{figure}
 This can be seen in \cref{fig:combined_learning_smoothness}. For $\sigma = 6$, a tiny smoothing window, the networks shows the best results with an maximum absolute error of $0.03$ which is within one spike difference from the ideal with the given scaling of $\bmu{\Gamma}$. The second best option is for $\sigma = 60$ with double the error of $\sigma = 6$. Also in the convergence of both $\bmu{W}^f$ and $\bmu{W}^s$ the least amount of smoothing appears to yield the best results. Though this is heavily depending on the signal that the network is being tested with.
 Moreover difference in error is reduced when tested with different signals $\bmu{c}$ to input. With oscillating input similar to what was used in training the network or larger amplitude $c$, the trials with more smoothing reduce the difference in the error almost completely.\\
-\paragraph{Alternative Learning inputs forms}
+\paragraph{Alternative Learning inputs}
 The importance of sudden movement and therefore the necessity for tiny smoothing becomes apparent when comparatively smooth input sequences are tested. To illustrate this the network is trained with the previous white noise with $\sigma = 60$ and compared to similar magnitude sine and square waves.\\
 To introduce some variability in the sine wave. For each epoch the phase for each input is varied.\\
 The square wave is explicitly structured to enforce firing of 2 specific neurons at a time. As illustrated before, each neuron $i$ projects the error along $\bmu{\Gamma}_i$ direction and fires when the threshold is reached. To target neuron $i$ directly we project the square wave on each dimension $c_j$ of the input by multiplying it with $\bmu{\Gamma}_{ij}$. Using this approach neuron $i$ fires the earliest and will be trained. During the off cycle of the square wave the same happens with the neuron geometrically opposing $i$.\\
@@ -583,7 +578,7 @@ Surprisingly the spiking behaviour with the sine wave and the Gaussian noise exh
 	\label{fig:sin_square_bad}
 \end{figure}
 
-\subsubsection{Random init of matrices}\label{sssec:rand_init}
+\subsubsection{Random initialization of matrices}\label{sssec:rand_init}
 As we have done in the section \cref{ssec:Wf_res}, results so far have only considered optimal conditions for learning. In light of more challenging conditions, especially the initialization of $\bmu{W}^f$ and $\bmu{W}^s$ to zero is a significant aide towards the learning and network performance.\\
 To test the influence of initial weights in both matrices we initialize the matrices with random numbers scaled to the appropriate range of $\bmu{W}^f$ and $\bmu{W}^f$ respectively.\\
 For the first test both matrices were initialized to random number of the same scale as their optimal values. Results showed that from 1000 epochs of training 920 networks did not converge at all while in the remaining 80 epochs results were unusable. It was observed that while training the matrix eigenvalues diverged further from their optimal counterparts. This was also observed when measuring the largest rel. deviation.\\

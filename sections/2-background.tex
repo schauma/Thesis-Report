@@ -1,6 +1,6 @@
 \chapter{Theoretical Background}
 % \thispagestyle{fancy}
-In this chapter, a detailed description about background of the degree project is presented together with related work. In the background we cover the autoencoder as is describes the fundamental behaviour of the later chosen network. Additionally, a general overview of \ac{SNN} architectures and design choices is presented.\\
+In this chapter, a detailed description about the background of the degree project is presented along with related work. In the background, we cover the autoencoder as is describes the fundamental behaviour of the later chosen network. Additionally, a general overview of \ac{SNN} architectures and design choices is presented.\\
 
 \section{Related Work}
 Spiking neural networks for control have been used in many different contexts, e.g for robotic movement, digit recognition\cite{lee_training_2016} or object detection\cite{soures_deep_2019,zhou_deep_2020}.\\
@@ -12,7 +12,7 @@ Spiking neurons have also been used for PID controllers. In \cite{lu_spiking_201
 In \cite{stagsted_towards_2020} a PID controller is designed using spiking neurons on neuromorphic hardware in order to control a 1-DoF UAE.\\
 However it is unclear how the network was trained on the neuromorphic hardware or how this approach can be adapted to bigger systems.\\
 Furthermore due to the prevalent background noise found in the brain we stride for a noise robust solution which is not given in any of the above mentioned approaches.\\
-Next to the individually crafted models by authors, various public libraries and frameworks have been developed in order to facilitate \ac{SNN} simulation. It is important to note that different libraries are aimed towards different purposes. While some exist to act as a hybrid for \ac{SNN} with \ac{ML} goals (e.g. snnTorch\cite{eshraghian_training_2023}, nengo \cite{bekolay_nengo_2014}), others are geared for fast and accurate neurlogic simulations (e.g. Brian\cite{stimberg_brian_2019}). Each framework implements a different feature set such as \ac{GPU} Support, Torch-like structure, convolution, learning rules or support for neuromorphic hardware. See \cite{yamazaki_spiking_2022} for a summary.
+Next to the individually crafted models by authors, various public libraries and frameworks have been developed in order to facilitate \ac{SNN} simulation. It is important to note that different libraries are aimed towards different purposes. While some exist to act as a hybrid for \ac{SNN} with \ac{ML} goals (e.g. snnTorch\cite{eshraghian_training_2023}, nengo \cite{bekolay_nengo_2014}), others are geared for fast and accurate neurologic simulations (e.g. Brian\cite{stimberg_brian_2019}). Each framework implements a different feature set such as \ac{GPU} Support, Torch-like structure, convolution, learning rules or support for neuromorphic hardware. See \cite{yamazaki_spiking_2022} for a summary.
 
 \section{Autoencoder}
 An autoencoder is a type of neural network for learning a representation of an input signal. It consists of an encoder and decoder function $z =f(x)$ \& $\hat{x} = g(z)$. The encoder function maps from the input space, e.g $\mathbb{R}^n$, to a encoded space $\mathcal{C}$. The decoder is then decoding the data from $\mathcal{Z}$ back to $\mathbb{R}^n$. The goal is that the decoded representation is as accurate as possible. The trivial case is if $\mathcal{Z}$ is equal or larger than the input space. Then every possible input can be encoded by its own value as
@@ -32,7 +32,7 @@ This step is a pivotal aspect of the selected network architecture, functioning 
 
 \section{Neural Networks}
 The topic of \acp{NN} is impossible to cover fully and has been examined in countless papers before. Therefore we focus the first section on design choices in neural networks and dedicated spiking models from the literature.\\
-In the design process of a spiking neural network one has to select the different parts the comprise the network. In the following sections the most important aspects are highlighted and the most common choices explained. As \acp{SNN} are still under active research many hybrids and combined methods exist which are not covered here.\\
+In the design process of a spiking neural network one has to select the different parts that comprise the network. In the following sections the most important aspects are highlighted and the most common choices explained. As \acp{SNN} are still under active research many hybrids and combined methods exist which are not covered here.\\
 \subsection{Spiking Neural Network Choices}
 
 Copying nature to solve engineering problems is not a novel practise and also for neural networks this is not new. Many different network architectures with different levels of biologic plausibility have been investigated and published and there is little consent in design decisions. As a result different choices are made by different researches leading to various approaches that are similar and yet different.\\
@@ -52,7 +52,7 @@ As outlined in more in detail below neuron models can have different complexitie
 	C \frac{dV}{dt} = g_{Na} \cdot (V-V_{Na}) + g_K \cdot (V-V_K) + g_l \cdot (V-V_l)
 	\end{equation}
 	Do model the voltage dependency of the ion channels, the conductances are described with gating variables, usually called $n$, $h$ and $g$ for Na-Activation, Na-Inactivation and K-activation respectively. One gating variable is set between $[0,1]$ and models the permeability of said gate. Multiple gates are used to fit to each ion channel in order to match experimental data and the model behaviour.\\
-	Gates have first order dynamics of the form
+	Gates are modelled with order dynamics of the form
 	\begin{equation}
 	\frac{dn}{dt} = \alpha_n(1-n) - \beta_n n
 	\end{equation}
